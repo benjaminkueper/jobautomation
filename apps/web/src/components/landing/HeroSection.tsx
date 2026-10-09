@@ -60,7 +60,7 @@ export function HeroSection() {
       </div>
 
       {/* Content — centered */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 sm:px-10 text-center pt-40 pb-32">
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 sm:px-10 text-center pt-32 pb-14 md:pt-40 md:pb-16">
 
         {/* Headline */}
         <motion.h1

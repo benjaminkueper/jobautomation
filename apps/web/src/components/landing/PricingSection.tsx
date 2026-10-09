@@ -45,7 +45,7 @@ export function PricingSection() {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <section id="pricing" className="py-24" style={{ borderTop: "1px solid var(--lp-section-sep)" }}>
+    <section id="pricing" className="py-14 md:py-16" style={{ borderTop: "1px solid var(--lp-section-sep)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">

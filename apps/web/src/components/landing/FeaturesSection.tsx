@@ -23,7 +23,7 @@ const FEATURES = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-24" style={{ borderTop: "1px solid var(--lp-section-sep)" }}>
+    <section id="features" className="py-14 md:py-16" style={{ borderTop: "1px solid var(--lp-section-sep)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

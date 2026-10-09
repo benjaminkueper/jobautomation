@@ -6,7 +6,7 @@ import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 
 export function CTASection() {
   return (
-    <section className="py-24 relative overflow-hidden" style={{ borderTop: "1px solid var(--lp-section-sep)" }}>
+    <section className="py-14 md:py-16 relative overflow-hidden" style={{ borderTop: "1px solid var(--lp-section-sep)" }}>
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.10) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)" }} />

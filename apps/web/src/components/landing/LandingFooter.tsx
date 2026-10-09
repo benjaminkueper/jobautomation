@@ -12,15 +12,15 @@ const FOOTER_LINKS = {
     { label: "Roadmap", href: "#" },
   ],
   Resources: [
-    { label: "Documentation", href: "#" },
-    { label: "API Reference", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Status Page", href: "#" },
-    { label: "Help Center", href: "#" },
+    { label: "Documentation", href: "/docs" },
+    { label: "API Reference", href: "/api-reference" },
+    { label: "Blog", href: "/blog" },
+    { label: "Status Page", href: "/status" },
+    { label: "Help Center", href: "/help" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Careers", href: "#" },
+    { label: "About", href: "/about" },
+    { label: "Careers", href: "/careers" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
     { label: "Cookie Policy", href: "/cookies" },
@@ -44,7 +44,7 @@ const SOCIAL_LINKS = [
 export function LandingFooter() {
   return (
     <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", background: "#000000" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-16">
         {/* Top */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-10 mb-14">
           {/* Brand */}
@@ -80,13 +80,23 @@ export function LandingFooter() {
             <div key={category}>
               <h4 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "rgba(255,255,255,0.35)" }}>{category}</h4>
               <ul className="space-y-2.5">
-                {links.map(({ label, href }) => (
-                  <li key={label}>
-                    <a href={href} className="text-sm hover:text-blue-400 transition-colors" style={{ color: "rgba(255,255,255,0.55)" }}>
-                      {label}
-                    </a>
-                  </li>
-                ))}
+                {links.map(({ label, href }) => {
+                  const cls = "text-sm hover:text-blue-400 transition-colors";
+                  const style = { color: "rgba(255,255,255,0.55)" };
+                  return (
+                    <li key={label}>
+                      {href.startsWith("/") ? (
+                        <Link href={href} className={cls} style={style}>
+                          {label}
+                        </Link>
+                      ) : (
+                        <a href={href} className={cls} style={style}>
+                          {label}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

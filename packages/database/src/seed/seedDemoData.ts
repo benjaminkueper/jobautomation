@@ -183,7 +183,7 @@ export async function seedDemoData(tenantId: string, createdBy = "system") {
     const applicationId =
       app && !Array.isArray(app) && "_id" in app ? String((app as { _id: unknown })._id) : undefined;
     await InterviewModel.findOneAndUpdate(
-      { tenantId, notes: demoNote("interview", iv.n) },
+      { tenantId, notesSummary: demoNote("interview", iv.n) },
       {
         $set: {
           jobId,
@@ -199,7 +199,7 @@ export async function seedDemoData(tenantId: string, createdBy = "system") {
         $setOnInsert: {
           tenantId,
           createdBy,
-          notes: demoNote("interview", iv.n),
+          notesSummary: demoNote("interview", iv.n),
         },
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }

@@ -117,7 +117,9 @@ function Inner() {
 
   return (
     <>
-      <style>{`
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .lp-root { ${isDark ? DARK_VARS : LIGHT_VARS} }
         .lp-root * { transition: background-color 0.25s, border-color 0.25s, color 0.25s; }
         .lp-root a, .lp-root button { transition: all 0.2s !important; }
@@ -128,7 +130,9 @@ function Inner() {
         /* Hide scrollbar on testimonial row */
         .testimonial-scroll::-webkit-scrollbar { display: none; }
         .testimonial-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
+      `,
+        }}
+      />
       <div
         className={`lp-root min-h-screen overflow-x-hidden selection:bg-blue-500/30 selection:text-blue-200 font-sans ${isDark ? "dark" : ""}`}
         style={{ background: "var(--lp-bg)", fontFamily: "var(--font-ui), ui-sans-serif, system-ui, sans-serif" }}
