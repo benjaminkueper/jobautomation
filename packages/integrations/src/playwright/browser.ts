@@ -1,0 +1,138 @@
+/**
+ * Playwright browser factory.
+ *
+ * - headless=false + no storageState → one-time manual login (CLI)
+ * - headless=true + storageState    → automated apply (worker)
+ *
+ * Uses chromium. Railway workers need: RUN npx playwright install chromium --with-deps
+ * in the Dockerfile (see apps/workers/Dockerfile).
+ */
+
+import type { Browser, BrowserContext, Page } from "playwright";
+import type { ApplyPlatform } from "./session-store";
+
+export interface BrowserSession {
+  browser: Browser;
+  context: BrowserContext;
+  page: Page;
+  close: () => Promise<void>;
+}
+
+/** Parse a proxy URL into Playwright's proxy config format.
+ *  Supports: http://user:pass@host:port  or  http://host:port */
+function parseProxyUrl(proxyUrl: string): { server: string; username?: string; password?: string } | null {
+  try {
+    const u = new URL(proxyUrl);
+    if (!u.hostname) throw new Error("no hostname");
+    const server = `${u.protocol}//${u.hostname}${u.port ? `:${u.port}` : ""}`;
+    const result = {
+      server,
+      username: u.username ? decodeURIComponent(u.username) : undefined,
+      password: u.password ? decodeURIComponent(u.password) : undefined,
+    };
+    console.log(`[browser] proxy parsed OK — server: ${server}, user: ${result.username ? "set" : "none"}`);
+    return result;
+  } catch (e) {
+    console.error(`[browser] PROXY_URL parse failed — browser will run WITHOUT proxy. Error: ${e instanceof Error ? e.message : String(e)}. URL was: ${proxyUrl.slice(0, 40)}...`);
+    return null;
+  }
+}
+
+export async function launchBrowser(options: {
+  headless: boolean;
+  storageState?: object;
+  slowMo?: number;
+  proxyUrl?: string;
+}): Promise<BrowserSession> {
+  // Use playwright-extra + stealth plugin to bypass LinkedIn bot detection
+  const { chromium } = await import("playwright-extra");
+  const StealthPlugin = (await import("puppeteer-extra-plugin-stealth")).default;
+  chromium.use(StealthPlugin());
+
+  // Resolve proxy — explicit arg takes priority, then PROXY_URL env var
+  const rawProxy = options.proxyUrl ?? process.env.PROXY_URL ?? process.env.PLAYWRIGHT_PROXY_URL;
+  const proxy = rawProxy ? parseProxyUrl(rawProxy) : null;
+
+  const browser = await chromium.launch({
+    headless: options.headless,
+    slowMo: options.slowMo ?? (options.headless ? 0 : 80),
+    ...(proxy ? { proxy } : {}),
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-infobars",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--disable-gpu",
+      "--window-size=1366,768",
+      "--disable-extensions",
+      "--disable-background-networking",
+      "--disable-default-apps",
+      "--mute-audio",
+      "--lang=en-US",
+    ],
+  }) as import("playwright").Browser;
+
+  // Randomise viewport slightly to avoid fingerprint clustering
+  const w = 1280 + Math.floor(Math.random() * 120);
+  const h = 768 + Math.floor(Math.random() * 80);
+
+  const contextOptions: Record<string, unknown> = {
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    viewport: { width: w, height: h },
+    locale: "en-US",
+    timezoneId: "America/New_York",
+    extraHTTPHeaders: {
+      "Accept-Language": "en-US,en;q=0.9",
+    },
+  };
+
+  if (options.storageState) {
+    contextOptions.storageState = options.storageState;
+  }
+
+  const context = await browser.newContext(contextOptions as Parameters<Browser["newContext"]>[0]);
+
+  // Stealth is handled by puppeteer-extra-plugin-stealth (covers 30+ detection vectors)
+
+  const page = await context.newPage();
+
+  return {
+    browser,
+    context,
+    page,
+    close: async () => {
+      await context.close().catch(() => void 0);
+      await browser.close().catch(() => void 0);
+    },
+  };
+}
+
+/** Detect which platform a job URL belongs to */
+export function detectPlatform(url: string): ApplyPlatform {
+  const u = url.toLowerCase();
+  if (u.includes("linkedin.com")) return "linkedin";
+  if (u.includes("indeed.com")) return "indeed";
+  if (u.includes("greenhouse.io") || u.includes("boards.greenhouse")) return "greenhouse";
+  if (u.includes("lever.co")) return "lever";
+  if (u.includes("workday.com") || u.includes("myworkdayjobs.com")) return "workday";
+  return "generic";
+}
+
+/** Human-like delay to avoid bot detection */
+export async function humanDelay(minMs = 500, maxMs = 1500): Promise<void> {
+  const ms = Math.floor(Math.random() * (maxMs - minMs) + minMs);
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+/** Type text with human-like speed */
+export async function humanType(page: Page, selector: string, text: string): Promise<void> {
+  await page.click(selector);
+  await page.fill(selector, "");
+  await humanDelay(100, 300);
+  await page.type(selector, text, { delay: Math.floor(Math.random() * 60 + 40) });
+}

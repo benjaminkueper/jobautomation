@@ -1,0 +1,122 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useRef } from "react";
+import { ChevronDownIcon, PlusIcon, SearchIcon } from "@/components/icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/i18n/useTranslation";
+import { useLogoutAction } from "@/hooks/useLogoutAction";
+import { useAuthSession } from "@/context/AuthSessionContext";
+import { getNavTitleForPath, shouldUseCustomerNav } from "@/config/navigation";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
+
+export function Topbar() {
+  const pathname = usePathname();
+  const { t } = useTranslation();
+  const handleLogout = useLogoutAction();
+  const authSession = useAuthSession();
+  const productRole = authSession?.productRole ?? "user";
+  const customerNav = shouldUseCustomerNav(productRole);
+  const title = useMemo(
+    () => getNavTitleForPath(pathname, productRole, t),
+    [pathname, productRole, t]
+  );
+  const searchRef = useRef<HTMLInputElement>(null);
+  const avatarUrl = authSession?.user?.avatarUrl;
+  const displayName = authSession?.user?.name ?? t("topbar.you");
+  const initials = useMemo(() => {
+    const parts = displayName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return displayName.slice(0, 2).toUpperCase();
+  }, [displayName]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <header className="jf-topbar hidden md:flex">
+      <div className="jf-crumb flex items-center gap-2 text-[13px] font-medium text-[var(--text-3)]">
+        <span>{t("topbar.workspace")}</span>
+        <span className="text-[var(--text-5)]">›</span>
+        <b className="font-semibold text-[var(--text-1)]">{title}</b>
+      </div>
+      <div className="flex-1" />
+      <div className="relative hidden w-[340px] max-w-[35vw] items-center gap-2 rounded-[var(--r-sm)] border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-0 transition-colors focus-within:border-[var(--border-focus)] focus-within:shadow-[0_0_0_3px_rgba(99,124,255,0.12)] lg:flex lg:h-[34px]">
+        <SearchIcon size={14} className="shrink-0 text-[var(--text-4)]" />
+        <input
+          ref={searchRef}
+          type="search"
+          placeholder={t("topbar.searchPlaceholder")}
+          className="h-full min-w-0 flex-1 border-0 bg-transparent text-[13px] text-[var(--text-1)] placeholder:text-[var(--text-4)] outline-none"
+          aria-label={t("topbar.searchPlaceholder")}
+        />
+        <span className="inline-flex h-[18px] items-center gap-0.5 rounded border border-[var(--border-subtle)] border-b-2 bg-[var(--surface-4)] px-1.5 font-mono text-[10.5px] font-medium text-[var(--text-3)]">
+          ⌘K
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <LanguageSwitcher />
+        <NotificationBell />
+        <ThemeToggle />
+        <Link
+          href="/jobs"
+          className={cn(
+            buttonVariants({ variant: "default", size: "default" }),
+            "hidden h-[34px] bg-gradient-to-b from-[#7488FF] to-[#4D63E0] px-3 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_12px_-4px_rgba(99,124,255,0.45)] hover:from-[#8499FF] hover:to-[#5970F0] sm:inline-flex"
+          )}
+        >
+          <PlusIcon size={14} className="mr-1.5" />
+          {t("topbar.newJob")}
+        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <button
+              type="button"
+              className="jf-avatar-btn flex h-[34px] items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--surface-2)] pl-1 pr-1 transition-colors hover:bg-[var(--surface-3)]"
+              aria-label={t("topbar.accountMenu")}
+            >
+              <Avatar className="h-[26px] w-[26px] border-0 bg-gradient-to-br from-[#4FC2D8] to-[#637CFF] text-[10.5px] font-bold text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]">
+                {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} /> : null}
+                <AvatarFallback className="bg-transparent text-white">{initials}</AvatarFallback>
+              </Avatar>
+              <span className="jf-avatar-name text-[12.5px] font-semibold text-[var(--text-1)]">{displayName}</span>
+              <ChevronDownIcon size={12} className="mr-1 text-[var(--text-3)]" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>
+              <Link
+                href={customerNav ? "/settings?section=Profile" : "/profile"}
+                className="block cursor-pointer"
+              >
+                {t("topbar.accountProfile")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href="/settings" className="block cursor-pointer">
+                {t("topbar.settings")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-rose-600 focus:text-rose-600" onClick={handleLogout}>
+              {t("topbar.logout")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}

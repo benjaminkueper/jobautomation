@@ -1,0 +1,249 @@
+/**
+ * Job Apply processor — BullMQ worker that automates submitting a job application
+ * using Playwright. Runs headless against the user's saved browser session.
+ *
+ * Trigger: enqueue "job-apply" with a JobApplyPayload.
+ *
+ * Prerequisites:
+ * 1. User has run `pnpm save-session linkedin` (or indeed/greenhouse/etc.) locally.
+ * 2. ANTHROPIC_API_KEY is set in Railway for form-filling AI.
+ * 3. Playwright Chromium is installed in the worker Docker image.
+ */
+
+import { JobModel, UserModel, AutomationLogModel, IntegrationConnectionModel } from "@jobflow/database/models";
+import { documentApplicationEvent } from "@jobflow/database";
+import { runApply } from "@jobflow/integrations/playwright";
+import { detectPlatform } from "@jobflow/integrations/playwright";
+import type { JobApplyPayload } from "@jobflow/shared/types/queue";
+import type { UserProfile } from "@jobflow/integrations/playwright";
+import { logger } from "../utils/logger";
+import { serializeWorkerError } from "../utils/worker-error";
+import { loadLinkedInCredentials, processLinkedInLogin } from "./linkedin-login.processor";
+
+const MODULE_KEY = "job-apply";
+
+function extractName(name: string): { firstName: string; lastName: string } {
+  const parts = name.trim().split(/\s+/);
+  const firstName = parts[0] ?? name;
+  const lastName = parts.slice(1).join(" ") || "";
+  return { firstName, lastName };
+}
+
+async function buildUserProfile(tenantId: string, userId?: string): Promise<UserProfile> {
+  const user = userId
+    ? await UserModel.findOne({ _id: userId, tenantId }).lean()
+    : await UserModel.findOne({ tenantId, role: { $in: ["Owner", "Admin"] } }).lean();
+
+  if (!user) throw new Error(`No user found for tenant ${tenantId}`);
+
+  const u = user as Record<string, unknown>;
+  const name = String(u.name ?? "Unknown User");
+  const { firstName, lastName } = extractName(name);
+  const prefs = (u.preferences as Record<string, unknown>) ?? {};
+
+  return {
+    firstName,
+    lastName,
+    email: String(u.email ?? ""),
+    phone: String(prefs.phone ?? ""),
+    location: String(prefs.location ?? ""),
+    linkedinUrl: String(prefs.linkedinUrl ?? ""),
+    websiteUrl: String(prefs.websiteUrl ?? ""),
+    yearsExperience: typeof prefs.yearsExperience === "number" ? prefs.yearsExperience : undefined,
+    currentTitle: String(prefs.currentTitle ?? ""),
+    desiredSalary: String(prefs.desiredSalary ?? "Negotiable"),
+    noticePeriod: String(prefs.noticePeriod ?? ""),
+    rightToWork: typeof prefs.rightToWork === "boolean" ? prefs.rightToWork : true,
+    requiresSponsorship: typeof prefs.requiresSponsorship === "boolean" ? prefs.requiresSponsorship : false,
+  };
+}
+
+async function logResult(input: {
+  tenantId: string;
+  jobId: string;
+  success: boolean;
+  message: string;
+  platform: string;
+  stepsCompleted: number;
+  operationId: string;
+}): Promise<void> {
+  try {
+    await AutomationLogModel.create({
+      tenantId: input.tenantId,
+      moduleKey: MODULE_KEY,
+      jobId: input.jobId,
+      status: input.success ? "Success" : "Failed",
+      message: `[${input.platform}] ${input.message}`,
+      metadata: {
+        platform: input.platform,
+        stepsCompleted: input.stepsCompleted,
+        operationId: input.operationId,
+        source: "worker:job-apply",
+      },
+      createdAt: new Date(),
+    });
+  } catch {
+    // ignore log failure
+  }
+}
+
+export async function processJobApply(payload: JobApplyPayload): Promise<{
+  success: boolean;
+  message: string;
+  platform: string;
+}> {
+  const operationId = payload.operationId ?? `job-apply-${Date.now()}`;
+
+  logger.info({ jobId: payload.jobId, jobUrl: payload.jobUrl, operationId }, "Starting job-apply automation");
+
+  // Load job for context
+  const job = await JobModel.findById(payload.jobId).lean();
+  if (!job) throw new Error(`Job not found: ${payload.jobId}`);
+
+  const j = job as Record<string, unknown>;
+  const jobUrl = payload.jobUrl || String(j.jobUrl ?? "");
+  if (!jobUrl) throw new Error("No job URL provided");
+
+  const platform = payload.platform ?? detectPlatform(jobUrl);
+
+  // Build user profile from DB
+  const profile = await buildUserProfile(payload.tenantId, payload.userId);
+
+  // Attach cover letter and CV URLs from the job record if not in payload
+  const coverLetterUrl = payload.coverLetterUrl || String(j.generatedCoverLetterLink ?? "");
+  const cvUrl = payload.cvUrl || "";
+
+  // Research doc as additional context
+  const additionalContext = payload.additionalContext || String(j.aiSummary ?? "");
+
+  // Update job status to "Applying"
+  await JobModel.findByIdAndUpdate(payload.jobId, { status: "Applying", lastUpdated: new Date() });
+
+  let result: Awaited<ReturnType<typeof runApply>>;
+  try {
+    result = await runApply({
+      tenantId: payload.tenantId,
+      jobId: payload.jobId,
+      jobUrl,
+      platform,
+      profile,
+      company: String(j.company ?? ""),
+      position: String(j.position ?? j.title ?? ""),
+      cvUrl: cvUrl || undefined,
+      coverLetterUrl: coverLetterUrl || undefined,
+      additionalContext: additionalContext || undefined,
+      dryRun: false,
+    });
+
+    if (!result.success && result.sessionExpired && platform === "linkedin") {
+      const creds = await loadLinkedInCredentials(payload.tenantId);
+      if (creds) {
+        logger.info({ tenantId: payload.tenantId, jobId: payload.jobId }, "LinkedIn session expired — attempting automatic re-login");
+        const reloginOpId = `linkedin-relogin-${operationId}`;
+        const loginResult = await processLinkedInLogin({
+          tenantId: payload.tenantId,
+          userId: payload.userId,
+          operationId: reloginOpId,
+          requestedAt: new Date().toISOString(),
+          source: "system",
+          email: creds.email,
+          password: creds.password,
+        });
+        if (loginResult.success) {
+          await IntegrationConnectionModel.updateOne(
+            { tenantId: payload.tenantId, provider: "playwright-session-linkedin" },
+            { $unset: { "metadata.sessionExpired": "", "metadata.expiredAt": "" } }
+          ).catch(() => void 0);
+          result = await runApply({
+            tenantId: payload.tenantId,
+            jobId: payload.jobId,
+            jobUrl,
+            platform,
+            profile,
+            company: String(j.company ?? ""),
+            position: String(j.position ?? j.title ?? ""),
+            cvUrl: cvUrl || undefined,
+            coverLetterUrl: coverLetterUrl || undefined,
+            additionalContext: additionalContext || undefined,
+            dryRun: false,
+          });
+        } else {
+          logger.warn(
+            { tenantId: payload.tenantId, jobId: payload.jobId, message: loginResult.message },
+            "LinkedIn automatic re-login failed"
+          );
+        }
+      }
+    }
+  } catch (err) {
+    const ser = serializeWorkerError(err);
+    logger.error({ jobId: payload.jobId, err: ser.message }, "job-apply failed");
+
+    await JobModel.findByIdAndUpdate(payload.jobId, {
+      status: "New",
+      lastUpdated: new Date(),
+    });
+
+    await logResult({
+      tenantId: payload.tenantId,
+      jobId: payload.jobId,
+      success: false,
+      message: `Error: ${ser.message}`,
+      platform,
+      stepsCompleted: 0,
+      operationId,
+    });
+
+    throw err;
+  }
+
+  // Update job based on result
+  if (result.success) {
+    const now = new Date();
+    await documentApplicationEvent({
+      tenantId: payload.tenantId,
+      userId: payload.userId ?? "system",
+      jobId: payload.jobId,
+      applicationStatus: "Applied",
+      applyMethod: "linkedin_auto",
+      appliedAt: now,
+    });
+  } else if (result.isExternalOnly) {
+    // Job only has an external Apply button — cannot automate. Mark for manual action.
+    await JobModel.findByIdAndUpdate(payload.jobId, {
+      status: "External Apply Required",
+      lastUpdated: new Date(),
+    });
+  } else if (result.sessionExpired) {
+    // LinkedIn blocks re-login from cloud server IPs — session must be refreshed
+    // via the keep-alive scheduler or manually via cookie import in the UI.
+    await JobModel.findByIdAndUpdate(payload.jobId, { status: "Ready to Apply", lastUpdated: new Date() });
+    await IntegrationConnectionModel.findOneAndUpdate(
+      { tenantId: payload.tenantId, provider: "playwright-session-linkedin" },
+      { $set: { "metadata.sessionExpired": true, "metadata.expiredAt": new Date().toISOString() } }
+    ).catch(() => void 0);
+  } else {
+    // Failed for any other reason — revert from "Applying" back to "Ready to Apply"
+    await JobModel.findByIdAndUpdate(payload.jobId, {
+      status: "Ready to Apply",
+      lastUpdated: new Date(),
+    });
+  }
+
+  await logResult({
+    tenantId: payload.tenantId,
+    jobId: payload.jobId,
+    success: result.success,
+    message: result.message,
+    platform: result.platform,
+    stepsCompleted: result.stepsCompleted,
+    operationId,
+  });
+
+  logger.info(
+    { jobId: payload.jobId, platform: result.platform, success: result.success, steps: result.stepsCompleted },
+    "job-apply completed"
+  );
+
+  return { success: result.success, message: result.message, platform: result.platform };
+}

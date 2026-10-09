@@ -1,0 +1,161 @@
+/**
+ * Shared mobile layout tokens — bottom nav, safe areas, stacked sticky bars.
+ * Use on <md> only; desktop ignores these via md: overrides in components.
+ */
+:root {
+  --mobile-nav-height: 64px;
+  /* Matches MobileNav: safe-area + py + 44px touch targets */
+  --mobile-topbar-height: 60px;
+  --mobile-scroll-buffer: 1rem;
+  --mobile-page-bottom-extra: 0.75rem;
+  /* Nav + home indicator only — sticky CTAs sit flush above the bar */
+  --mobile-nav-offset: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+  --mobile-chrome-bottom: var(--mobile-nav-offset);
+  --mobile-chrome-top: calc(var(--mobile-topbar-height) + env(safe-area-inset-top, 0px));
+  /* p-3 + min-h-[52px] sticky CTA */
+  --mobile-sticky-bar-height: 80px;
+  --mobile-page-pad: 1rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --mobile-chrome-bottom: 0px;
+    --mobile-nav-offset: 0px;
+    --mobile-chrome-top: 0px;
+  }
+}
+
+/* Shell padding clears bottom nav (pages without a sticky CTA) */
+.pb-mobile-shell {
+  padding-bottom: calc(
+    var(--mobile-page-pad) + var(--mobile-nav-offset) + var(--mobile-scroll-buffer) +
+      var(--mobile-page-bottom-extra)
+  );
+}
+
+@media (min-width: 768px) {
+  .pb-mobile-shell {
+    padding-bottom: 1.75rem;
+  }
+}
+
+/**
+ * Extra bottom space for sticky CTA pages.
+ * Shell already clears the nav — only add room for the sticky bar itself
+ * (avoids a huge empty scroll tail from double-counting chrome).
+ */
+.pb-mobile-sticky {
+  padding-bottom: calc(var(--mobile-sticky-bar-height) + 1rem);
+}
+
+@media (min-width: 768px) {
+  .pb-mobile-sticky {
+    padding-bottom: 5rem;
+  }
+}
+
+.mobile-sticky-above-nav {
+  bottom: var(--mobile-nav-offset);
+  /* Below drawers/menus (z-60+), above bottom nav (z-40) */
+  z-index: 45;
+}
+
+@media (min-width: 768px) {
+  .mobile-sticky-above-nav {
+    bottom: 0;
+    /* Align with sidebar token used by .jf-shell */
+    left: var(--side-w, 244px);
+  }
+}
+
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.jf-mobile-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.mobile-state-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Prevent horizontal scroll on narrow phones */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+/* Shared mobile card patterns */
+.mobile-list-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mobile-card-actions {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-card-actions > button,
+.mobile-card-actions > a {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .mobile-card-actions--row-sm {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .mobile-card-actions--row-sm > button,
+  .mobile-card-actions--row-sm > a {
+    width: auto;
+    flex: 1 1 auto;
+  }
+}
+
+.filter-reset-row {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .filter-reset-row {
+    flex-direction: row;
+  }
+}
+
+.dashboard-bg {
+  overflow-x: clip;
+}
+
+.dashboard-bg main,
+.dashboard-bg .jf-shell > div {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Use document scroll on mobile — nested overflow blocks touch/wheel until the scrollbar is focused */
+@media (max-width: 767px) {
+  html:has(.dashboard-bg),
+  body:has(.dashboard-bg) {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+  }
+
+  .dashboard-bg .jf-shell > div {
+    overflow: visible;
+  }
+}

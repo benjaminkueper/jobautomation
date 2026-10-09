@@ -1,0 +1,139 @@
+{
+  "name": "@jobflow/integrations",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "./src/index.ts",
+  "typesVersions": {
+    "*": {
+      "ai/anthropic-messages": [
+        "./src/ai/anthropic-messages.ts"
+      ],
+      "ai/*": [
+        "./src/ai/*.ts"
+      ],
+      "gmail/*": [
+        "./src/gmail/*.ts"
+      ],
+      "google-drive/*": [
+        "./src/google-drive/*.ts"
+      ],
+      "google-calendar/*": [
+        "./src/google-calendar/*.ts"
+      ],
+      "smtp/*": [
+        "./src/smtp/*.ts"
+      ],
+      "email/*": [
+        "./src/email/*.ts"
+      ],
+      "notifications/*": [
+        "./src/notifications/*.ts"
+      ],
+      "notion-legacy/*": [
+        "./src/notion-legacy/*.ts"
+      ],
+      "playwright": [
+        "./src/playwright/index.ts"
+      ],
+      "playwright/*": [
+        "./src/playwright/*.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./ai/anthropic-messages": {
+      "types": "./src/ai/anthropic-messages.ts",
+      "require": "./dist/ai/anthropic-messages.js",
+      "import": "./dist/ai/anthropic-messages.js",
+      "default": "./dist/ai/anthropic-messages.js"
+    },
+    "./ai/*": {
+      "types": "./src/ai/*.ts",
+      "require": "./dist/ai/*.js",
+      "import": "./dist/ai/*.js",
+      "default": "./dist/ai/*.js"
+    },
+    "./gmail/*": {
+      "types": "./src/gmail/*.ts",
+      "require": "./dist/gmail/*.js",
+      "import": "./dist/gmail/*.js",
+      "default": "./dist/gmail/*.js"
+    },
+    "./google-drive/*": {
+      "types": "./src/google-drive/*.ts",
+      "require": "./dist/google-drive/*.js",
+      "import": "./dist/google-drive/*.js",
+      "default": "./dist/google-drive/*.js"
+    },
+    "./google-calendar/*": {
+      "types": "./src/google-calendar/*.ts",
+      "require": "./dist/google-calendar/*.js",
+      "import": "./dist/google-calendar/*.js",
+      "default": "./dist/google-calendar/*.js"
+    },
+    "./smtp/*": {
+      "types": "./src/smtp/*.ts",
+      "require": "./dist/smtp/*.js",
+      "import": "./dist/smtp/*.js",
+      "default": "./dist/smtp/*.js"
+    },
+    "./email/*": {
+      "types": "./src/email/*.ts",
+      "require": "./dist/email/*.js",
+      "import": "./dist/email/*.js",
+      "default": "./dist/email/*.js"
+    },
+    "./notifications/*": {
+      "types": "./src/notifications/*.ts",
+      "require": "./dist/notifications/*.js",
+      "import": "./dist/notifications/*.js",
+      "default": "./dist/notifications/*.js"
+    },
+    "./notion-legacy/*": {
+      "types": "./src/notion-legacy/*.ts",
+      "require": "./dist/notion-legacy/*.js",
+      "import": "./dist/notion-legacy/*.js",
+      "default": "./dist/notion-legacy/*.js"
+    },
+    "./playwright": {
+      "types": "./src/playwright/index.ts",
+      "require": "./dist/playwright/index.js",
+      "import": "./dist/playwright/index.js",
+      "default": "./dist/playwright/index.js"
+    },
+    "./playwright/*": {
+      "types": "./src/playwright/*.ts",
+      "require": "./dist/playwright/*.js",
+      "import": "./dist/playwright/*.js",
+      "default": "./dist/playwright/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "type-check": "tsc --noEmit",
+    "lint": "echo 'integrations lint placeholder'",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@jobflow/database": "workspace:*",
+    "@jobflow/shared": "workspace:*",
+    "nodemailer": "^6.9.16",
+    "playwright": "^1.52.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
+    "typescript": "^5",
+    "vitest": "^4.1.6"
+  }
+}

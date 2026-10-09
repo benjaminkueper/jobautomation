@@ -1,0 +1,40 @@
+import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import type { Job } from "@/types/job";
+import { JobStatusBadge } from "./JobStatusBadge";
+import { JobPriorityBadge } from "./JobPriorityBadge";
+import { useTranslation } from "@/i18n/I18nProvider";
+
+interface JobDetailHeaderProps {
+  job: Job;
+  /** Optional custom action bar. When provided, replaces the default placeholder buttons. */
+  renderActions?: ReactNode;
+}
+
+export function JobDetailHeader({ job, renderActions }: JobDetailHeaderProps) {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] p-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-sm text-[var(--text-3)]">{job.company}</p>
+          <h1 className="text-2xl font-semibold text-[var(--text-1)]">{job.position}</h1>
+          <div className="mt-2 flex items-center gap-2">
+            <JobStatusBadge status={job.status} />
+            <JobPriorityBadge priority={job.priority} />
+          </div>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] md:flex-wrap md:overflow-visible [&::-webkit-scrollbar]:hidden">
+          {renderActions ?? (
+            <>
+              <Button variant="outline">{t("jobs.editJob")}</Button>
+              <Button variant="secondary">{t("jobs.generateDraft")}</Button>
+              <Button>{t("jobs.markApplied")}</Button>
+              <Button variant="outline">{t("jobs.archive")}</Button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

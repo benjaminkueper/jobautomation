@@ -1,0 +1,202 @@
+/**
+ * Playwright job application automation — public exports.
+ */
+
+export {
+  saveSession,
+  loadSession,
+  hasSession,
+  deleteSession,
+  captureAndSaveSession,
+  loadPlaywrightProxyUrl,
+} from "./session-store";
+export type { ApplyPlatform, SessionProxyPin } from "./session-store";
+export { launchBrowser, detectPlatform, humanDelay, humanType } from "./browser";
+export { fillFormPage, extractFormFields, uploadFile } from "./form-filler";
+export type { UserProfile, FormField, FillInstruction, FormFillResult } from "./form-filler";
+export { applyViaLinkedIn } from "./appliers/linkedin";
+export { applyViaIndeed } from "./appliers/indeed";
+export { applyViaExternal } from "./appliers/external";
+
+import { launchBrowser, detectPlatform, humanDelay } from "./browser";
+import { loadSession, captureAndSaveSession, loadPlaywrightProxyUrl } from "./session-store";
+import { applyViaLinkedIn } from "./appliers/linkedin";
+import { applyViaIndeed } from "./appliers/indeed";
+import { applyViaExternal } from "./appliers/external";
+import type { ApplyPlatform } from "./session-store";
+import type { UserProfile } from "./form-filler";
+import * as os from "os";
+import * as fs from "fs";
+import * as path from "path";
+
+export interface RunApplyInput {
+  tenantId: string;
+  jobId: string;
+  jobUrl: string;
+  platform?: ApplyPlatform;
+  profile: UserProfile;
+  company: string;
+  position: string;
+  cvUrl?: string;
+  coverLetterUrl?: string;
+  additionalContext?: string;
+  dryRun?: boolean;
+  proxyUrl?: string;
+  /** Local session JSON (desktop agent) — skips MongoDB session load/persist */
+  storageState?: object;
+  headless?: boolean;
+  skipSessionPersist?: boolean;
+}
+
+export interface RunApplyResult {
+  success: boolean;
+  message: string;
+  platform: ApplyPlatform;
+  stepsCompleted: number;
+  sessionExpired?: boolean;
+  /** True when the job only has an external Apply button — must be completed manually */
+  isExternalOnly?: boolean;
+  /** Refreshed browser cookies when using a local storageState (desktop agent) */
+  storageState?: object;
+}
+
+/** Download a file from a URL to a temp path and return the path */
+async function downloadToTemp(url: string, ext = ".pdf"): Promise<string | undefined> {
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) return undefined;
+    const buf = await resp.arrayBuffer();
+    const tmpPath = path.join(os.tmpdir(), `jobapply-${Date.now()}${ext}`);
+    fs.writeFileSync(tmpPath, Buffer.from(buf));
+    return tmpPath;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Clean up temp files */
+function cleanupTemp(paths: Array<string | undefined>): void {
+  for (const p of paths) {
+    if (p) fs.unlink(p, () => void 0);
+  }
+}
+
+/**
+ * Main entry point for the apply worker.
+ *
+ * - Loads saved session from MongoDB
+ * - Launches headless browser with that session
+ * - Delegates to the right platform applier
+ * - Returns result
+ */
+export async function runApply(input: RunApplyInput): Promise<RunApplyResult> {
+  const platform = input.platform ?? detectPlatform(input.jobUrl);
+
+  const useLocalSession = Boolean(input.storageState);
+  const storageState = input.storageState ?? (await loadSession({ tenantId: input.tenantId, platform }));
+  if (!storageState) {
+    return {
+      success: false,
+      message: `No saved session for ${platform}. Run the save-session CLI first: pnpm save-session ${platform}`,
+      platform,
+      stepsCompleted: 0,
+      sessionExpired: false,
+    };
+  }
+
+  // Download attachments
+  const cvPath = input.cvUrl ? await downloadToTemp(input.cvUrl) : undefined;
+  const coverLetterPath = input.coverLetterUrl ? await downloadToTemp(input.coverLetterUrl) : undefined;
+
+  const jobContext = {
+    company: input.company,
+    position: input.position,
+    description: input.additionalContext,
+  };
+
+  const pinnedProxy = await loadPlaywrightProxyUrl({ tenantId: input.tenantId, platform });
+  const proxyUrl =
+    input.proxyUrl ?? pinnedProxy ?? process.env.PROXY_URL ?? process.env.PLAYWRIGHT_PROXY_URL;
+  const session = await launchBrowser({ headless: input.headless ?? true, storageState, proxyUrl });
+
+  try {
+    let result: RunApplyResult;
+
+    if (platform === "linkedin") {
+      const r = await applyViaLinkedIn({
+        page: session.page,
+        jobUrl: input.jobUrl,
+        profile: input.profile,
+        cvPath,
+        coverLetterPath,
+        jobContext,
+        dryRun: input.dryRun,
+        proxyUrl,
+      });
+
+      // If LinkedIn redirected to external ATS, mark as external-only (Option A)
+      if (!r.success && r.appliedViaExternalUrl) {
+        result = {
+          success: false,
+          message: `Job requires applying on company website: ${r.appliedViaExternalUrl}`,
+          platform,
+          stepsCompleted: 0,
+          sessionExpired: false,
+          isExternalOnly: true,
+        };
+      } else {
+        result = {
+          success: r.success,
+          message: r.message,
+          platform,
+          stepsCompleted: r.stepsCompleted,
+          sessionExpired: r.message.toLowerCase().includes("session expired"),
+        };
+      }
+    } else if (platform === "indeed") {
+      const r = await applyViaIndeed({
+        page: session.page,
+        jobUrl: input.jobUrl,
+        profile: input.profile,
+        cvPath,
+        coverLetterPath,
+        jobContext,
+        dryRun: input.dryRun,
+      });
+      result = {
+        success: r.success,
+        message: r.message,
+        platform,
+        stepsCompleted: r.stepsCompleted,
+        sessionExpired: r.message.toLowerCase().includes("session expired"),
+      };
+    } else {
+      const r = await applyViaExternal({
+        page: session.page,
+        jobUrl: input.jobUrl,
+        platform,
+        profile: input.profile,
+        cvPath,
+        coverLetterPath,
+        jobContext,
+        dryRun: input.dryRun,
+      });
+      result = { ...r, sessionExpired: false };
+    }
+
+    // Refresh session cookies when the session still looks valid — avoids overwriting a good
+    // imported session with storage from the login/checkpoint page after IP or auth failure.
+    if (!result.sessionExpired) {
+      if (useLocalSession || input.skipSessionPersist) {
+        result = { ...result, storageState: await session.context.storageState() };
+      } else {
+        await captureAndSaveSession({ tenantId: input.tenantId, platform, context: session.context });
+      }
+    }
+
+    return result;
+  } finally {
+    await session.close();
+    cleanupTemp([cvPath, coverLetterPath]);
+  }
+}
