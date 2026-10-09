@@ -1,2 +1,0 @@
-// TODO: migration scripts
-export {};
