@@ -1,92 +1,164 @@
 "use client";
 
-import Link from "next/link";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
+import { Check, Mail } from "lucide-react";
+import { HighlightPill } from "./HighlightPill";
+import { LP } from "./landing-theme";
+
+const TRUST = ["Free forever plan", "No credit card", "Set up in 5 minutes"];
+
+const STEPS = [
+  { label: "Saved", done: true, accent: false },
+  { label: "Applied", done: true, accent: false },
+  { label: "Interview", done: true, accent: false },
+  { label: "Offer", done: true, accent: true },
+];
 
 export function CTASection() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    const q = email.trim() ? `?email=${encodeURIComponent(email.trim())}` : "";
+    router.push(`/register${q}`);
+  }
+
   return (
-    <section className="py-14 md:py-16 relative overflow-hidden" style={{ borderTop: "1px solid var(--lp-section-sep)" }}>
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.10) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)" }} />
+    <section className="py-8 md:py-12" style={{ background: LP.bg }}>
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: "linear-gradient(var(--lp-grid) 1px, transparent 1px), linear-gradient(90deg, var(--lp-grid) 1px, transparent 1px)",
-            backgroundSize: "72px 72px",
-          }}
-        />
-        {/* Animated gradient orbs */}
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20"
-          style={{ background: "radial-gradient(circle, rgba(59,130,246,0.4), transparent 70%)" }}
-          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl opacity-20"
-          style={{ background: "radial-gradient(circle, rgba(139,92,246,0.4), transparent 70%)" }}
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.20, 0.12, 0.20] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        />
-      </div>
+          className="overflow-hidden rounded-[2rem] px-5 pt-8 sm:px-8 sm:pt-10 lg:px-12 lg:pt-12"
+          style={{ background: LP.creamWarm }}
+        >
+          <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-10">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col justify-center pb-8 sm:pb-10 lg:pb-12"
+            >
+              <h2
+                className="text-[1.75rem] font-extrabold tracking-tight sm:text-3xl lg:text-[2.4rem]"
+                style={{ color: LP.heading }}
+              >
+                Start automating your <HighlightPill variant="green">job search</HighlightPill> today
+              </h2>
+              <p className="mt-3 max-w-md text-sm leading-relaxed sm:text-[15px]" style={{ color: LP.body }}>
+                Stop juggling spreadsheets. Let NewJob Guru handle the busywork while you focus on landing the role.
+              </p>
 
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 mb-8">
-            <motion.div animate={{ rotate: [0, 360] }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }}>
-              <Sparkles size={12} className="text-purple-500" />
-            </motion.div>
-            <span className="text-sm text-purple-500 font-medium">Join 10,000+ job seekers</span>
-          </span>
+              <form
+                onSubmit={onSubmit}
+                className="mt-6 flex items-center gap-2 rounded-full p-1.5 pl-4 shadow-md"
+                style={{ background: LP.surface }}
+              >
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="h-11 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:opacity-60"
+                  style={{ color: LP.ink }}
+                />
+                <button
+                  type="submit"
+                  className="shrink-0 rounded-full px-5 py-2.5 text-sm font-bold text-white"
+                  style={{ background: LP.green }}
+                >
+                  Start free
+                </button>
+              </form>
 
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight" style={{ color: "var(--lp-t1)" }}>
-            Start automating your
-            <span className="block bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #22d3ee 100%)" }}>
-              job search today
-            </span>
-          </h2>
-
-          <p className="text-base sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style={{ color: "var(--lp-t3)" }}>
-            Stop spending hours on spreadsheets and manual tracking. Let AI handle the busywork so you can focus on what matters — landing the interview.
-          </p>
-
-          {/* Trust points */}
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-10">
-            {["Free to start — no credit card", "Setup in under 5 minutes", "Cancel anytime"].map((point) => (
-              <div key={point} className="flex items-center gap-2" style={{ color: "var(--lp-t3)" }}>
-                <CheckCircle2 size={14} className="text-green-500 shrink-0" />
-                <span className="text-sm">{point}</span>
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+                {TRUST.map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold sm:text-[13px]"
+                    style={{ color: LP.heading }}
+                  >
+                    <span
+                      className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white"
+                      style={{ background: LP.yellow }}
+                    >
+                      <Check size={10} strokeWidth={3} />
+                    </span>
+                    {item}
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
+            </motion.div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                href="/login"
-                className="group flex items-center gap-2 px-10 py-4 rounded-full text-white font-semibold text-lg w-full sm:w-auto justify-center"
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mx-auto flex w-full max-w-[340px] flex-col lg:mx-0 lg:ml-auto lg:max-w-[360px]"
+            >
+              <div
+                className="relative flex h-full min-h-[320px] flex-col items-center px-6 pb-6 pt-8"
                 style={{
-                  background: "linear-gradient(135deg, #2563eb, #7c3aed)",
-                  boxShadow: "0 0 60px rgba(99,102,241,0.30), 0 8px 30px rgba(0,0,0,0.2)",
+                  background: LP.surface,
+                  borderRadius: "999px 999px 0 0",
+                  boxShadow: LP.shadow,
                 }}
               >
-                Start Free Now
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                href="/login"
-                className="flex items-center gap-2 px-10 py-4 rounded-full font-semibold text-lg transition-all w-full sm:w-auto justify-center"
-                style={{ color: "var(--lp-t2)", border: "1px solid var(--lp-bd2)", background: "var(--lp-card)" }}
-              >
-                Login to Dashboard
-              </Link>
+                <span
+                  className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl"
+                  style={{ background: LP.green, color: LP.yellow }}
+                >
+                  <Mail size={18} />
+                </span>
+
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: LP.muted }}>
+                  Offer received
+                </p>
+                <p className="mt-1 text-2xl font-extrabold" style={{ color: LP.heading }}>
+                  You&apos;re hired!
+                </p>
+                <p className="mt-1 text-sm font-medium" style={{ color: LP.heading }}>
+                  Design Lead · Harbor &amp; Co.
+                </p>
+
+                <div className="mt-6 w-full px-1">
+                  <div className="relative flex items-start justify-between">
+                    <div
+                      className="absolute left-[12%] right-[12%] top-[11px] h-[2px]"
+                      style={{ background: LP.green }}
+                    />
+                    {STEPS.map((step) => (
+                      <div key={step.label} className="relative z-10 flex flex-1 flex-col items-center gap-1.5">
+                        <span
+                          className="inline-flex h-6 w-6 items-center justify-center rounded-full text-white"
+                          style={{
+                            background: step.accent ? LP.yellow : LP.green,
+                            color: step.accent ? LP.onYellow : "#fff",
+                          }}
+                        >
+                          <Check size={12} strokeWidth={3} />
+                        </span>
+                        <span className="text-[10px] font-semibold" style={{ color: LP.heading }}>
+                          {step.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className="mt-auto flex w-full items-center justify-between rounded-full px-3.5 py-2 text-[11px] font-semibold"
+                  style={{ background: LP.mint, color: LP.heading }}
+                >
+                  <span>Found via LinkedIn alert</span>
+                  <span style={{ color: LP.muted }}>23 days</span>
+                </div>
+              </div>
             </motion.div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

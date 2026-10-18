@@ -1,180 +1,139 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
+import { HighlightPill } from "./HighlightPill";
+import { LP } from "./landing-theme";
 
-const SLIDES = ["/hero-bg.png", "/hero-bg-2.png", "/hero-bg-3.png"];
+const STATS = [
+  { value: "10K+", label: "Jobs tracked" },
+  { value: "95%", label: "Success rate" },
+  { value: "4.8/5", label: "Rating from users" },
+  { value: "10+", label: "Job sites supported" },
+];
+
+const AVATARS = ["#C4A484", "#8B7355", "#D4B896", "#A08060"];
 
 export function HeroSection() {
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent(prev => (prev + 1) % SLIDES.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-
-      {/* All background images stacked — CSS opacity transition only */}
-      {SLIDES.map((src, i) => (
-        <div
-          key={src}
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url('${src}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            opacity: i === current ? 1 : 0,
-            transition: "opacity 1.5s ease-in-out",
-          }}
-        />
-      ))}
-
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/50" />
-
-      {/* Slide dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-        {SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            style={{
-              width: i === current ? "24px" : "8px",
-              height: "8px",
-              borderRadius: "4px",
-              background: i === current ? "#fff" : "rgba(255,255,255,0.4)",
-              transition: "all 0.4s ease",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Content — centered */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 sm:px-10 text-center pt-32 pb-14 md:pt-40 md:pb-16">
-
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-6 text-white leading-[1.08]"
-        >
-          Your AI-Powered
-          <br />
-          Job Search{" "}
-          <span
-            style={{
-              background: "linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #c084fc 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
-            Command Center
-          </span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.22, duration: 0.65 }}
-          className="text-base sm:text-lg lg:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-          style={{ color: "rgba(255,255,255,0.55)" }}
-        >
-          Import job alerts from Gmail, generate AI cover letters, apply from your phone with Apply Assistant, and track your whole pipeline in one place.
-        </motion.p>
-
-        {/* CTAs */}
+    <section
+      className="relative overflow-hidden pb-14 pt-[72px] sm:pb-16 sm:pt-[76px]"
+      style={{
+        background:
+          "radial-gradient(ellipse 85% 75% at 72% 18%, #0A5A42 0%, #013B2A 48%, #01281D 100%)",
+      }}
+    >
+      <div className="relative mx-auto grid max-w-7xl items-center gap-5 px-5 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.32, duration: 0.6 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-xl"
         >
-          <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
-            <Link
-              href="/login"
-              className="group relative overflow-hidden inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-white font-semibold text-base"
-              style={{
-                background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-                boxShadow: "0 0 40px rgba(99,102,241,0.4), 0 4px 16px rgba(0,0,0,0.3)",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 60px rgba(99,102,241,0.65), 0 8px 24px rgba(0,0,0,0.35)")}
-              onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 0 40px rgba(99,102,241,0.4), 0 4px 16px rgba(0,0,0,0.3)")}
-            >
-              <motion.div
-                className="absolute inset-0"
-                style={{ background: "linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.18) 50%, transparent 65%)" }}
-                animate={{ x: ["-100%", "200%"] }}
-                transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 5 }}
-              />
-              <span className="relative z-10">Start Free</span>
-              <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform duration-200" />
-            </Link>
-          </motion.div>
+          <span
+            className="mb-3 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide"
+            style={{ background: LP.yellow, color: LP.onYellow }}
+          >
+            New: Multi-Platform Support
+          </span>
 
-          <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
+          <h1 className="text-[2.2rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[2.7rem] lg:text-[3.1rem]">
+            <span className="block">Your AI-powered</span>
+            <span className="block">job search</span>
+            <HighlightPill variant="yellow" className="mt-1.5 text-[0.9em]">
+              command center
+            </HighlightPill>
+          </h1>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3">
             <Link
+              href="/register"
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold"
+              style={{ background: LP.yellow, color: LP.onYellow }}
+            >
+              Get started
+              <ArrowRight size={16} />
+            </Link>
+            <a
               href="#how-it-works"
-              className="group inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-semibold text-base transition-all duration-200"
-              style={{
-                color: "rgba(255,255,255,0.75)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(255,255,255,0.05)",
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = "rgba(139,92,246,0.5)";
-                e.currentTarget.style.background = "rgba(139,92,246,0.1)";
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
-                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-              }}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="opacity-70"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              View Demo
-            </Link>
-          </motion.div>
-        </motion.div>
+              <span
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full"
+                style={{ background: "rgba(255,255,255,0.12)" }}
+              >
+                <Play size={12} fill="currentColor" />
+              </span>
+              Watch video
+            </a>
+          </div>
 
-        {/* Stats row */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.48 }}
-          className="flex flex-wrap items-center justify-center gap-8"
-        >
-          {[
-            { value: "10K+", label: "Applications Tracked" },
-            { value: "95%", label: "Automation Success" },
-            { value: "4x", label: "Faster Job Workflow" },
-          ].map(({ value, label }) => (
-            <div key={label} className="text-center">
-              <div className="text-xl font-bold text-white">{value}</div>
-              <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</div>
+          <div className="mt-5 flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {AVATARS.map((color, i) => (
+                <span
+                  key={color}
+                  className="inline-block h-8 w-8 rounded-full border-2"
+                  style={{ background: color, borderColor: LP.green, zIndex: AVATARS.length - i }}
+                />
+              ))}
             </div>
-          ))}
+            <p className="text-sm font-medium text-white/80">
+              <span className="font-bold text-white">20k+</span> users joined the revolution.
+            </p>
+          </div>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] lg:ml-auto lg:mr-2 lg:max-w-[360px]"
+        >
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+            style={{ background: "rgba(253, 162, 1, 0.14)" }}
+          />
+          <div className="relative mx-auto aspect-[3/4] w-full max-h-[420px] overflow-hidden rounded-[1.5rem]">
+            <Image
+              src="/heroside.png"
+              alt="Job seeker using NewJob Guru"
+              fill
+              priority
+              className="object-cover object-[center_18%]"
+              sizes="360px"
+            />
+          </div>
+        </motion.div>
       </div>
 
-      {/* Bottom fade into page body */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none"
-        style={{ background: "linear-gradient(to bottom, transparent 0%, var(--lp-bg) 100%)" }}
-      />
-
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.28, duration: 0.45 }}
+        className="relative z-10 mx-auto -mb-9 mt-7 max-w-5xl px-5 sm:-mb-10 sm:mt-8 sm:px-8"
+      >
+        <div
+          className="grid grid-cols-2 gap-4 rounded-2xl px-4 py-3.5 sm:grid-cols-4 sm:gap-3 sm:px-6 sm:py-4"
+          style={{
+            background: LP.surface,
+            boxShadow: LP.shadowLg,
+          }}
+        >
+          {STATS.map((stat) => (
+            <div key={stat.label} className="text-center sm:text-left">
+              <p className="text-xl font-extrabold tracking-tight sm:text-2xl" style={{ color: LP.heading }}>
+                {stat.value}
+              </p>
+              <p className="mt-0.5 text-[11px] font-medium sm:text-xs" style={{ color: LP.muted }}>
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </section>
   );
 }

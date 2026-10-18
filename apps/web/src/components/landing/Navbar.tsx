@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, Moon, Sun, X } from "lucide-react";
+import { BrandLogo } from "./BrandLogo";
 import { useLandingTheme } from "./LandingThemeContext";
+import { LP } from "./landing-theme";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
+  { label: "How it Works", href: "#how-it-works" },
   { label: "Pricing", href: "#pricing" },
-  { label: "Testimonials", href: "#testimonials" },
   { label: "FAQ", href: "#faq" },
 ];
 
@@ -20,124 +21,72 @@ export function Navbar() {
   const { isDark, toggle } = useLandingTheme();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const bg = isDark
-    ? "rgba(8,4,18,0.95)"
-    : scrolled ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.92)";
-
-  const border = isDark
-    ? "rgba(255,255,255,0.06)"
-    : "rgba(15,23,42,0.08)";
-
-  const linkClr = isDark ? "rgba(255,255,255,0.7)" : "#374151";
-  const linkHover = isDark ? "#fff" : "#111827";
-
   return (
     <>
-      {/* ── Main bar ── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        className="fixed inset-x-0 top-0 z-50 transition-all duration-300"
         style={{
-          background: bg,
-          borderBottom: `1px solid ${border}`,
-          boxShadow: scrolled ? "0 1px 20px rgba(0,0,0,0.08)" : "none",
-          backdropFilter: "blur(16px) saturate(180%)",
-          WebkitBackdropFilter: "blur(16px) saturate(180%)",
+          background: scrolled ? "rgba(1, 59, 42, 0.96)" : "transparent",
+          backdropFilter: scrolled ? "blur(14px)" : "none",
         }}
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-[64px]">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-[68px] sm:px-8">
+          <BrandLogo onDark priority />
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
-              <img src="/brand/logo.jpeg" alt="NewJob Guru" className="w-full h-full object-cover" />
-            </div>
-            <span
-              className="font-bold text-[17px] tracking-tight hidden sm:block"
-              style={{ color: isDark ? "#fff" : "#0f172a" }}
-            >
-              NewJob{" "}
-              <span style={{
-                background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                Guru
-              </span>
-            </span>
-          </Link>
-
-          {/* Desktop nav — centered */}
-          <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
-            {NAV_LINKS.map(({ label, href }) => (
+          <nav className="hidden items-center gap-7 md:flex">
+            {NAV_LINKS.map((link) => (
               <a
-                key={label}
-                href={href}
-                className="text-sm font-medium px-4 py-2 rounded-lg transition-all duration-150 hover:bg-black/5"
-                style={{ color: linkClr }}
-                onMouseEnter={e => (e.currentTarget.style.color = linkHover)}
-                onMouseLeave={e => (e.currentTarget.style.color = linkClr)}
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-white/85 transition-colors hover:text-white"
               >
-                {label}
+                {link.label}
               </a>
             ))}
           </nav>
 
-          {/* Right side */}
-          <div className="hidden md:flex items-center gap-2">
-            {/* Theme toggle */}
+          <div className="hidden items-center gap-3 md:flex">
             <button
+              type="button"
               onClick={toggle}
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-black/5"
-              style={{ color: isDark ? "rgba(255,255,255,0.5)" : "#6b7280" }}
-              aria-label="Toggle theme"
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white/85 transition-colors hover:bg-white/10 hover:text-white"
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
-
-            {/* Login */}
-            <Link
-              href="/login"
-              className="text-sm font-medium px-4 py-2 rounded-lg transition-all duration-150 hover:bg-black/5"
-              style={{ color: linkClr }}
-              onMouseEnter={e => (e.currentTarget.style.color = linkHover)}
-              onMouseLeave={e => (e.currentTarget.style.color = linkClr)}
-            >
-              Login
+            <Link href="/login" className="text-sm font-medium text-white/90 hover:text-white">
+              Log in
             </Link>
-
-            {/* CTA */}
             <Link
-              href="/login"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold px-5 py-2.5 rounded-lg text-white transition-all duration-150 hover:opacity-90 hover:shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-                boxShadow: "0 1px 8px rgba(99,102,241,0.35)",
-              }}
+              href="/register"
+              className="rounded-full px-4 py-2 text-sm font-semibold"
+              style={{ background: LP.yellow, color: LP.onYellow }}
             >
-              Start Free
+              Get started
             </Link>
           </div>
 
-          {/* Mobile right */}
-          <div className="md:hidden flex items-center gap-1">
+          <div className="flex items-center gap-1 md:hidden">
             <button
+              type="button"
               onClick={toggle}
-              className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ color: isDark ? "rgba(255,255,255,0.5)" : "#6b7280" }}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white"
+              style={{ background: "rgba(255,255,255,0.1)" }}
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-black/5"
-              style={{ color: isDark ? "rgba(255,255,255,0.7)" : "#374151" }}
-              aria-label="Toggle menu"
+              type="button"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white"
+              style={{ background: "rgba(255,255,255,0.1)" }}
+              onClick={() => setMobileOpen((v) => !v)}
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -145,55 +94,47 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* ── Mobile dropdown ── */}
       <AnimatePresence>
-        {mobileOpen && (
+        {mobileOpen ? (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="fixed inset-x-0 top-[64px] z-40 md:hidden"
-            style={{
-              background: isDark ? "rgba(8,4,18,0.98)" : "#fff",
-              borderBottom: `1px solid ${border}`,
-              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-              backdropFilter: "blur(16px)",
-            }}
+            className="fixed inset-x-0 top-16 z-40 border-b border-white/10 px-5 py-4 md:hidden"
+            style={{ background: LP.greenDeep }}
           >
-            <div className="max-w-7xl mx-auto px-5 py-4 flex flex-col gap-1">
-              {NAV_LINKS.map(({ label, href }) => (
+            <div className="flex flex-col gap-0.5">
+              {NAV_LINKS.map((link) => (
                 <a
-                  key={label}
-                  href={href}
-                  className="text-sm font-medium px-4 py-3 rounded-lg transition-colors hover:bg-black/5"
-                  style={{ color: linkClr }}
+                  key={link.href}
+                  href={link.href}
                   onClick={() => setMobileOpen(false)}
+                  className="rounded-lg px-3 py-2.5 text-[15px] font-medium text-white/90"
                 >
-                  {label}
+                  {link.label}
                 </a>
               ))}
-              <div className="mt-3 pt-3 flex flex-col gap-2" style={{ borderTop: `1px solid ${border}` }}>
+              <div className="mt-2 flex flex-col gap-2 border-t border-white/10 pt-3">
                 <Link
                   href="/login"
-                  className="text-center py-2.5 rounded-lg text-sm font-medium border transition-colors"
-                  style={{ color: linkClr, borderColor: border }}
                   onClick={() => setMobileOpen(false)}
+                  className="rounded-full px-4 py-2.5 text-center text-sm font-semibold text-white"
+                  style={{ background: "rgba(255,255,255,0.1)" }}
                 >
-                  Login
+                  Log in
                 </Link>
                 <Link
-                  href="/login"
-                  className="text-center py-2.5 rounded-lg text-sm font-semibold text-white"
-                  style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
+                  href="/register"
                   onClick={() => setMobileOpen(false)}
+                  className="rounded-full px-4 py-2.5 text-center text-sm font-semibold"
+                  style={{ background: LP.yellow, color: LP.onYellow }}
                 >
-                  Start Free
+                  Get started
                 </Link>
               </div>
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

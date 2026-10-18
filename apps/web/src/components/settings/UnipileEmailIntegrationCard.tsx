@@ -8,7 +8,9 @@ import { useTranslation } from "@/i18n/useTranslation";
 import {
   createUnipileConnectLink,
   disconnectUnipile,
+  getUnipileHealth,
   getUnipileStatus,
+  reconcileUnipile,
   scanUnipileEmails,
   type UnipileStatus,
 } from "@/lib/api/unipile.api";
@@ -21,6 +23,7 @@ export function UnipileEmailIntegrationCard() {
   const [status, setStatus] = useState<UnipileStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -39,8 +42,17 @@ export function UnipileEmailIntegrationCard() {
   useEffect(() => {
     const flag = searchParams.get("unipile");
     if (flag === "connected") {
-      showSuccess(t("integrations.unipile.connectedToast"));
-      void refresh();
+      // The hosted-auth server callback (notify) cannot reach localhost, so try
+      // to link the account by querying Unipile directly, then refresh.
+      void (async () => {
+        try {
+          await reconcileUnipile();
+        } catch {
+          // Best effort — the server-side notify webhook may still have linked it.
+        }
+        showSuccess(t("integrations.unipile.connectedToast"));
+        await refresh();
+      })();
     } else if (flag === "failed") {
       showError(t("integrations.unipile.failedToast"));
       setError(t("integrations.unipile.failedToast"));
@@ -87,9 +99,12 @@ export function UnipileEmailIntegrationCard() {
     setScanning(true);
     setError(null);
     try {
-      const res = await scanUnipileEmails({ limit: 30 });
+      const res = await scanUnipileEmails({ limit: 50 });
+      const label = res.folders?.jobLabel
+        ? `${res.folders.jobLabel}${res.folders.jobLabelFound ? "" : " (not found)"}`
+        : "—";
       showSuccess(
-        `${t("integrations.unipile.scanSuccess")}: ${res.processed} processed, ${res.created} jobs`
+        `${t("integrations.unipile.scanSuccess")}: ${res.processed} processed, ${res.created} jobs · inbox + ${label}`
       );
       await refresh();
     } catch (e) {
@@ -98,6 +113,27 @@ export function UnipileEmailIntegrationCard() {
       showError(message);
     } finally {
       setScanning(false);
+    }
+  }
+
+  async function handleTest() {
+    setTesting(true);
+    setError(null);
+    try {
+      const res = await getUnipileHealth();
+      if (res.ok) {
+        showSuccess(res.message);
+      } else {
+        setError(res.message);
+        showError(res.message);
+      }
+      await refresh();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : t("integrations.unipile.connectFailed");
+      setError(message);
+      showError(message);
+    } finally {
+      setTesting(false);
     }
   }
 
@@ -150,6 +186,9 @@ export function UnipileEmailIntegrationCard() {
               </Button>
             </>
           )}
+          <Button type="button" size="sm" variant="outline" disabled={testing || !configured} onClick={() => void handleTest()}>
+            {testing ? t("integrations.unipile.testing") : t("integrations.unipile.testConnection")}
+          </Button>
         </div>
       </CardContent>
     </Card>

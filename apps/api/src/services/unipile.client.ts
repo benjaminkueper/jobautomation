@@ -139,15 +139,63 @@ export async function createUnipileHostedAuthLink(input: {
   });
 }
 
+export type UnipileAccount = {
+  id: string;
+  name?: string;
+  type?: string;
+  created_at?: string;
+  connection_params?: {
+    mail?: { id?: string; username?: string };
+    calendar?: { id?: string; username?: string };
+  };
+  sources?: Array<{ id?: string; status?: string }>;
+};
+
+export type UnipileFolder = {
+  id: string;
+  name?: string;
+  account_id?: string;
+  role?: string;
+  nb_mails?: number;
+  provider_id?: string;
+};
+
+export async function listUnipileAccounts(input?: {
+  limit?: number;
+}): Promise<{ items?: UnipileAccount[]; data?: UnipileAccount[] }> {
+  return unipileFetch("/api/v1/accounts", {
+    method: "GET",
+    query: { limit: input?.limit ?? 100 },
+  });
+}
+
+export async function listUnipileFolders(input: {
+  accountId: string;
+}): Promise<{ items?: UnipileFolder[]; data?: UnipileFolder[] }> {
+  return unipileFetch("/api/v1/folders", {
+    method: "GET",
+    query: { account_id: input.accountId, limit: 250 },
+  });
+}
+
 export async function listUnipileEmails(input: {
   accountId: string;
   limit?: number;
+  /** Folder provider_id (label provider id) to scope the listing. */
+  folder?: string;
+  /** Free-text search applied to subject and body. */
+  search?: string;
+  /** ISO 8601 datetime — only emails created after this. */
+  after?: string;
 }): Promise<{ items?: UnipileEmail[]; data?: UnipileEmail[] }> {
   return unipileFetch("/api/v1/emails", {
     method: "GET",
     query: {
       account_id: input.accountId,
       limit: input.limit ?? 25,
+      folder: input.folder,
+      search: input.search,
+      after: input.after,
     },
   });
 }

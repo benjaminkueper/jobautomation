@@ -9,9 +9,13 @@ import {
   ensureUnipileEmailWebhook,
   getUnipileAccount,
   getUnipileEmail,
+  listUnipileAccounts,
   listUnipileEmails,
+  listUnipileFolders,
   unipileConfigured,
+  type UnipileAccount,
   type UnipileEmail,
+  type UnipileFolder,
 } from "./unipile.client";
 
 export const UNIPILE_EMAIL_PROVIDER = "Unipile Email";
@@ -111,6 +115,70 @@ export function looksLikeJobAlertEmail(input: { from: string; subject: string; b
     "recommended jobs",
   ];
   return keywords.some((k) => hay.includes(k));
+}
+
+/**
+ * Job-alert label name. Order: UNIPILE_JOB_LABEL, then the label parsed from
+ * GMAIL_JOB_QUERY (`label:job-alerts`) or GMAIL_JOB_ALERT_QUERY.
+ */
+export function resolveJobLabelName(): string | null {
+  const explicit = (process.env.UNIPILE_JOB_LABEL ?? "").trim();
+  if (explicit) return explicit;
+  for (const raw of [process.env.GMAIL_JOB_QUERY, process.env.GMAIL_JOB_ALERT_QUERY]) {
+    const value = (raw ?? "").trim();
+    if (!value) continue;
+    const match = value.match(/label:("([^"]+)"|'([^']+)'|(\S+))/i);
+    const name = (match?.[2] ?? match?.[3] ?? match?.[4] ?? "").replace(/^[-\\/]/, "").trim();
+    if (name) return name;
+  }
+  return null;
+}
+
+function normalizeFolderName(name: string): string {
+  return name.trim().toLowerCase();
+}
+
+function folderRef(folder: UnipileFolder): string {
+  return String(folder.provider_id ?? folder.id ?? "").trim();
+}
+
+/** Resolve the inbox folder and the job-alert label folder for an account. */
+export async function resolveUnipileScanFolders(accountId: string): Promise<{
+  inbox: UnipileFolder | null;
+  jobLabel: UnipileFolder | null;
+  jobLabelName: string | null;
+}> {
+  const jobLabelName = resolveJobLabelName();
+  let folders: UnipileFolder[] = [];
+  try {
+    const res = await listUnipileFolders({ accountId });
+    folders = res.items ?? res.data ?? [];
+  } catch {
+    folders = [];
+  }
+  const inbox = folders.find((f) => String(f.role ?? "").toLowerCase() === "inbox") ?? null;
+  let jobLabel: UnipileFolder | null = null;
+  if (jobLabelName) {
+    const wanted = normalizeFolderName(jobLabelName);
+    jobLabel =
+      folders.find((f) => normalizeFolderName(String(f.name ?? "")) === wanted) ??
+      folders.find((f) => String(f.provider_id ?? "") === jobLabelName) ??
+      null;
+  }
+  return { inbox, jobLabel, jobLabelName };
+}
+
+async function listFolderEmails(
+  accountId: string,
+  folder: UnipileFolder | null,
+  limit: number
+): Promise<UnipileEmail[]> {
+  const res = await listUnipileEmails({
+    accountId,
+    limit,
+    folder: folder ? folderRef(folder) || undefined : undefined,
+  });
+  return res.items ?? res.data ?? [];
 }
 
 export function mapUnipileEmailToIntakePayload(email: UnipileEmail): JobIntakeEmailPayload {
@@ -292,8 +360,23 @@ export async function scanUnipileEmailsForTenant(input: {
 
   void ensureUnipileWebhookRegistered();
 
-  const listed = await listUnipileEmails({ accountId: connected.accountId, limit: input.limit ?? 25 });
-  const items = listed.items ?? listed.data ?? (Array.isArray(listed) ? (listed as UnipileEmail[]) : []);
+  const limit = input.limit ?? 50;
+  const { inbox, jobLabel, jobLabelName } = await resolveUnipileScanFolders(connected.accountId);
+
+  // Scan the whole inbox AND the job-alerts label (when it exists), then de-dupe.
+  const [inboxEmails, labelEmails] = await Promise.all([
+    listFolderEmails(connected.accountId, inbox, limit),
+    jobLabel ? listFolderEmails(connected.accountId, jobLabel, limit) : Promise.resolve([]),
+  ]);
+
+  const seen = new Set<string>();
+  const items: UnipileEmail[] = [];
+  for (const item of [...labelEmails, ...inboxEmails]) {
+    const key = String(item.id || item.email_id || item.message_id || "").trim();
+    if (key && seen.has(key)) continue;
+    if (key) seen.add(key);
+    items.push(item);
+  }
 
   let processed = 0;
   let skipped = 0;
@@ -339,8 +422,93 @@ export async function scanUnipileEmailsForTenant(input: {
     processed,
     skipped,
     created,
+    folders: {
+      inbox: inbox ? String(inbox.name ?? inbox.id) : null,
+      jobLabel: jobLabel ? String(jobLabel.name ?? jobLabel.provider_id) : jobLabelName,
+      jobLabelFound: Boolean(jobLabel),
+    },
     errors: errors.slice(0, 5),
   };
+}
+
+/** Best-effort: link the tenant to a Unipile account created by hosted auth. */
+export async function reconcileUnipileConnection(input: { tenantId: string; userId?: string }) {
+  if (!unipileConfigured()) {
+    throw new ApiError("Unipile is not configured on the server", 503, "UNIPILE_NOT_CONFIGURED");
+  }
+  const tenantId = assertTenantId(input.tenantId);
+  let accounts: UnipileAccount[] = [];
+  try {
+    const res = await listUnipileAccounts({ limit: 100 });
+    accounts = res.items ?? res.data ?? [];
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    const message = err instanceof Error ? err.message : String(err);
+    throw new ApiError(`Unipile reconcile failed: ${message}`, 502, "UNIPILE_ERROR");
+  }
+
+  const matches = accounts.filter((acc) => {
+    const decoded = decodeUnipileConnectName(String(acc.name ?? ""));
+    return decoded?.tenantId === tenantId;
+  });
+
+  let account: UnipileAccount | undefined;
+  let matchedBy: "name" | "single_account" = "name";
+
+  if (matches.length > 0) {
+    matches.sort((a, b) => String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")));
+    account = matches[0];
+  } else if (accounts.length === 1) {
+    // Fallback: a single Unipile account and no name match — assume it's theirs
+    // (covers providers that don't echo the hosted-link `name`).
+    account = accounts[0];
+    matchedBy = "single_account";
+  }
+
+  if (!account) {
+    return {
+      linked: false,
+      reason: "no_matching_account",
+      accounts: accounts.map((a) => ({ id: a.id, name: a.name, type: a.type })),
+    };
+  }
+
+  const decoded = decodeUnipileConnectName(String(account.name ?? ""));
+  const userId = decoded?.userId || input.userId || "system";
+
+  await upsertUnipileEmailConnection({ tenantId, userId, accountId: account.id });
+
+  return { linked: true, accountId: account.id, userId, matchedBy };
+}
+
+/** Confirm the configured Unipile credentials actually work. */
+export async function testUnipileConnection(): Promise<{
+  ok: boolean;
+  configured: boolean;
+  accounts: number;
+  message: string;
+}> {
+  if (!unipileConfigured()) {
+    return {
+      ok: false,
+      configured: false,
+      accounts: 0,
+      message: "Unipile is not configured (UNIPILE_DSN / UNIPILE_API_KEY missing)",
+    };
+  }
+  try {
+    const res = await listUnipileAccounts({ limit: 25 });
+    const items = res.items ?? res.data ?? [];
+    return {
+      ok: true,
+      configured: true,
+      accounts: items.length,
+      message: `Unipile API OK — ${items.length} account(s) linked`,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { ok: false, configured: true, accounts: 0, message };
+  }
 }
 
 export async function processUnipileMailWebhook(body: Record<string, unknown>) {

@@ -1,73 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import { Twitter, Github, Linkedin, Mail } from "lucide-react";
+import { Linkedin, Mail, Twitter } from "lucide-react";
+import { BrandLogo } from "./BrandLogo";
+import { LP } from "./landing-theme";
 
-const FOOTER_LINKS = {
+const COLUMNS = {
   Product: [
     { label: "Features", href: "#features" },
-    { label: "How It Works", href: "#how-it-works" },
+    { label: "Integrations", href: "#integrations" },
     { label: "Pricing", href: "#pricing" },
-    { label: "Changelog", href: "#" },
-    { label: "Roadmap", href: "#" },
-  ],
-  Resources: [
-    { label: "Documentation", href: "/docs" },
-    { label: "API Reference", href: "/api-reference" },
-    { label: "Blog", href: "/blog" },
-    { label: "Status Page", href: "/status" },
-    { label: "Help Center", href: "/help" },
+    { label: "FAQ", href: "#faq" },
   ],
   Company: [
     { label: "About", href: "/about" },
+    { label: "Blog", href: "/blog" },
+    { label: "Contact", href: "mailto:hello@newjob.guru" },
     { label: "Careers", href: "/careers" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-    { label: "Cookie Policy", href: "/cookies" },
   ],
-  Connect: [
-    { label: "Contact Us", href: "mailto:hello@newjobguru.com" },
-    { label: "Twitter / X", href: "#" },
-    { label: "LinkedIn", href: "#" },
-    { label: "GitHub", href: "#" },
-    { label: "Discord Community", href: "#" },
+  Legal: [
+    { label: "Privacy", href: "/privacy" },
+    { label: "Terms", href: "/terms" },
+    { label: "Cookies", href: "/cookies" },
+    { label: "Status", href: "/status" },
   ],
 };
 
-const SOCIAL_LINKS = [
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Github, href: "#", label: "GitHub" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Mail, href: "mailto:hello@newjobguru.com", label: "Email" },
-];
-
 export function LandingFooter() {
   return (
-    <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", background: "#000000" }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-16">
-        {/* Top */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-10 mb-14">
-          {/* Brand */}
-          <div className="col-span-2 sm:col-span-3 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 mb-5 group">
-              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 group-hover:scale-110 transition-transform">
-                <img src="/brand/logo.jpeg" alt="NewJob Guru" className="w-full h-full object-cover" />
-              </div>
-              <span className="font-bold text-[17px] tracking-tight text-white">
-                NewJob <span className="text-blue-400">Guru</span>
-              </span>
-            </Link>
-            <p className="text-sm leading-relaxed mb-5 max-w-[220px]" style={{ color: "rgba(255,255,255,0.5)" }}>
-              AI-powered job search automation. Stop managing. Start landing.
+    <footer className="relative overflow-hidden" style={{ background: LP.greenDeep }}>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 select-none text-center text-[12vw] font-extrabold leading-none tracking-tighter text-white/[0.035]"
+      >
+        NewJob Guru
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-12">
+        <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+          <div>
+            <BrandLogo onDark className="mb-3" />
+            <p className="max-w-xs text-sm leading-relaxed text-white/60">
+              AI-powered job search automation. Collect alerts, apply smarter, and track every opportunity in one place.
             </p>
-            <div className="flex gap-3">
-              {SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
+            <div className="mt-4 flex gap-2.5">
+              {[
+                { icon: Twitter, href: "#", label: "Twitter" },
+                { icon: Linkedin, href: "#", label: "LinkedIn" },
+                { icon: Mail, href: "mailto:hello@newjob.guru", label: "Email" },
+              ].map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-9 h-9 rounded-lg flex items-center justify-center transition-all hover:text-blue-400 hover:scale-110"
-                  style={{ color: "rgba(255,255,255,0.45)", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.05)" }}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white/70 transition-colors hover:text-white"
+                  style={{ background: "rgba(255,255,255,0.08)" }}
                 >
                   <Icon size={15} />
                 </a>
@@ -75,53 +62,30 @@ export function LandingFooter() {
             </div>
           </div>
 
-          {/* Links */}
-          {Object.entries(FOOTER_LINKS).map(([category, links]) => (
-            <div key={category}>
-              <h4 className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "rgba(255,255,255,0.35)" }}>{category}</h4>
-              <ul className="space-y-2.5">
-                {links.map(({ label, href }) => {
-                  const cls = "text-sm hover:text-blue-400 transition-colors";
-                  const style = { color: "rgba(255,255,255,0.55)" };
-                  return (
-                    <li key={label}>
-                      {href.startsWith("/") ? (
-                        <Link href={href} className={cls} style={style}>
-                          {label}
-                        </Link>
-                      ) : (
-                        <a href={href} className={cls} style={style}>
-                          {label}
-                        </a>
-                      )}
-                    </li>
-                  );
-                })}
+          {Object.entries(COLUMNS).map(([title, links]) => (
+            <div key={title}>
+              <h4 className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white/40">{title}</h4>
+              <ul className="space-y-2">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    {link.href.startsWith("/") ? (
+                      <Link href={link.href} className="text-sm text-white/70 transition-colors hover:text-white">
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a href={link.href} className="text-sm text-white/70 transition-colors hover:text-white">
+                        {link.label}
+                      </a>
+                    )}
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>
-            © {new Date().getFullYear()} NewJob Guru. All rights reserved.
-          </p>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>All systems operational</span>
-          </div>
-          <div className="flex items-center gap-6">
-            {[
-              { label: "Privacy", href: "/privacy" },
-              { label: "Terms", href: "/terms" },
-              { label: "Cookies", href: "/cookies" },
-            ].map(({ label, href }) => (
-              <Link key={label} href={href} className="text-xs hover:text-blue-400 transition-colors" style={{ color: "rgba(255,255,255,0.35)" }}>
-                {label}
-              </Link>
-            ))}
-          </div>
+        <div className="mt-8 border-t border-white/10 pt-5 text-center text-xs text-white/45">
+          © {new Date().getFullYear()} NewJob Guru. All rights reserved.
         </div>
       </div>
     </footer>

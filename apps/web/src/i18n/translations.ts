@@ -1337,6 +1337,8 @@ export const messages: Record<
         disconnectedToast: "Unipile-E-Mail getrennt",
         scanSuccess: "Scan fertig",
         scanFailed: "Scan fehlgeschlagen",
+        testConnection: "Verbindung testen",
+        testing: "Wird getestet…",
       },
       linkedinSession: {
         desktopOnlyDescription:
@@ -4481,6 +4483,8 @@ export const messages: Record<
         disconnectedToast: "Unipile email disconnected",
         scanSuccess: "Scan done",
         scanFailed: "Scan failed",
+        testConnection: "Test connection",
+        testing: "Testing…",
       },
       linkedinSession: {
         desktopOnlyDescription:

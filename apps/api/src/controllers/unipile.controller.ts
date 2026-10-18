@@ -9,7 +9,10 @@ import {
   disconnectUnipileEmail,
   getUnipileEmailStatus,
   processUnipileMailWebhook,
+  reconcileUnipileConnection,
+  resolveUnipileScanFolders,
   scanUnipileEmailsForTenant,
+  testUnipileConnection,
   upsertUnipileEmailConnection,
 } from "../services/unipile-email.service";
 
@@ -33,6 +36,30 @@ export const getUnipileStatusHandler = asyncHandler(async (req: Request, res: Re
   const tenantId = assertTenantId(req.tenantId);
   const status = await getUnipileEmailStatus(tenantId);
   return successResponse(res, status, "Unipile status");
+});
+
+/** GET /integrations/unipile/health — confirm Unipile credentials work */
+export const testUnipileHandler = asyncHandler(async (_req: Request, res: Response) => {
+  const result = await testUnipileConnection();
+  return successResponse(res, result, result.message);
+});
+
+/** POST /integrations/unipile/reconcile — link account after hosted auth (no server webhook needed) */
+export const reconcileUnipileHandler = asyncHandler(async (req: Request, res: Response) => {
+  const tenantId = assertTenantId(req.tenantId);
+  const userId = req.user?.id ?? "system";
+  const result = await reconcileUnipileConnection({ tenantId, userId });
+  return successResponse(res, result, result.linked ? "Unipile account linked" : "No matching Unipile account");
+});
+
+/** GET /integrations/unipile/folders — list folders/labels (debug) */
+export const listUnipileFoldersHandler = asyncHandler(async (req: Request, res: Response) => {
+  const tenantId = assertTenantId(req.tenantId);
+  const status = await getUnipileEmailStatus(tenantId);
+  const accountId = "accountId" in status ? status.accountId : null;
+  if (!accountId) throw new ApiError("Connect Unipile email first", 422, "INTEGRATION_NOT_CONNECTED");
+  const folders = await resolveUnipileScanFolders(String(accountId));
+  return successResponse(res, folders, "Unipile folders");
 });
 
 /** DELETE /integrations/unipile/disconnect */

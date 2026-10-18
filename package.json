@@ -18,6 +18,7 @@
     "lint": "turbo run lint",
     "seed:demo": "pnpm --filter @jobflow/database seed:demo",
     "smoke:api": "dotenv -e .env -- tsx scripts/smoke-api.ts",
+    "unipile:check": "dotenv -e .env -- tsx scripts/unipile-check.ts",
     "stripe:setup": "dotenv -e .env -- tsx apps/api/src/scripts/setup-stripe-products.ts",
     "apply-agent": "pnpm --filter @jobflow/apply-agent start"
   },

@@ -3,7 +3,10 @@ import {
   createUnipileConnectHandler,
   disconnectUnipileHandler,
   getUnipileStatusHandler,
+  listUnipileFoldersHandler,
+  reconcileUnipileHandler,
   scanUnipileHandler,
+  testUnipileHandler,
   unipileNotifyHandler,
   unipileWebhookHandler,
 } from "../controllers/unipile.controller";
@@ -22,6 +25,13 @@ unipileProtectedRoutes.post(
   createUnipileConnectHandler
 );
 unipileProtectedRoutes.get("/status", requirePermission("integrations.read"), getUnipileStatusHandler);
+unipileProtectedRoutes.get("/health", requirePermission("integrations.read"), testUnipileHandler);
+unipileProtectedRoutes.get("/folders", requirePermission("integrations.read"), listUnipileFoldersHandler);
+unipileProtectedRoutes.post(
+  "/reconcile",
+  requireAnyPermission(["integrations.connect", "settings.read"]),
+  reconcileUnipileHandler
+);
 unipileProtectedRoutes.delete(
   "/disconnect",
   requirePermission("integrations.disconnect"),
