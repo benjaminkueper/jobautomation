@@ -14,6 +14,7 @@ import { setJobPipelineStage, syncJobPipelineFromApplication } from "../services
 import { createUserNotification } from "../services/in-app-notification.service";
 import { getProfileDocumentContextFlags } from "../services/profile-document-context.service";
 import { assertCanCreateJob } from "../services/plan-limit.service";
+import { logAiUsage } from "../services/ai-usage.service";
 import { incrementUsage } from "../services/usage.service";
 /** Conditions that identify demo/test/stub jobs that must never appear in production. */
 function buildTestJobFilter(): Record<string, unknown> {
@@ -437,6 +438,7 @@ export const generateTailoredCv = asyncHandler(async (req: Request, res) => {
 
   const apiKey = resolveAnthropicApiKey();
   if (!apiKey) throw new ApiError("AI not configured", 503, "SERVICE_UNAVAILABLE");
+  const userId = req.user?.id ?? "system";
 
   const body = (req.body ?? {}) as Record<string, unknown>;
   const userInstructions =
@@ -582,6 +584,30 @@ Output ONLY valid JSON:
   };
 
   await JobModel.findByIdAndUpdate(job._id, { $set: update });
+
+  // Usage is recorded but deliberately not gated: enforcing maxAiCredits here would 402 Free-plan
+  // tenants (2 credits) and block a feature that works today. See AI_CREDIT_COSTS.tailorCv.
+  try {
+    await logAiUsage({
+      tenantId,
+      userId,
+      provider: "Claude",
+      model: cvResult.model,
+      runType: "cv-tailoring",
+      operationId: String(job._id),
+      relatedRecordType: "Job",
+      relatedRecordId: String(job._id),
+      inputText: [position, company, jobDesc, cvText].filter(Boolean).join("\n"),
+      outputText: [headline, summary, ...keywords, coverBody].filter(Boolean).join("\n"),
+      usedStub: false,
+    });
+  } catch (error) {
+    console.warn("[ai-usage] failed to log cv-tailoring usage", {
+      tenantId,
+      jobId: String(job._id),
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
 
   return successResponse(res, {
     status: "Completed" as const,

@@ -948,8 +948,9 @@ export async function extractJobFromEmail(payload: JobIntakeEmailPayload): Promi
 }
 
 function shouldUseStub(config: AiRuntimeConfig): boolean {
-  if (config.provider === "Stub") return true;
-  // Use Claude whenever a key is available from env or config — never block on fallbackToStub alone.
+  // provider:"Stub" only means the tenant has no connected Claude integration. The platform env
+  // key still counts, so tenants who never connect their own Claude get real extraction instead of
+  // stub results (which are hidden from /jobs by the test-job filter).
   const hasKey = Boolean(resolveAnthropicApiKey() ?? config.apiKeyDecrypted);
   return !hasKey;
 }
@@ -1042,7 +1043,8 @@ export async function runAiExtraction(input: {
 }): Promise<AiServiceResult<JobExtractionResult>> {
   const base = await extractJobFromEmail(input.payload);
   const usedStub = shouldUseStub(input.config);
-  const provider: AiProvider = usedStub ? "Stub" : input.config.provider;
+  // A "Stub" provider with a platform env key still runs real Claude — label it accordingly.
+  const provider: AiProvider = usedStub ? "Stub" : "Claude";
   const body = `${input.payload.subject}\n${input.payload.bodyText}`;
 
   if (!usedStub) {

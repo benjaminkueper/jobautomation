@@ -23,8 +23,10 @@ export async function POST(
       data?: Record<string, unknown>;
     };
 
-    const templateId: CvTemplateId = body.templateId ?? "modern-no-photo";
     const d = body.data ?? {};
+    // The client nests templateId inside `data` (see CvPdfClientDownload), so accept both shapes.
+    const templateId: CvTemplateId =
+      body.templateId ?? (d.templateId as CvTemplateId | undefined) ?? "modern-no-photo";
 
     const { renderCvToPdf } = await import("@/lib/cv-templates");
     const templateData = {

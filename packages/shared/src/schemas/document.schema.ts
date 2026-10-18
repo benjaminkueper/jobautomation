@@ -15,6 +15,8 @@ export const documentCreateSchema = z.object({
   jobId: optionalJobId,
   applicationId: optionalJobId,
   contentText: z.string().max(600_000).optional(),
+  fileBase64: z.string().optional(),
+  mimeType: z.string().max(255).optional(),
   documentKind: z.enum(["Research", "Cover Letter", "CV", "PDF Export", "Other"]).optional(),
   storageProvider: z.string().optional(),
   storagePath: z.string().optional(),
@@ -32,4 +34,4 @@ export const documentCreateSchema = z.object({
   notes: z.string().max(5000).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
-export const documentUpdateSchema = documentCreateSchema.partial();
+export const documentUpdateSchema = documentCreateSchema.omit({ fileBase64: true, mimeType: true }).partial();

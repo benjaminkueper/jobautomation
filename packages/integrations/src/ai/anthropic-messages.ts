@@ -30,11 +30,12 @@ export function resolveAnthropicApiKey(): string | undefined {
 }
 
 /**
- * Model order: ANTHROPIC_MODEL env, then optional hint, then default, then fallbacks.
+ * Model order: caller hint (tenant-configured model), then ANTHROPIC_MODEL env, then default,
+ * then fallbacks. A tenant's explicit model choice outranks the platform-wide env default.
  */
 export function buildAnthropicModelCandidates(modelHint?: string): string[] {
   const primary =
-    process.env.ANTHROPIC_MODEL?.trim() || modelHint?.trim() || DEFAULT_ANTHROPIC_MODEL;
+    modelHint?.trim() || process.env.ANTHROPIC_MODEL?.trim() || DEFAULT_ANTHROPIC_MODEL;
   return uniqueModels([primary, ...MODEL_FALLBACK_CHAIN]);
 }
 

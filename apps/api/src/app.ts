@@ -10,7 +10,7 @@ import { requestIdMiddleware } from "./middleware/request-id.middleware";
 import { apiRoutes } from "./routes";
 import { logger } from "./utils/logger";
 
-const JSON_BODY_LIMIT = "1mb";
+const JSON_BODY_LIMIT = process.env.JSON_BODY_LIMIT ?? "12mb";
 
 function isStripeWebhookRequest(req: express.Request): boolean {
   const pathname = (req.originalUrl ?? req.url ?? "").split("?")[0];
