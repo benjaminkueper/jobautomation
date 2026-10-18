@@ -2,6 +2,7 @@ import type { JobIntakeEmailPayload } from "@jobflow/shared/types/job";
 import { AutomationLogModel, IntegrationConnectionModel, JobModel } from "@jobflow/database/models";
 import { runAiExtraction, isRealJobOpportunity, resolveJobSourceFromEmail, validateExtractedJobFields } from "@jobflow/integrations/ai/ai.service";
 import { createJobFingerprint } from "@jobflow/shared/utils/fingerprint";
+import { DEFAULT_AI_MODEL } from "@jobflow/shared/constants/ai";
 import { checkDuplicateJobWorker } from "../lib/duplicate-job-check";
 import { loadGoogleAccessToken } from "../lib/google-auth";
 import { notifyAutomationEvent } from "../lib/notifications";
@@ -283,7 +284,7 @@ export async function processJobIntakeProcessor(payload: JobIntakeProcessorPaylo
 
     const extraction = await runAiExtraction({
       payload: normalized,
-      config: { provider: "Claude", model: "claude-3-5-sonnet-latest", fallbackToStub: false },
+      config: { provider: "Claude", model: DEFAULT_AI_MODEL, fallbackToStub: false },
     });
     const data = extraction.data;
     const UNKNOWN_COMPANY = !data.company || data.company === "Unknown Company";

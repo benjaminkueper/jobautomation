@@ -26,7 +26,7 @@ Last updated: 2026-05-16
 ## AI / Anthropic Policy
 
 - Only Anthropic is used. No OpenAI.
-- Model: reads `ANTHROPIC_MODEL` env, defaults to `claude-3-5-sonnet-latest`.
+- Model: `ANTHROPIC_MODEL` env override → `claude-sonnet-4-6` default, with a fallback chain (`claude-opus-4-7`, `claude-haiku-4-5-20251001`) on retryable 404s.
 - On failure: AI status is marked `Failed` or `Needs Attention` — no fake content is generated.
 - Never logs full CV, cover letter, job description, or API keys.
 

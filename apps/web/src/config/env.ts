@@ -67,7 +67,8 @@ export const env = {
   },
   anthropic: {
     apiKey: () => requireEnv("ANTHROPIC_API_KEY"),
-    model: optionalEnv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022"),
+    // Must be a currently-available model ID — claude-3-5-sonnet-* returns 404.
+    model: optionalEnv("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
   },
   smtp: {
     host: optionalEnv("SMTP_HOST", "smtp.gmail.com"),

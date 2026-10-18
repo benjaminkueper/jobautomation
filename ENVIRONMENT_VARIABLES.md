@@ -14,7 +14,7 @@
 |----------|-------------|---------|
 | `ANTHROPIC_API_KEY` | Anthropic API key | — |
 | `CLAUDE_API_KEY` | Alias for `ANTHROPIC_API_KEY` (checked if primary not set) | — |
-| `ANTHROPIC_MODEL` | Model ID to use | `claude-3-5-sonnet-latest` |
+| `ANTHROPIC_MODEL` | Model ID to use (must be a currently-available ID; `claude-3-5-sonnet-*` is retired and returns 404) | `claude-sonnet-4-6` |
 
 At least one of `ANTHROPIC_API_KEY` / `CLAUDE_API_KEY` is required for AI modules (offer tracking, network follow-up, CV routing, job intake).
 
