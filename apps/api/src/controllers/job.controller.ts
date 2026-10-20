@@ -1,6 +1,7 @@
 import { DocumentModel, JobModel } from "@jobflow/database/models";
 import type { Request, Response } from "express";
 import { callAnthropicMessages, buildAnthropicModelCandidates, resolveAnthropicApiKey } from "@jobflow/integrations/ai/anthropic-messages";
+import { estimateAiUsage } from "@jobflow/integrations/ai/ai.service";
 import { asyncHandler } from "../utils/asyncHandler";
 import { paginatedResponse, successResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/errors";
@@ -13,7 +14,7 @@ import { enqueueAutomationModule } from "../services/automation-queue.service";
 import { setJobPipelineStage, syncJobPipelineFromApplication } from "../services/job-pipeline.service";
 import { createUserNotification } from "../services/in-app-notification.service";
 import { getProfileDocumentContextFlags } from "../services/profile-document-context.service";
-import { assertCanCreateJob } from "../services/plan-limit.service";
+import { assertCanCreateJob, assertCanUseAiCredits } from "../services/plan-limit.service";
 import { logAiUsage } from "../services/ai-usage.service";
 import { incrementUsage } from "../services/usage.service";
 /** Conditions that identify demo/test/stub jobs that must never appear in production. */
@@ -313,6 +314,11 @@ redFlags: 1-2 short concerns (missing salary, vague role, excessive requirements
 effort: Estimate application effort based on description complexity and requirements.
 recommendation: Concise recommended action.`;
 
+  // Quota check sits outside the try/catch below: a plan-limit refusal must surface as 402,
+  // not be swallowed into the friendly "Analysis unavailable" fallback.
+  const estimated = estimateAiUsage({ runType: "job-review-analysis", textLength: prompt.length });
+  await assertCanUseAiCredits(tenantId, estimated.estimatedCredits);
+
   try {
     const modelCandidates = buildAnthropicModelCandidates();
     const result = await callAnthropicMessages({ prompt, apiKey, modelCandidates, maxTokens: 400, temperature: 0.2 });
@@ -320,6 +326,18 @@ recommendation: Concise recommended action.`;
     const jsonMatch = result.text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON in AI response");
     const parsed = JSON.parse(jsonMatch[0]) as { score: number; reasons: string[]; redFlags: string[]; effort: string; recommendation: string };
+    await logAiUsage({
+      tenantId,
+      userId: req.user?.id,
+      provider: "Claude",
+      model: result.model,
+      runType: "job-review-analysis",
+      relatedRecordType: "Job",
+      relatedRecordId: jobId,
+      inputText: prompt,
+      outputText: result.text,
+      usedStub: false,
+    });
     await JobModel.findByIdAndUpdate(job._id, {
       reviewAiScore: parsed.score,
       reviewAiReasons: parsed.reasons ?? [],

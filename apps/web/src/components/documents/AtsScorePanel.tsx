@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api/client";
 import { showError } from "@/lib/ui/toast";
 import { cn } from "@/lib/utils";
-import type { AtsBaseScoreResult } from "@/app/api/documents/ats-score/route";
+import type { AtsBaseScoreResult } from "@/types/ats";
 
 // ── Score ring ────────────────────────────────────────────────────────────────
 

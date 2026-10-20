@@ -1,11 +1,14 @@
 import { DocumentModel } from "@jobflow/database/models";
 import type { Request, Response } from "express";
 import { callAnthropicMessages, buildAnthropicModelCandidates, resolveAnthropicApiKey } from "@jobflow/integrations/ai/anthropic-messages";
+import { estimateAiUsage } from "@jobflow/integrations/ai/ai.service";
 import { asyncHandler } from "../utils/asyncHandler";
 import { paginatedResponse, successResponse } from "../utils/apiResponse";
 import { ApiError } from "../utils/errors";
 import { logApiAction } from "../services/automation-log.service";
 import { assertTenantId, buildTenantFilter, createTenantScopedRecord, findTenantScopedById, updateTenantScopedById } from "../services/baseTenant.service";
+import { assertCanUseAiCredits } from "../services/plan-limit.service";
+import { logAiUsage } from "../services/ai-usage.service";
 import { getPagination } from "../utils/pagination";
 import { routeCvToJobFolder } from "../services/cv-routing.service";
 import { exportDocumentPdf } from "../services/pdf-export.service";
@@ -13,6 +16,7 @@ import { enqueueAutomationModule } from "../services/automation-queue.service";
 import { sanitizeDocumentForApi } from "../utils/document-response";
 import { processUploadedProfileDocument } from "@jobflow/workers/processors/document-upload";
 import { syncDocumentToFirebase } from "../services/document-firebase-sync.service";
+import { extractPdfTextFromBase64, isPdfUpload } from "../utils/pdf-text";
 
 function profileTypeFromBody(body: Record<string, unknown>) {
   const explicit = String(body.profileDocumentType ?? "");
@@ -63,7 +67,23 @@ export const createDocument = asyncHandler(async (req: Request, res) => {
   const body = { ...req.body } as Record<string, unknown>;
   const profileDocumentType = profileTypeFromBody(body);
   const workspaceProfileUpload = profileDocumentType && !body.jobId;
-  const contentText = typeof body.contentText === "string" ? body.contentText.trim() : "";
+  let contentText = typeof body.contentText === "string" ? body.contentText.trim() : "";
+  const fileBase64 = typeof body.fileBase64 === "string" ? body.fileBase64 : undefined;
+  const mimeType = typeof body.mimeType === "string" ? body.mimeType : undefined;
+  delete body.fileBase64;
+  delete body.mimeType;
+
+  // Browser extraction can fail (blocked pdf.js worker, unusual encodings). Retry on the server
+  // before rejecting a profile upload that arrived without text.
+  let serverExtracted = false;
+  if (!contentText && fileBase64 && isPdfUpload(mimeType, String(body.fileName ?? ""))) {
+    const extracted = await extractPdfTextFromBase64(fileBase64);
+    if (extracted) {
+      contentText = extracted;
+      serverExtracted = true;
+    }
+  }
+
   if (workspaceProfileUpload && profileDocumentType !== "supporting_document" && !contentText) {
     throw new ApiError(
       profileDocumentType === "cv_resume"
@@ -83,18 +103,13 @@ export const createDocument = asyncHandler(async (req: Request, res) => {
     body.profileDocumentType = profileDocumentType;
     body.isActiveProfileDocument = false;
     body.sourceFileName = body.sourceFileName ?? body.fileName;
-    body.extractionStatus = contentText ? "Provided" : "Not Required";
+    body.extractionStatus = serverExtracted ? "Server Extracted" : contentText ? "Provided" : "Not Required";
     body.metadata = {
       ...(typeof body.metadata === "object" && body.metadata !== null ? (body.metadata as Record<string, unknown>) : {}),
       workspaceLibrary: true,
       profileDocumentType,
     };
   }
-  const fileBase64 = typeof body.fileBase64 === "string" ? body.fileBase64 : undefined;
-  const mimeType = typeof body.mimeType === "string" ? body.mimeType : undefined;
-  delete body.fileBase64;
-  delete body.mimeType;
-
   const row = await createTenantScopedRecord(DocumentModel, tenantId, req.user?.id ?? "system", body as never);
   const userId = req.user?.id ?? "system";
   const documentId = String(row._id);
@@ -248,16 +263,28 @@ export const exportPdf = asyncHandler(async (req: Request, res) => {
   );
 });
 
+const ATS_PROMPT_VERSION = "ats-base-score-v2";
+
+/**
+ * POST /documents/ats-score
+ * Body: { cvText } | { contentText } | { content } | { documentId }
+ * Contract matches the ATS Score panel in apps/web (categoryScores / strengths / criticalIssues).
+ */
 export const scoreAtsDocument = asyncHandler(async (req: Request, res) => {
   const tenantId = assertTenantId(req.tenantId);
+  const userId = req.user?.id ?? "system";
   const body = req.body as Record<string, unknown>;
 
-  let cvText = String(body.contentText ?? body.content ?? "");
-  const docId = body.documentId ? String(body.documentId) : null;
+  const asText = (value: unknown): string => (typeof value === "string" ? value.trim() : "");
+  let cvText = asText(body.cvText) || asText(body.contentText) || asText(body.content);
+  const docId = asText(body.documentId);
 
   if (!cvText && docId) {
     const doc = await findTenantScopedById(DocumentModel, tenantId, docId);
-    if (doc) cvText = String((doc as Record<string, unknown>).content ?? "");
+    if (doc) {
+      const row = doc as Record<string, unknown>;
+      cvText = asText(row.contentText) || asText(row.content);
+    }
   }
 
   if (!cvText) throw new ApiError("No CV content provided", 422, "VALIDATION_ERROR");
@@ -265,35 +292,85 @@ export const scoreAtsDocument = asyncHandler(async (req: Request, res) => {
   const apiKey = resolveAnthropicApiKey();
   if (!apiKey) throw new ApiError("AI not configured", 503, "SERVICE_UNAVAILABLE");
 
-  const prompt = `You are an ATS (Applicant Tracking System) expert. Score this CV and provide improvement recommendations. Output ONLY valid JSON with no markdown fences.
+  const prompt = `You are an expert ATS (Applicant Tracking System) analyst and career coach.
+Analyse the CV below and return ONLY valid JSON — no markdown, no commentary.
 
-CV Content:
-${cvText.slice(0, 5000)}
+Return a JSON object with exactly these keys:
+  "overallScore": number 0-100 (ATS compatibility score)
+  "categoryScores": {
+    "formatting": number 0-100,
+    "keywords": number 0-100,
+    "structure": number 0-100,
+    "readability": number 0-100,
+    "impact": number 0-100
+  }
+  "strengths": string[] (3-5 things the CV does well for ATS)
+  "criticalIssues": string[] (up to 5 issues that will cause ATS rejection)
+  "improvements": string[] (5-8 specific, actionable improvements)
+  "improvedHeadline": string (rewritten professional headline, max 12 words)
+  "improvedSummary": string (rewritten 3-4 sentence ATS-optimised summary)
 
-Output exactly:
-{
-  "overallScore": <integer 0-100>,
-  "categories": {
-    "keywords": <integer 0-100>,
-    "formatting": <integer 0-100>,
-    "experience": <integer 0-100>,
-    "education": <integer 0-100>,
-    "skills": <integer 0-100>
-  },
-  "improvements": ["<specific improvement suggestion>", ...],
-  "improvedHeadline": "<rewritten headline for ATS>",
-  "improvedSummary": "<rewritten 3-4 sentence professional summary, ATS-optimised>"
-}`;
+ATS scoring criteria:
+- formatting: No tables, graphics, headers/footers; standard section names; consistent date formats
+- keywords: Industry-standard job titles, skills vocabulary, action verbs
+- structure: Clear sections (Experience, Education, Skills); reverse chronological order
+- readability: Short bullets, quantified achievements, no jargon
+- impact: Results-oriented language, metrics, scope of responsibility
 
-  const modelCandidates = buildAnthropicModelCandidates();
-  const result = await callAnthropicMessages({ prompt, apiKey, modelCandidates, maxTokens: 1000, temperature: 0.2 });
-  if (!result.ok) throw new ApiError("AI scoring failed", 503, "SERVICE_UNAVAILABLE");
+CV to analyse:
+${cvText.slice(0, 8000)}`;
+
+  const estimated = estimateAiUsage({ runType: "ats-score", textLength: cvText.length });
+  await assertCanUseAiCredits(tenantId, estimated.estimatedCredits);
+
+  const result = await callAnthropicMessages({
+    prompt,
+    apiKey,
+    modelCandidates: buildAnthropicModelCandidates(),
+    maxTokens: 1200,
+    temperature: 0.3,
+  });
+  if (!result.ok) throw new ApiError(result.message ?? "AI scoring failed", 503, "SERVICE_UNAVAILABLE");
 
   let parsed: Record<string, unknown> = {};
   try {
-    const m = result.text.match(/\{[\s\S]*\}/);
-    if (m) parsed = JSON.parse(m[0]) as Record<string, unknown>;
-  } catch { throw new ApiError("Failed to parse AI response", 503, "SERVICE_UNAVAILABLE"); }
+    const cleaned = result.text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    parsed = JSON.parse(match ? match[0] : cleaned) as Record<string, unknown>;
+  } catch {
+    throw new ApiError("Failed to parse AI response", 503, "SERVICE_UNAVAILABLE");
+  }
 
-  return successResponse(res, parsed);
+  const categoryScores = (parsed.categoryScores ?? {}) as Record<string, unknown>;
+  const strArray = (value: unknown): string[] =>
+    Array.isArray(value) ? value.map((v) => String(v)).filter((v) => v.trim()) : [];
+  const data = {
+    overallScore: Number(parsed.overallScore ?? 0),
+    categoryScores: {
+      formatting: Number(categoryScores.formatting ?? 0),
+      keywords: Number(categoryScores.keywords ?? 0),
+      structure: Number(categoryScores.structure ?? 0),
+      readability: Number(categoryScores.readability ?? 0),
+      impact: Number(categoryScores.impact ?? 0),
+    },
+    strengths: strArray(parsed.strengths),
+    criticalIssues: strArray(parsed.criticalIssues),
+    improvements: strArray(parsed.improvements),
+    improvedHeadline: String(parsed.improvedHeadline ?? ""),
+    improvedSummary: String(parsed.improvedSummary ?? ""),
+    promptVersion: ATS_PROMPT_VERSION,
+  };
+
+  await logAiUsage({
+    tenantId,
+    userId,
+    provider: "Claude",
+    model: result.model,
+    runType: "ats-score",
+    inputText: cvText,
+    outputText: JSON.stringify(data),
+    usedStub: false,
+  });
+
+  return successResponse(res, data);
 });

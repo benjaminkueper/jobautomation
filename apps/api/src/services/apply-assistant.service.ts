@@ -1,6 +1,7 @@
 import { DocumentModel, JobModel } from "@jobflow/database/models";
 import { documentApplicationEvent } from "@jobflow/database";
 import { callAnthropicMessages, callAnthropicMessagesContent, buildAnthropicModelCandidates, resolveAnthropicApiKey } from "@jobflow/integrations/ai/anthropic-messages";
+import { estimateAiUsage } from "@jobflow/integrations/ai/ai.service";
 import {
   formatProfileContextBlock,
   loadWorkspaceProfileForPrompt,
@@ -8,6 +9,8 @@ import {
 import { exportDriveFile } from "./google-drive-export.service";
 import { downloadFirebaseObject, firebaseStorageEnabled } from "./firebase-storage.service";
 import { assertTenantId, findTenantScopedById } from "./baseTenant.service";
+import { assertCanUseAiCredits } from "./plan-limit.service";
+import { logAiUsage } from "./ai-usage.service";
 import { ApiError } from "../utils/errors";
 
 const workspaceJobFilter = {
@@ -392,13 +395,50 @@ function buildAnswerPrompt(input: {
     .join("\n");
 }
 
-async function callApplyAnswerAi(prompt: string, variant: ApplyAnswerVariant, maxCharacters: number | null) {
+type ApplyAiMetering = { tenantId: string; userId?: string; jobId?: string; runType: string };
+
+/** Enforces the tenant AI allowance before spending, so assistant calls cannot bypass the plan cap. */
+async function meterApplyAiCall(input: { metering: ApplyAiMetering; promptLength: number }): Promise<void> {
+  const estimated = estimateAiUsage({ runType: input.metering.runType, textLength: input.promptLength });
+  await assertCanUseAiCredits(input.metering.tenantId, estimated.estimatedCredits);
+}
+
+async function recordApplyAiCall(input: {
+  metering: ApplyAiMetering;
+  provider: "Claude" | "Stub";
+  model: string;
+  inputText: string;
+  outputText: string;
+  usedStub: boolean;
+}): Promise<void> {
+  await logAiUsage({
+    tenantId: input.metering.tenantId,
+    userId: input.metering.userId,
+    provider: input.provider,
+    model: input.model,
+    runType: input.metering.runType,
+    relatedRecordType: input.metering.jobId ? "Job" : undefined,
+    relatedRecordId: input.metering.jobId,
+    inputText: input.inputText,
+    outputText: input.outputText,
+    usedStub: input.usedStub,
+  });
+}
+
+async function callApplyAnswerAi(
+  prompt: string,
+  variant: ApplyAnswerVariant,
+  maxCharacters: number | null,
+  metering: ApplyAiMetering
+) {
   const apiKey = resolveAnthropicApiKey();
   if (!apiKey) throw new ApiError("AI is not configured", 503, "AI_NOT_CONFIGURED");
 
   const compactMax = variant === "compact" ? maxCharacters ?? APPLY_ANSWER_COMPACT_MAX_CHARS : null;
   const maxTokens =
     compactMax != null ? Math.min(900, Math.max(120, Math.ceil(compactMax / 2) + 40)) : 900;
+
+  await meterApplyAiCall({ metering, promptLength: prompt.length });
 
   const result = await callAnthropicMessages({
     prompt,
@@ -412,6 +452,15 @@ async function callApplyAnswerAi(prompt: string, variant: ApplyAnswerVariant, ma
   let answer = result.text.trim();
   if (!answer) throw new ApiError("AI returned an empty answer", 502, "AI_EMPTY");
   if (compactMax != null) answer = enforceCompactLength(answer, compactMax);
+
+  await recordApplyAiCall({
+    metering,
+    provider: "Claude",
+    model: result.model,
+    inputText: prompt,
+    outputText: answer,
+    usedStub: false,
+  });
   return answer;
 }
 
@@ -431,7 +480,12 @@ export async function generateApplyAnswer(input: {
   const maxCharacters = resolveAnswerMaxCharacters({ variant, maxCharacters: input.maxCharacters });
   const { job, profileBlock, description } = await loadApplyAnswerContext(tenantId, input.userId, input.jobId);
   const prompt = buildAnswerPrompt({ job, profileBlock, description, question, variant, maxCharacters });
-  const answer = await callApplyAnswerAi(prompt, variant, maxCharacters);
+  const answer = await callApplyAnswerAi(prompt, variant, maxCharacters, {
+    tenantId,
+    userId: input.userId,
+    jobId: input.jobId,
+    runType: "apply-answer-generation",
+  });
 
   return {
     answer,
@@ -470,6 +524,16 @@ export async function generateApplyAnswersFromScreenshot(input: {
 
   const { job, profileBlock, description } = await loadApplyAnswerContext(tenantId, input.userId, input.jobId);
 
+  const screenshotMetering: ApplyAiMetering = {
+    tenantId,
+    userId: input.userId,
+    jobId: input.jobId,
+    runType: "apply-screenshot-extraction",
+  };
+  // Estimate for the image tokens (the base64 length is not text and must not drive the estimate).
+  const SCREENSHOT_TOKEN_CHAR_EQUIVALENT = 3000;
+  await meterApplyAiCall({ metering: screenshotMetering, promptLength: SCREENSHOT_TOKEN_CHAR_EQUIVALENT });
+
   const extractResult = await callAnthropicMessagesContent({
     apiKey,
     modelCandidates: buildAnthropicModelCandidates(),
@@ -493,6 +557,15 @@ export async function generateApplyAnswersFromScreenshot(input: {
   });
   if (!extractResult.ok) throw new ApiError(extractResult.message ?? "Could not read screenshot", 502, "AI_FAILED");
 
+  await recordApplyAiCall({
+    metering: screenshotMetering,
+    provider: "Claude",
+    model: extractResult.model,
+    inputText: `Screenshot (${mediaType})`,
+    outputText: extractResult.text,
+    usedStub: false,
+  });
+
   let questions: string[];
   try {
     questions = parseQuestionsJson(extractResult.text);
@@ -506,7 +579,12 @@ export async function generateApplyAnswersFromScreenshot(input: {
   const items: Array<{ question: string; answer: string; characterCount: number; maxCharacters?: number }> = [];
   for (const question of questions) {
     const prompt = buildAnswerPrompt({ job, profileBlock, description, question, variant, maxCharacters });
-    const answer = await callApplyAnswerAi(prompt, variant, maxCharacters);
+    const answer = await callApplyAnswerAi(prompt, variant, maxCharacters, {
+      tenantId,
+      userId: input.userId,
+      jobId: input.jobId,
+      runType: "apply-answer-generation",
+    });
     items.push({
       question,
       answer,
