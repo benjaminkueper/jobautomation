@@ -80,6 +80,8 @@ export const createDocument = asyncHandler(async (req: Request, res) => {
     const extracted = await extractPdfTextFromBase64(fileBase64);
     if (extracted) {
       contentText = extracted;
+      // Persist into the row: the processor reads contentText back from the DB.
+      body.contentText = extracted;
       serverExtracted = true;
     }
   }
