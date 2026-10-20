@@ -103,11 +103,12 @@ export const createDocument = asyncHandler(async (req: Request, res) => {
     body.profileDocumentType = profileDocumentType;
     body.isActiveProfileDocument = false;
     body.sourceFileName = body.sourceFileName ?? body.fileName;
-    body.extractionStatus = serverExtracted ? "Server Extracted" : contentText ? "Provided" : "Not Required";
+    body.extractionStatus = contentText ? "Provided" : "Not Required";
     body.metadata = {
       ...(typeof body.metadata === "object" && body.metadata !== null ? (body.metadata as Record<string, unknown>) : {}),
       workspaceLibrary: true,
       profileDocumentType,
+      ...(serverExtracted ? { textExtractedOnServer: true } : {}),
     };
   }
   const row = await createTenantScopedRecord(DocumentModel, tenantId, req.user?.id ?? "system", body as never);
