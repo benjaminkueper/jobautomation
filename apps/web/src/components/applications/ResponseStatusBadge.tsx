@@ -13,7 +13,7 @@ const RESPONSE_STYLES: Record<ResponseStatus, string> = {
   "Negative Reply":
     "bg-[var(--rose-bg)] text-[var(--rose)] border border-[rgba(229,88,109,0.18)]",
   "Auto Reply":
-    "bg-[var(--accent-bg)] text-[var(--accent-hi)] border border-[rgba(99,124,255,0.18)]",
+    "bg-[var(--accent-bg)] text-[var(--accent-hi)] border border-[rgba(1,59,42,0.22)]",
   "Needs Review":
     "bg-[var(--amber-bg)] text-[var(--amber)] border border-[rgba(229,162,59,0.18)]",
 };

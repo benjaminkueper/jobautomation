@@ -235,7 +235,7 @@ export function AdvancedTodayDashboard({ today, todayLoading, todayError }: Toda
       <section className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-6">
         <Link
           href="/jobs/review"
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-b from-[#7488FF] to-[#4D63E0] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:from-[#8499FF] hover:to-[#5a72e8]"
+          className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-b from-[#024F38] to-[#013B2A] px-4 py-2 text-[13px] font-semibold text-white shadow-sm hover:from-[#0A5A42] hover:to-[#024F38]"
         >
           <SparkleIcon size={14} />
           {t("today.quickReview")}

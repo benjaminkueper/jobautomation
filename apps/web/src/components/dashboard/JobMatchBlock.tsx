@@ -17,7 +17,7 @@ export function JobMatchBlock() {
   if (total === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 dark:border-blue-900/40 dark:from-blue-950/20 dark:to-indigo-950/20">
+    <div className="rounded-2xl border border-[rgba(1,59,42,0.18)] bg-gradient-to-br from-[#E7F6EC] to-[#F7F8F7] p-5 dark:border-[rgba(253,162,1,0.2)] dark:from-[rgba(1,59,42,0.35)] dark:to-[rgba(1,59,42,0.18)]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2">

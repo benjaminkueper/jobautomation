@@ -5,6 +5,7 @@ import {
   resolveAnthropicApiKey,
 } from "@jobflow/integrations/ai/anthropic-messages";
 import { notifyAutomationEvent } from "../lib/notifications";
+import { recordWorkerAiUsage, type AiMeteringContext } from "../lib/ai-metering";
 import { logger } from "../utils/logger";
 import { redactForLog } from "../utils/worker-error";
 
@@ -65,6 +66,7 @@ async function classifyOfferWithClaude(input: {
   bodyText: string;
   company: string;
   position: string;
+  metering?: AiMeteringContext;
 }): Promise<OfferClassification | null> {
   const apiKey = resolveAnthropicApiKey();
   if (!apiKey) return null;
@@ -90,6 +92,15 @@ async function classifyOfferWithClaude(input: {
 
   try {
     const result = await callAnthropicMessages({ prompt, apiKey, modelCandidates, maxTokens: 300, temperature: 0.1 });
+    if (result.ok && input.metering) {
+      await recordWorkerAiUsage(input.metering, {
+        provider: "Claude",
+        model: result.model,
+        inputText: prompt,
+        outputText: result.text,
+        usedStub: false,
+      });
+    }
     if (!result.ok) return null;
 
     const fenceMatch = result.text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -154,6 +165,13 @@ export async function processOfferTrackingJob(payload: {
           bodyText,
           company: String(app.company ?? ""),
           position: String(app.position ?? ""),
+          metering: {
+            tenantId,
+            runType: "offer-classification",
+            operationId,
+            relatedRecordType: "Application",
+            relatedRecordId: appId,
+          },
         });
 
         const detectionKey = `offer-detection:${tenantId}:${appId}:${today}`;

@@ -480,7 +480,7 @@ export function DemoWalkthroughClient() {
         </div>
       ) : null}
 
-      <MotionCard className="overflow-hidden border-border/60 bg-gradient-to-br from-slate-950/80 via-slate-900/60 to-indigo-950/40 p-6 text-slate-50 shadow-xl">
+      <MotionCard className="overflow-hidden border-border/60 bg-gradient-to-br from-slate-950/80 via-slate-900/60 to-[rgba(1,59,42,0.45)] p-6 text-slate-50 shadow-xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">

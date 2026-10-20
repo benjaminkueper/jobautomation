@@ -11,6 +11,7 @@ import {
   resolveAnthropicApiKey,
 } from "@jobflow/integrations/ai/anthropic-messages";
 import { notifyAutomationEvent } from "../lib/notifications";
+import { recordWorkerAiUsage, type AiMeteringContext } from "../lib/ai-metering";
 import { logger } from "../utils/logger";
 
 // Application statuses that are still active and can need follow-ups.
@@ -45,6 +46,7 @@ async function buildReminderContent(application: {
   dateApplied?: Date | null;
   notes?: string | null;
   followUpMessagePreview?: string | null;
+  metering?: AiMeteringContext;
 }): Promise<{ subject: string; text: string; html: string; aiGenerated: boolean }> {
   const company = application.company;
   const position = application.position;
@@ -91,6 +93,16 @@ async function buildReminderContent(application: {
         maxTokens: 400,
         temperature: 0.3,
       });
+
+      if (result.ok && application.metering) {
+        await recordWorkerAiUsage(application.metering, {
+          provider: "Claude",
+          model: result.model,
+          inputText: prompt,
+          outputText: result.text,
+          usedStub: false,
+        });
+      }
 
       if (result.ok) {
         const cleaned = result.text
@@ -225,6 +237,13 @@ export async function processFollowUpReminderJob(payload: {
           dateApplied: application.dateApplied ?? null,
           notes: application.notes ?? null,
           followUpMessagePreview: application.followUpMessagePreview ?? null,
+          metering: {
+            tenantId,
+            runType: "follow-up-reminder",
+            operationId,
+            relatedRecordType: "Application",
+            relatedRecordId: applicationId,
+          },
         });
 
         // ── 1. Resend email to tenant owner ──────────────────────────────

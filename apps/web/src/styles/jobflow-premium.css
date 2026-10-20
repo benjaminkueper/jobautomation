@@ -37,7 +37,7 @@
   --border-subtle: rgba(255, 255, 255, 0.045);
   --border-default: rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.11);
-  --border-focus: rgba(99, 124, 255, 0.45);
+  --border-focus: rgba(253, 162, 1, 0.45);
   --text-1: #eceef2;
   --text-2: #b5bac4;
   --text-3: #7c828f;
@@ -48,25 +48,26 @@
   --bar-border: rgba(255, 255, 255, 0.09);
   --topbar-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.85);
   --bottombar-shadow: 0 -8px 32px -12px rgba(0, 0, 0, 0.5);
-  --accent: #637cff;
-  --accent-hi: #8499ff;
-  --accent-lo: #4d63e0;
-  --accent-bg: rgba(99, 124, 255, 0.1);
-  --accent-bg-hi: rgba(99, 124, 255, 0.16);
-  --accent-ring: rgba(99, 124, 255, 0.28);
+  /* Brand — matches landing (#013B2A green, #FDA201 yellow) */
+  --accent: #0a5a42;
+  --accent-hi: #1a8f5c;
+  --accent-lo: #013b2a;
+  --accent-bg: rgba(1, 59, 42, 0.22);
+  --accent-bg-hi: rgba(1, 59, 42, 0.32);
+  --accent-ring: rgba(253, 162, 1, 0.32);
   --emerald: #38c793;
   --emerald-bg: rgba(56, 199, 147, 0.1);
   --amber: #e5a23b;
   --amber-bg: rgba(229, 162, 59, 0.1);
   --rose: #e5586d;
   --rose-bg: rgba(229, 88, 109, 0.1);
-  --violet: #a47cff;
-  --violet-bg: rgba(164, 124, 255, 0.1);
+  --violet: #fda201;
+  --violet-bg: rgba(253, 162, 1, 0.12);
   --teal: #4fc2d8;
   --teal-bg: rgba(79, 194, 216, 0.1);
   --shadow-card: 0 1px 0 0 rgba(255, 255, 255, 0.025) inset, 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-pop: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 6px 20px -6px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 0 1px var(--accent-ring), 0 8px 24px -10px rgba(99, 124, 255, 0.45);
+  --shadow-glow: 0 0 0 1px var(--accent-ring), 0 8px 24px -10px rgba(1, 59, 42, 0.45);
   color: var(--text-1);
   background: var(--bg-0);
 }
@@ -90,7 +91,7 @@
   --border-subtle: rgba(15, 18, 24, 0.06);
   --border-default: rgba(15, 18, 24, 0.1);
   --border-strong: rgba(15, 18, 24, 0.16);
-  --border-focus: rgba(77, 99, 224, 0.45);
+  --border-focus: rgba(1, 59, 42, 0.4);
 
   /* Text — proper contrast hierarchy on white */
   --text-1: #0e1116;
@@ -104,13 +105,13 @@
   --topbar-shadow: 0 10px 24px -18px rgba(15, 18, 24, 0.32);
   --bottombar-shadow: 0 -10px 30px -18px rgba(15, 18, 24, 0.3);
 
-  /* Accent — slightly darker indigo for AA contrast on white */
-  --accent: #4d63e0;
-  --accent-hi: #637cff;
-  --accent-lo: #3e50c7;
-  --accent-bg: rgba(99, 124, 255, 0.1);
-  --accent-bg-hi: rgba(99, 124, 255, 0.18);
-  --accent-ring: rgba(99, 124, 255, 0.32);
+  /* Brand — NewJob Guru green + yellow (same as landing) */
+  --accent: #013b2a;
+  --accent-hi: #024f38;
+  --accent-lo: #01281d;
+  --accent-bg: rgba(1, 59, 42, 0.08);
+  --accent-bg-hi: rgba(1, 59, 42, 0.14);
+  --accent-ring: rgba(1, 59, 42, 0.28);
 
   /* Semantic colors — darker for contrast on white */
   --emerald: #1f8f66;
@@ -119,8 +120,8 @@
   --amber-bg: rgba(229, 162, 59, 0.14);
   --rose: #b83344;
   --rose-bg: rgba(229, 88, 109, 0.1);
-  --violet: #6f4fe0;
-  --violet-bg: rgba(164, 124, 255, 0.12);
+  --violet: #c47e00;
+  --violet-bg: rgba(253, 162, 1, 0.14);
   --teal: #2a8fa3;
   --teal-bg: rgba(79, 194, 216, 0.14);
 
@@ -135,7 +136,7 @@
     0 12px 32px -8px rgba(15, 18, 24, 0.12);
   --shadow-glow:
     0 0 0 1px var(--accent-ring),
-    0 8px 24px -10px rgba(77, 99, 224, 0.3);
+    0 8px 24px -10px rgba(1, 59, 42, 0.28);
 
   color: var(--text-1);
   background: var(--bg-0);
@@ -144,8 +145,8 @@
 /* Light canvas: soften ambient gradients + grain */
 .dashboard-bg.light .jf-app-bg {
   background:
-    radial-gradient(800px 500px at 18% -10%, rgba(99, 124, 255, 0.045), transparent 60%),
-    radial-gradient(600px 500px at 100% 0%, rgba(164, 124, 255, 0.028), transparent 60%);
+    radial-gradient(800px 500px at 18% -10%, rgba(1, 59, 42, 0.05), transparent 60%),
+    radial-gradient(600px 500px at 100% 0%, rgba(253, 162, 1, 0.04), transparent 60%);
 }
 
 .dashboard-bg.light .jf-app-grain {
@@ -176,8 +177,8 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(800px 500px at 18% -10%, rgba(99, 124, 255, 0.06), transparent 60%),
-    radial-gradient(600px 500px at 100% 0%, rgba(164, 124, 255, 0.035), transparent 60%);
+    radial-gradient(800px 500px at 18% -10%, rgba(1, 59, 42, 0.1), transparent 60%),
+    radial-gradient(600px 500px at 100% 0%, rgba(253, 162, 1, 0.05), transparent 60%);
 }
 
 .jf-app-grain {
@@ -236,14 +237,14 @@
   height: 30px;
   flex: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #6e83ff 0%, #4d63e0 100%);
+  background: linear-gradient(135deg, #024f38 0%, #013b2a 100%);
   display: grid;
   place-items: center;
   position: relative;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.18),
     inset 0 -8px 16px rgba(0, 0, 0, 0.25),
-    0 4px 14px -4px rgba(99, 124, 255, 0.45);
+    0 4px 14px -4px rgba(1, 59, 42, 0.45);
 }
 
 .jf-brand-mark::after {
@@ -311,10 +312,10 @@
 }
 
 .jf-nav-item.is-active {
-  background: linear-gradient(180deg, rgba(99, 124, 255, 0.1) 0%, rgba(99, 124, 255, 0.06) 100%);
+  background: linear-gradient(180deg, var(--accent-bg-hi) 0%, var(--accent-bg) 100%);
   color: var(--text-1);
   box-shadow:
-    inset 0 0 0 1px rgba(99, 124, 255, 0.18),
+    inset 0 0 0 1px var(--accent-ring),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -332,7 +333,7 @@
   height: 18px;
   border-radius: 0 3px 3px 0;
   background: linear-gradient(180deg, var(--accent-hi), var(--accent));
-  box-shadow: 0 0 12px rgba(99, 124, 255, 0.6);
+  box-shadow: 0 0 12px rgba(1, 59, 42, 0.55);
 }
 
 .jf-nav-badge {
@@ -427,8 +428,8 @@
   position: relative;
   border-radius: var(--r-xl);
   background:
-    radial-gradient(900px 300px at 0% 0%, rgba(99, 124, 255, 0.1), transparent 65%),
-    radial-gradient(600px 300px at 100% 100%, rgba(164, 124, 255, 0.06), transparent 65%),
+    radial-gradient(900px 300px at 0% 0%, rgba(1, 59, 42, 0.1), transparent 65%),
+    radial-gradient(600px 300px at 100% 100%, rgba(253, 162, 1, 0.07), transparent 65%),
     linear-gradient(180deg, var(--surface-2) 0%, var(--surface-1) 100%);
   border: 1px solid var(--border-default);
   padding: 26px 28px;
@@ -575,7 +576,7 @@
 .jf-kpi-icon--violet {
   background: var(--violet-bg);
   color: var(--violet);
-  border-color: rgba(164, 124, 255, 0.22);
+  border-color: rgba(253, 162, 1, 0.28);
 }
 
 .jf-kpi-icon--amber {
@@ -1003,7 +1004,7 @@
   border-radius: var(--r-md);
   border: 1px dashed var(--border-default);
   background:
-    radial-gradient(220px 120px at 50% 0%, rgba(99, 124, 255, 0.06), transparent 70%),
+    radial-gradient(220px 120px at 50% 0%, rgba(1, 59, 42, 0.07), transparent 70%),
     var(--surface-1);
 }
 

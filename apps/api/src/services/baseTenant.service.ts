@@ -1,6 +1,5 @@
 import type { FilterQuery, Model } from "mongoose";
-import { ApiError } from "../utils/errors";
-export function assertTenantId(tenantId?: string): string { if(!tenantId) throw new ApiError("Tenant context is required",400,"TENANT_REQUIRED"); return tenantId; }
+export { assertTenantId } from "@jobflow/shared/utils/tenant-context";
 export function buildTenantFilter<T>(tenantId: string, extraFilter: FilterQuery<T> = {}) { return { tenantId, ...extraFilter } as FilterQuery<T>; }
 export function applyPagination<T>(query:T,page:number,limit:number){ const skip=(page-1)*limit; // @ts-expect-error mongoose chain
  return query.skip(skip).limit(limit); }

@@ -15,7 +15,7 @@ const GRID_STROKE = "var(--border-subtle, rgba(255,255,255,0.045))";
 
 const TICK = { fill: "var(--text-3, #7C828F)", fontSize: 11 } as const;
 
-const LINE_STROKE = "var(--accent-hi, #8499FF)";
+const LINE_STROKE = "var(--accent-hi, #024F38)";
 
 const DOT = {
   r: 4,
@@ -24,7 +24,7 @@ const DOT = {
   strokeWidth: 1.5,
 } as const;
 
-const ACTIVE_DOT = { r: 5, fill: "var(--accent-hi, #8499FF)", stroke: "var(--text-1, #ECEEF2)" } as const;
+const ACTIVE_DOT = { r: 5, fill: "var(--accent-hi, #024F38)", stroke: "var(--text-1, #ECEEF2)" } as const;
 
 export function ResponseRateTrendChart({ data }: { data: { day: string; rate: number }[] }) {
   const { t } = useTranslation();

@@ -5,6 +5,7 @@ import {
   resolveAnthropicApiKey,
 } from "@jobflow/integrations/ai/anthropic-messages";
 import { notifyAutomationEvent } from "../lib/notifications";
+import { recordWorkerAiUsage, type AiMeteringContext } from "../lib/ai-metering";
 import { logger } from "../utils/logger";
 import { redactForLog } from "../utils/worker-error";
 
@@ -58,6 +59,7 @@ async function generateFollowUpSuggestion(input: {
   relationship?: string;
   lastContacted?: Date;
   followUpReason?: string;
+  metering?: AiMeteringContext;
 }): Promise<FollowUpSuggestion | null> {
   const apiKey = resolveAnthropicApiKey();
   if (!apiKey) return null;
@@ -90,6 +92,15 @@ async function generateFollowUpSuggestion(input: {
 
   try {
     const result = await callAnthropicMessages({ prompt, apiKey, modelCandidates, maxTokens: 350, temperature: 0.4 });
+    if (result.ok && input.metering) {
+      await recordWorkerAiUsage(input.metering, {
+        provider: "Claude",
+        model: result.model,
+        inputText: prompt,
+        outputText: result.text,
+        usedStub: false,
+      });
+    }
     if (!result.ok) return null;
 
     const fenceMatch = result.text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -167,6 +178,13 @@ export async function processNetworkFollowUpJob(payload: {
           relationship: contact.relationship ? String(contact.relationship) : undefined,
           lastContacted: contact.lastContacted ? new Date(String(contact.lastContacted)) : undefined,
           followUpReason: contact.followUpReason ? String(contact.followUpReason) : undefined,
+          metering: {
+            tenantId,
+            runType: "network-follow-up",
+            operationId,
+            relatedRecordType: "Contact",
+            relatedRecordId: contactId,
+          },
         });
 
         // Persist suggestion and mark reminded regardless of AI success

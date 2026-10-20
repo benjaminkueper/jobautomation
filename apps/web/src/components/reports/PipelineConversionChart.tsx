@@ -17,9 +17,9 @@ const TICK = { fill: "var(--text-3, #7C828F)", fontSize: 11 } as const;
 
 const BAR_FILLS = [
   "var(--accent, #637CFF)",
-  "var(--accent-lo, #4D63E0)",
+  "var(--accent-lo, #013B2A)",
   "var(--emerald, #38C793)",
-  "var(--violet, #A47CFF)",
+  "var(--violet, #FDA201)",
 ] as const;
 
 export function PipelineConversionChart({ data }: { data: { stage: string; conversion: number }[] }) {

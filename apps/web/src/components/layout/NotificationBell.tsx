@@ -68,7 +68,7 @@ function NotificationListContent({
       ) : (
         <ul className="divide-y divide-[var(--border-subtle)]">
           {items.map((n) => (
-            <li key={n.id} className={cn("space-y-1.5 px-3 py-3", !n.read && "bg-[rgba(99,124,255,0.06)]")}>
+            <li key={n.id} className={cn("space-y-1.5 px-3 py-3", !n.read && "bg-[rgba(1,59,42,0.08)]")}>
               <div className="flex items-start justify-between gap-2">
                 <p className="min-w-0 flex-1 break-words text-[13px] font-semibold leading-snug text-[var(--text-1)]">
                   {n.title}

@@ -17,8 +17,8 @@ const SLICE_FILLS = [
   "var(--emerald, #38C793)",
   "var(--amber, #E5A23B)",
   "var(--rose, #E5586D)",
-  "var(--violet, #A47CFF)",
-  "var(--accent-lo, #4D63E0)",
+  "var(--violet, #FDA201)",
+  "var(--accent-lo, #013B2A)",
   "var(--cyan, #38BDF8)",
   "var(--teal, #2DD4BF)",
 ] as const;

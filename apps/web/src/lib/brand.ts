@@ -7,7 +7,7 @@ export const BRAND = {
   taglineDe: "KI-gestützte Bewerbungsautomatisierung",
   logoPath: "/brand/logo.jpeg",
   iconPath: "/brand/logo.jpeg",
-  themeColor: "#4D63E0",
-  backgroundColor: "#0f1118",
+  themeColor: "#013B2A",
+  backgroundColor: "#01281D",
   domains: ["newjob.guru", "www.newjob.guru"],
 } as const;

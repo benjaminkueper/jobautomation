@@ -11,6 +11,7 @@ import { GOOGLE_DRIVE_DOCS_WORKER_SCOPES } from "@jobflow/shared/constants/googl
 import { notifyAutomationEvent } from "../lib/notifications";
 import { createInAppNotification } from "../lib/in-app-notifications";
 import { logger } from "../utils/logger";
+import { assertWorkerAiCredits, recordWorkerAiUsage, type AiMeteringContext } from "../lib/ai-metering";
 import { redactForLog, serializeWorkerError } from "../utils/worker-error";
 
 type JobContext = {
@@ -127,6 +128,7 @@ async function generateWithClaude(input: {
   prompt: string;
   maxTokens?: number;
   temperature?: number;
+  metering?: AiMeteringContext;
 }): Promise<ClaudeResult> {
   const apiKey = resolveAnthropicApiKey();
   if (!apiKey) {
@@ -134,6 +136,10 @@ async function generateWithClaude(input: {
   }
 
   const modelCandidates = buildAnthropicModelCandidates();
+
+  if (input.metering) {
+    await assertWorkerAiCredits(input.metering, input.prompt.length);
+  }
 
   try {
     const result = await callAnthropicMessages({
@@ -146,6 +152,15 @@ async function generateWithClaude(input: {
 
     if (result.ok) {
       logger.info({ model: result.model }, "anthropic messages success");
+      if (input.metering) {
+        await recordWorkerAiUsage(input.metering, {
+          provider: "Claude",
+          model: result.model,
+          inputText: input.prompt,
+          outputText: result.text,
+          usedStub: false,
+        });
+      }
       return { text: result.text, model: result.model };
     }
 
@@ -352,7 +367,19 @@ export async function createResearchDocument(input: {
 
   let generated: ClaudeResult;
   try {
-    generated = await generateWithClaude({ prompt, maxTokens: 1800, temperature: 0.2 });
+    generated = await generateWithClaude({
+      prompt,
+      maxTokens: 1800,
+      temperature: 0.2,
+      metering: {
+        tenantId: ctx.tenantId,
+        userId: ctx.userId,
+        runType: "research-generation",
+        operationId: ctx.operationId,
+        relatedRecordType: "Job",
+        relatedRecordId: ctx.jobId,
+      },
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Claude generation failed";
     await writeAutomationLog({
@@ -627,7 +654,19 @@ export async function createCoverLetterDocument(input: {
 
   let generated: ClaudeResult;
   try {
-    generated = await generateWithClaude({ prompt, maxTokens: 2000, temperature: 0.3 });
+    generated = await generateWithClaude({
+      prompt,
+      maxTokens: 2000,
+      temperature: 0.3,
+      metering: {
+        tenantId: ctx.tenantId,
+        userId: ctx.userId,
+        runType: "draft-generation",
+        operationId: ctx.operationId,
+        relatedRecordType: "Job",
+        relatedRecordId: ctx.jobId,
+      },
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Claude generation failed";
     await writeAutomationLog({
@@ -871,7 +910,19 @@ export async function createAiAnalysisDocument(input: {
 
   let generated: ClaudeResult;
   try {
-    generated = await generateWithClaude({ prompt, maxTokens: 1200, temperature: 0.2 });
+    generated = await generateWithClaude({
+      prompt,
+      maxTokens: 1200,
+      temperature: 0.2,
+      metering: {
+        tenantId: ctx.tenantId,
+        userId: ctx.userId,
+        runType: "ai-analysis-generation",
+        operationId: ctx.operationId,
+        relatedRecordType: "Job",
+        relatedRecordId: ctx.jobId,
+      },
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Claude generation failed";
     await writeAutomationLog({

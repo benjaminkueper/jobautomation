@@ -7,6 +7,7 @@ import { checkDuplicateJobWorker } from "../lib/duplicate-job-check";
 import { loadGoogleAccessToken } from "../lib/google-auth";
 import { notifyAutomationEvent } from "../lib/notifications";
 import { enqueueAutomationJob } from "../queues/automation.queue";
+import { recordWorkerAiUsage } from "../lib/ai-metering";
 
 async function gmailApiJson<T>(input: {
   accessToken: string;
@@ -428,6 +429,24 @@ export async function processJobIntakeProcessor(payload: JobIntakeProcessorPaylo
       relatedRecordId: String(created._id),
       metadata: { gmailMessageId: normalized.providerMessageId, source: data.source || "gmail" },
     });
+
+    await recordWorkerAiUsage(
+      {
+        tenantId: payload.tenantId,
+        userId: payload.userId,
+        runType: "job-extraction",
+        operationId,
+        relatedRecordType: "Job",
+        relatedRecordId: String(created._id),
+      },
+      {
+        provider: extraction.provider,
+        model: extraction.model,
+        inputText: `${normalized.subject ?? ""}\n${normalized.bodyText ?? ""}`,
+        outputText: JSON.stringify(extraction.data),
+        usedStub: extraction.usedStub,
+      },
+    );
 
     const downstreamModules: Array<{
       name: "duplicate-protection" | "folder-automation" | "research-document" | "ai-processing";

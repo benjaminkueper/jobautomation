@@ -4,8 +4,8 @@
   "description": "Automated job search — Gmail intake, tailored CVs, and mobile Apply Assistant.",
   "start_url": "/today",
   "display": "standalone",
-  "background_color": "#0f1117",
-  "theme_color": "#4D63E0",
+  "background_color": "#01281D",
+  "theme_color": "#013B2A",
   "orientation": "portrait-primary",
   "icons": [
     {

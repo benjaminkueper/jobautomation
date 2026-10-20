@@ -1,6 +1,6 @@
 import type { PlanLimitName } from "@jobflow/shared/types/billing";
 import { createAutomationLog } from "./automation-log.service";
-import { checkPlanLimit } from "./billing.service";
+import { checkPlanLimit } from "@jobflow/database/services/plan-limits.service";
 import { ApiError } from "../utils/errors";
 
 const LIMIT_MESSAGE = "Plan limit reached. Upgrade your plan to continue.";

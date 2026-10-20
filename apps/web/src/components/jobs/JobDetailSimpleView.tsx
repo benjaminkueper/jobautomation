@@ -47,7 +47,7 @@ export function JobDetailSimpleView({
       <div className="hidden gap-2 md:grid md:grid-cols-2">
         <Link
           href={`/jobs/${jobId}/apply`}
-          className="inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-gradient-to-b from-[#7B8EFF] to-[#4D63E0] px-4 text-[15px] font-semibold text-white hover:from-[#8A9BFF] hover:to-[#5A72E8]"
+          className="inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-gradient-to-b from-[#024F38] to-[#013B2A] px-4 text-[15px] font-semibold text-white hover:from-[#0A5A42] hover:to-[#024F38]"
         >
           {t("labels.prepare")}
         </Link>

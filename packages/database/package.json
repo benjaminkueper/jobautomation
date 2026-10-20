@@ -28,8 +28,13 @@
     "./services/application-documentation": {
       "types": "./src/services/application-documentation.service.ts",
       "require": "./dist/services/application-documentation.service.js",
-      "import": "./dist/services/application-documentation.service.js",
-      "default": "./dist/services/application-documentation.service.js"
+      "import": "./dist/services/application-documentation.service.js"
+    },
+    "./services/*": {
+      "types": "./src/services/*.ts",
+      "require": "./dist/services/*.js",
+      "import": "./dist/services/*.js",
+      "default": "./dist/services/*.js"
     },
     "./seed/seedAutomationModules": {
       "types": "./src/seed/seedAutomationModules.ts",

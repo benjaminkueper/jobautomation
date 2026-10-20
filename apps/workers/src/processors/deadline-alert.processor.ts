@@ -12,6 +12,7 @@ import {
   resolveAnthropicApiKey,
 } from "@jobflow/integrations/ai/anthropic-messages";
 import { notifyAutomationEvent } from "../lib/notifications";
+import { recordWorkerAiUsage, type AiMeteringContext } from "../lib/ai-metering";
 import { logger } from "../utils/logger";
 
 // Statuses that mean a job is no longer active and should not be alerted on.
@@ -81,6 +82,7 @@ async function buildAlertContent(job: {
   jobUrl?: string | null;
   status: string;
   now: Date;
+  metering?: AiMeteringContext;
 }): Promise<{ subject: string; text: string; html: string; suggestedAction: string; aiGenerated: boolean }> {
   const { company, position, deadline, jobUrl, status, now } = job;
   const days = daysUntil(deadline, now);
@@ -117,6 +119,16 @@ async function buildAlertContent(job: {
         maxTokens: 500,
         temperature: 0.3,
       });
+
+      if (result.ok && job.metering) {
+        await recordWorkerAiUsage(job.metering, {
+          provider: "Claude",
+          model: result.model,
+          inputText: prompt,
+          outputText: result.text,
+          usedStub: false,
+        });
+      }
 
       if (result.ok) {
         const cleaned = result.text
@@ -301,6 +313,13 @@ export async function processDeadlineAlertJob(payload: {
           jobUrl,
           status,
           now,
+          metering: {
+            tenantId,
+            runType: "deadline-alert",
+            operationId,
+            relatedRecordType: "Job",
+            relatedRecordId: jobId,
+          },
         });
 
         // ── 1. Resend email to tenant owner ────────────────────────────

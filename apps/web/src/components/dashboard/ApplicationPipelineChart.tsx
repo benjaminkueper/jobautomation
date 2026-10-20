@@ -149,8 +149,8 @@ export function ApplicationPipelineChart({ data, loading, error, isUsingFallback
           <BarChart data={rows} margin={chartMargins}>
             <defs>
               <linearGradient id="jfPipeIndigo" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#7C8FFF" />
-                <stop offset="100%" stopColor="#4D63E0" stopOpacity={0.85} />
+                <stop offset="0%" stopColor="#0A5A42" />
+                <stop offset="100%" stopColor="#013B2A" stopOpacity={0.85} />
               </linearGradient>
               <linearGradient id="jfPipeEmerald" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#4ADE9A" />

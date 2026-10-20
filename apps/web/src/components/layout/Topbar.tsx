@@ -55,7 +55,7 @@ export function Topbar() {
         <b className="font-semibold text-[var(--text-1)]">{title}</b>
       </div>
       <div className="flex-1" />
-      <div className="relative hidden w-[340px] max-w-[35vw] items-center gap-2 rounded-[var(--r-sm)] border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-0 transition-colors focus-within:border-[var(--border-focus)] focus-within:shadow-[0_0_0_3px_rgba(99,124,255,0.12)] lg:flex lg:h-[34px]">
+      <div className="relative hidden w-[340px] max-w-[35vw] items-center gap-2 rounded-[var(--r-sm)] border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-0 transition-colors focus-within:border-[var(--border-focus)] focus-within:shadow-[0_0_0_3px_rgba(1,59,42,0.14)] lg:flex lg:h-[34px]">
         <SearchIcon size={14} className="shrink-0 text-[var(--text-4)]" />
         <input
           ref={searchRef}
@@ -76,7 +76,7 @@ export function Topbar() {
           href="/jobs"
           className={cn(
             buttonVariants({ variant: "default", size: "default" }),
-            "hidden h-[34px] bg-gradient-to-b from-[#7488FF] to-[#4D63E0] px-3 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_12px_-4px_rgba(99,124,255,0.45)] hover:from-[#8499FF] hover:to-[#5970F0] sm:inline-flex"
+            "hidden h-[34px] bg-gradient-to-b from-[#024F38] to-[#013B2A] px-3 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_12px_-4px_rgba(1,59,42,0.45)] hover:from-[#0A5A42] hover:to-[#024F38] sm:inline-flex"
           )}
         >
           <PlusIcon size={14} className="mr-1.5" />

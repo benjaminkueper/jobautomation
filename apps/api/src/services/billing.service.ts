@@ -14,6 +14,7 @@ import type {
 import { assertTenantId } from "./baseTenant.service";
 import { ApiError } from "../utils/errors";
 import { logger } from "../utils/logger";
+import { resolvePlanKey, safeTenantQuery, tenantQuery } from "@jobflow/database/services/plan-limits.service";
 
 // ─── Stripe configuration helpers ─────────────────────────────────────────────
 
@@ -109,25 +110,6 @@ function extractStripeId(value: unknown): string {
     return String((value as { id?: string }).id ?? "");
   }
   return "";
-}
-
-function isMongoObjectId(value: string): boolean {
-  return /^[a-f\d]{24}$/i.test(value);
-}
-
-/** Avoid Mongo CastError when tenantId is a slug rather than ObjectId */
-function safeTenantQuery(tenantId: string): Record<string, unknown> | null {
-  const trimmed = tenantId.trim();
-  if (!trimmed) return null;
-  const clauses: Record<string, unknown>[] = [{ slug: trimmed }];
-  if (isMongoObjectId(trimmed)) {
-    clauses.unshift({ _id: trimmed });
-  }
-  return { $or: clauses };
-}
-
-function tenantQuery(tenantId: string) {
-  return safeTenantQuery(tenantId) ?? { slug: "__invalid__" };
 }
 
 function parseStripeUnixSeconds(value: unknown): Date | undefined {
@@ -329,49 +311,10 @@ function webAppBaseUrl(): string {
   return candidate;
 }
 
-function resolvePlanKey(tenant: { plan?: string; billing?: { planKey?: string } }): SubscriptionPlanKey {
-  const fromBilling = tenant.billing?.planKey;
-  if (fromBilling) return normalizePlanKey(fromBilling);
-  const display = tenant.plan;
-  if (display && displayPlanToPlanKey[display]) return normalizePlanKey(displayPlanToPlanKey[display]);
-  return "free";
-}
-
 function resolveBillingStatus(tenant: { billingStatus?: string; billing?: { billingStatus?: string } }): BillingStatus {
   const nested = tenant.billing?.billingStatus as BillingStatus | undefined;
   if (nested) return nested;
   return (tenant.billingStatus as BillingStatus) ?? "Trialing";
-}
-
-function isUnlimitedLimit(value: unknown): boolean {
-  return value === "unlimited" || value === "custom";
-}
-
-function numericLimit(value: unknown): number | null {
-  if (value === undefined || value === null) return null;
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (isUnlimitedLimit(value)) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-function usageForMetric(usage: Record<string, number | undefined>, limitName: PlanLimitName): number {
-  const map: Record<PlanLimitName, keyof PlanUsage> = {
-    maxJobs: "jobsCount",
-    maxAutomationRuns: "automationRunsThisMonth",
-    maxAiCredits: "aiCreditsUsedThisMonth",
-    maxUsers: "usersCount",
-    maxStorageMb: "storageUsedMb",
-    maxIntegrations: "integrationsCount",
-    maxReportsPerMonth: "reportsGeneratedThisMonth",
-    maxCvVersions: "cvVersionsCount",
-    maxDocuments: "documentsCount",
-    maxQuickReviews: "quickReviewsThisMonth",
-    maxResearchDocs: "researchDocsThisMonth",
-    maxPdfExports: "pdfExportsThisMonth",
-  };
-  const key = map[limitName];
-  return Number(usage[key] ?? 0);
 }
 
 export async function getCurrentPlan(input: { tenantId: string }): Promise<TenantBillingSnapshot> {
@@ -425,45 +368,6 @@ export async function getCurrentPlan(input: { tenantId: string }): Promise<Tenan
 export async function getTenantUsage(input: { tenantId: string }): Promise<PlanUsage & { tenantId: string }> {
   const snapshot = await getCurrentPlan(input);
   return { tenantId: input.tenantId, ...snapshot.usage };
-}
-
-export async function checkPlanLimit(input: {
-  tenantId: string;
-  limitName: PlanLimitName;
-  incrementBy?: number;
-}): Promise<PlanLimitCheckResult> {
-  const tenantId = assertTenantId(input.tenantId);
-  const tenant = await TenantModel.findOne(tenantQuery(tenantId));
-  if (!tenant) throw new ApiError("Tenant not found", 404, "TENANT_NOT_FOUND");
-
-  const planKey = resolvePlanKey(tenant);
-  const incrementBy = input.incrementBy ?? 0;
-
-  const tenantLimits = tenant.limits as Record<string, unknown> | undefined;
-  const limitRaw = tenantLimits?.[input.limitName] ?? PLAN_DEFINITIONS[planKey].limits[input.limitName];
-  const limitCap = numericLimit(limitRaw);
-
-  const currentUsage = usageForMetric((tenant.usage ?? {}) as Record<string, number | undefined>, input.limitName);
-
-  if (limitCap === null) {
-    return {
-      allowed: true,
-      limitName: input.limitName,
-      currentUsage,
-      limit: Number.POSITIVE_INFINITY,
-      planKey,
-    };
-  }
-
-  const allowed = currentUsage + incrementBy <= limitCap;
-  return {
-    allowed,
-    reason: allowed ? undefined : "Plan limit reached. Upgrade your plan to continue.",
-    limitName: input.limitName,
-    currentUsage,
-    limit: limitCap,
-    planKey,
-  };
 }
 
 export async function getFeatureGates(input: { tenantId: string }) {

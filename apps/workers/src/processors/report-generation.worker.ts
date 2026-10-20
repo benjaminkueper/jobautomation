@@ -13,6 +13,7 @@ import {
   resolveAnthropicApiKey,
 } from "@jobflow/integrations/ai/anthropic-messages";
 import { deliverReportNotifications } from "@jobflow/integrations/notifications/report-delivery";
+import { recordWorkerAiUsage, type AiMeteringContext } from "../lib/ai-metering";
 import { isResendConfigured } from "@jobflow/integrations/email/send-report-email";
 import { getSmtpOutboundCredentialsForWorker } from "../lib/smtp-config";
 import {
@@ -176,7 +177,12 @@ function buildClaudePrompt(type: WorkerReportType, periodLabel: string, counts: 
   ].join("\n");
 }
 
-async function buildReportBody(input: { type: WorkerReportType; periodLabel: string; counts: Counts }) {
+async function buildReportBody(input: {
+  type: WorkerReportType;
+  periodLabel: string;
+  counts: Counts;
+  metering?: AiMeteringContext;
+}) {
   const apiKey = resolveAnthropicApiKey();
   const modelCandidates = buildAnthropicModelCandidates();
   const fallback = buildFallbackReport(input.type, input.periodLabel, input.counts);
@@ -196,6 +202,15 @@ async function buildReportBody(input: { type: WorkerReportType; periodLabel: str
     maxTokens: 1200,
     temperature: 0.2,
   });
+  if (result.ok && input.metering) {
+    await recordWorkerAiUsage(input.metering, {
+      provider: "Claude",
+      model: result.model,
+      inputText: buildClaudePrompt(input.type, input.periodLabel, input.counts),
+      outputText: result.text,
+      usedStub: false,
+    });
+  }
   if (result.ok) {
     return { body: result.text, model: result.model };
   }
@@ -424,7 +439,17 @@ export async function processWorkerDailyDigest(payload: DailyPayload) {
   const title = `Daily Digest - ${periodKey}`;
   try {
     const counts = await collectCounts({ tenantId: payload.tenantId, from: start, to: end });
-    const generated = await buildReportBody({ type: "Daily Digest", periodLabel: periodKey, counts });
+    const generated = await buildReportBody({
+      type: "Daily Digest",
+      periodLabel: periodKey,
+      counts,
+      metering: {
+        tenantId: payload.tenantId,
+        runType: "report-generation",
+        operationId,
+        relatedRecordType: "Report",
+      },
+    });
     const report = await upsertReport({
       tenantId: payload.tenantId,
       userId: payload.userId,
@@ -663,6 +688,12 @@ export async function processWorkerWeeklyReport(payload: WeeklyPayload) {
       type: "Weekly Performance",
       periodLabel: `${isoDate(weekStart)} to ${isoDate(weekEnd)}`,
       counts,
+      metering: {
+        tenantId: payload.tenantId,
+        runType: "report-generation",
+        operationId,
+        relatedRecordType: "Report",
+      },
     });
     const report = await upsertReport({
       tenantId: payload.tenantId,
