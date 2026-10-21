@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { SimplePageHeader } from "@/components/shared/SimplePageHeader";
 import { SimplePageShell } from "@/components/shared/SimplePageShell";
 import { CustomerListPageSkeleton } from "@/components/shared/CustomerPageSkeletons";
@@ -29,6 +30,16 @@ export function JobInboxPage() {
     handleArchive,
     handleCreateJob,
   } = useJobsPageData();
+
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedJobs = useMemo(() => filteredJobs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE), [filteredJobs, currentPage]);
+  useMemo(() => {
+    if (page !== currentPage) setPage(currentPage);
+    return null;
+  }, [page, currentPage]);
 
   if (jobsApi.loading && !jobsApi.data) {
     return <CustomerListPageSkeleton />;
@@ -105,7 +116,7 @@ export function JobInboxPage() {
       <JobInboxFilters filters={filters} onChange={setFilters} onClear={() => setFilters(initialJobFilters)} />
 
       <div className="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {filteredJobs.map((job, index) => (
+        {pagedJobs.map((job, index) => (
           <JobCard
             key={job.id ? job.id : `job-inbox-${index}`}
             job={job}
@@ -130,6 +141,39 @@ export function JobInboxPage() {
           </div>
         ) : null}
       </div>
+
+      {filteredJobs.length > 0 && totalPages > 1 ? (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] px-4 py-3">
+          <p className="text-[12px] text-[var(--text-3)]">
+            Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filteredJobs.length)} of {filteredJobs.length}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button type="button" size="sm" variant="outline" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+              Previous
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setPage(n)}
+                  className={cn(
+                    "flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-[12px] font-medium",
+                    n === currentPage
+                      ? "bg-[var(--accent-hi)] text-white"
+                      : "text-[var(--text-3)] hover:bg-[var(--surface-2)] hover:text-[var(--text-2)]"
+                  )}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <Button type="button" size="sm" variant="outline" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
+              Next
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </SimplePageShell>
   );
 }

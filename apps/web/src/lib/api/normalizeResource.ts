@@ -20,6 +20,11 @@ export function normalizeListResponse<T>(payload: unknown): T[] {
     if (Array.isArray(obj.data)) return obj.data as T[];
     if (Array.isArray(obj.results)) return obj.results as T[];
     if (Array.isArray(obj.records)) return obj.records as T[];
+    // Some APIs return numeric-keyed object like { "0": {...}, "1": {...} }
+    const keys = Object.keys(obj);
+    if (keys.length > 0 && keys.every((k) => /^\d+$/.test(k))) {
+      return keys.sort((a,b) => Number(a)-Number(b)).map((k) => obj[k]) as T[];
+    }
   }
   return [];
 }
