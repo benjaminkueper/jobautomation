@@ -11,7 +11,7 @@ export type UnipileStatus = {
 };
 
 export function getUnipileStatus() {
-  return apiFetch<UnipileStatus>("/integrations/unipile/status");
+  return apiFetch<UnipileStatus>("/integrations/unipile/status", { timeoutMs: 30_000 });
 }
 
 export function createUnipileConnectLink() {
@@ -29,7 +29,7 @@ export function reconcileUnipile() {
     matchedBy?: "name" | "single_account";
     reason?: string;
     accounts?: Array<{ id?: string; name?: string; type?: string }>;
-  }>("/integrations/unipile/reconcile", { method: "POST", body: {} });
+  }>("/integrations/unipile/reconcile", { method: "POST", body: {}, timeoutMs: 30_000 });
 }
 
 export function getUnipileHealth() {
@@ -63,5 +63,6 @@ export function scanUnipileEmails(input?: { limit?: number; forceAll?: boolean }
   }>("/integrations/unipile/scan", {
     method: "POST",
     body: input ?? {},
+    timeoutMs: 120_000,
   });
 }

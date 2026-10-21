@@ -95,14 +95,14 @@ export function UnipileEmailIntegrationCard() {
     }
   }
 
-  async function handleScan() {
+  const handleScan = useCallback(async () => {
     setScanning(true);
     setError(null);
     try {
       const res = await scanUnipileEmails({ limit: 50 });
       const label = res.folders?.jobLabel
         ? `${res.folders.jobLabel}${res.folders.jobLabelFound ? "" : " (not found)"}`
-        : "—";
+        : "-";
       showSuccess(
         `${t("integrations.unipile.scanSuccess")}: ${res.processed} processed, ${res.created} jobs · inbox + ${label}`
       );
@@ -114,7 +114,7 @@ export function UnipileEmailIntegrationCard() {
     } finally {
       setScanning(false);
     }
-  }
+  }, [refresh, t]);
 
   async function handleTest() {
     setTesting(true);
