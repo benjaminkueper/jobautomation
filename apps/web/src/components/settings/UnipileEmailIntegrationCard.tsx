@@ -99,12 +99,12 @@ export function UnipileEmailIntegrationCard() {
     setScanning(true);
     setError(null);
     try {
-      const res = await scanUnipileEmails({ limit: 50 });
+      const res = await scanUnipileEmails({ limit: 200 });
       const label = res.folders?.jobLabel
         ? `${res.folders.jobLabel}${res.folders.jobLabelFound ? "" : " (not found)"}`
         : "-";
       showSuccess(
-        `${t("integrations.unipile.scanSuccess")}: ${res.processed} processed, ${res.created} jobs · inbox + ${label}`
+        `${t("integrations.unipile.scanSuccess")}: ${res.processed} processed, ${res.created} new jobs, ${res.duplicates ?? 0} duplicates · inbox + ${label}`
       );
       await refresh();
     } catch (e) {

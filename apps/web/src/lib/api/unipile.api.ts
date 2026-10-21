@@ -58,11 +58,12 @@ export function scanUnipileEmails(input?: { limit?: number; forceAll?: boolean }
     processed: number;
     skipped: number;
     created: number;
+    duplicates?: number;
     folders?: { inbox: string | null; jobLabel: string | null; jobLabelFound: boolean };
     errors: string[];
   }>("/integrations/unipile/scan", {
     method: "POST",
     body: input ?? {},
-    timeoutMs: 120_000,
+    timeoutMs: 300_000,
   });
 }

@@ -187,7 +187,9 @@ export async function listUnipileEmails(input: {
   search?: string;
   /** ISO 8601 datetime — only emails created after this. */
   after?: string;
-}): Promise<{ items?: UnipileEmail[]; data?: UnipileEmail[] }> {
+  /** Opaque pagination cursor returned by the previous page. */
+  cursor?: string;
+}): Promise<{ items?: UnipileEmail[]; data?: UnipileEmail[]; cursor?: string }> {
   return unipileFetch("/api/v1/emails", {
     method: "GET",
     query: {
@@ -196,6 +198,7 @@ export async function listUnipileEmails(input: {
       folder: input.folder,
       search: input.search,
       after: input.after,
+      cursor: input.cursor,
     },
   });
 }

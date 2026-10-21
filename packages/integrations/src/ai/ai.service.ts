@@ -92,6 +92,11 @@ const ATS_SENDER_PATTERNS = [
 /** Hard-reject subjects — always non-job regardless of sender */
 const HARD_REJECT_SUBJECT_PATTERNS: [RegExp, DetectedEmailType][] = [
   [/people (you may know|have updates|viewed your|in your network)/i, "linkedin_update"],
+  [/you may know/i, "linkedin_update"],
+  [/\bsomeone at\b.*\byou may know\b/i, "linkedin_update"],
+  [/\b(do you know|wants? to connect|invited you to connect|connection request|sent you an invitation)\b/i, "linkedin_update"],
+  [/\b(replied to|commented on|reacted to|liked|shared) your (post|comment|update)\b/i, "linkedin_update"],
+  [/\b(followed you|is celebrating|work anniversary|new followers?)\b/i, "linkedin_update"],
   [/\d+\s*(people|connections?)\s*(viewed|visited|checked|looked at)/i, "linkedin_update"],
   [/\d+\s*new\s*(connection|follower|post|update|notification)/i, "linkedin_update"],
   [/who('s| is) viewed your/i, "linkedin_update"],
@@ -174,6 +179,11 @@ const HARD_REJECT_SUBJECT_PATTERNS: [RegExp, DetectedEmailType][] = [
 /** Body signals that indicate a non-job email */
 const HARD_REJECT_BODY_PATTERNS: [RegExp, DetectedEmailType][] = [
   [/read on linkedin/i, "article"],
+  [/\bpeople you may know\b/i, "linkedin_update"],
+  [/\bdo you know\b[^?]{0,120}\?/i, "linkedin_update"],
+  [/linkedin\.com\/(comm\/)?mynetwork\/send-invite/i, "linkedin_update"],
+  [/\b(wants? to connect|sent you a connection request|invited you to connect)\b/i, "linkedin_update"],
+  [/\b(replied to|commented on|reacted to|liked|shared) your (post|comment|update)\b/i, "linkedin_update"],
   [/shared an? (article|post|update)/i, "linkedin_update"],
   [/linkedin\.com\/pulse\//i, "article"],
   [/linkedin\.com\/sales\/contract-chooser/i, "sales_nav_notification"],
@@ -270,14 +280,6 @@ function classifyLinkedInEmail(payload: JobIntakeEmailPayload): EmailClassificat
     return { isJob: true, confidence: 0.95, reason: "LinkedIn Job Alerts sender (jobalerts-noreply)", detectedType: "job_alert" };
   }
 
-  // Subject format "[Role] at [Company]" is LinkedIn's standard single-job alert format
-  if (
-    /^.{3,80}\s+at\s+.{2,60}$/i.test(subject.trim()) &&
-    !/(accepted|messaged|viewed|connected|update|invitation|just messaged)/i.test(subject)
-  ) {
-    return { isJob: true, confidence: 0.90, reason: "LinkedIn subject matches '[Role] at [Company]' format", detectedType: "job_alert" };
-  }
-
   // Check hard-reject subjects first
   for (const [pattern, type] of HARD_REJECT_SUBJECT_PATTERNS) {
     if (pattern.test(subject)) {
@@ -292,7 +294,18 @@ function classifyLinkedInEmail(payload: JobIntakeEmailPayload): EmailClassificat
     }
   }
 
-  // Now check for positive job signals — LinkedIn job alerts need strong evidence
+  // Subject format "[Role] at [Company]" is valid only when the email also
+  // links to an actual LinkedIn job posting. Social notifications such as
+  // "Someone at Acme you may know" use the same shape and must not pass.
+  if (
+    /^.{3,80}\s+at\s+.{2,60}$/i.test(subject.trim()) &&
+    /linkedin\.com\/jobs\/view\//i.test(body) &&
+    !/(accepted|messaged|viewed|connected|update|invitation|just messaged|you may know|mutual connection|someone at)/i.test(subject)
+  ) {
+    return { isJob: true, confidence: 0.90, reason: "LinkedIn subject matches '[Role] at [Company]' format", detectedType: "job_alert" };
+  }
+
+  // Now check for positive job signals - LinkedIn job alerts need strong evidence
   const hasJobUrl = /linkedin\.com\/jobs\/view\//i.test(body);
   const hasJobAlertSubject = /\b(job alert|your alert|alert for)\b/i.test(subject);
   const hasApply = /\b(apply|easy apply|view job)\b/i.test(body);
@@ -359,10 +372,32 @@ const JOB_BOARD_SOURCE_MAP: [RegExp, string][] = [
   [/jobscout24\.(de|ch|at)/i, "JobScout24"],
   // ── Global ──
   [/indeed\.(com|de|co\.uk|fr|at|ch)/i, "Indeed"],
+  [/indeedemail\.com/i, "Indeed"],
   [/glassdoor\.(com|de|co\.uk|fr)/i, "Glassdoor"],
   [/monster\.(de|com|co\.uk|fr|at)/i, "Monster"],
   [/linkedin\./i, "LinkedIn"],
-  [/indeedemail\.com/i, "Indeed"],
+  [/bayt\.com/i, "Bayt"],
+  [/rozee\.pk/i, "Rozee"],
+  [/mustakbil\.com/i, "Mustakbil"],
+  [/naukri\.com/i, "Naukri"],
+  [/dice\.com/i, "Dice"],
+  [/ziprecruiter\.com/i, "ZipRecruiter"],
+  [/wellfound\.com/i, "Wellfound"],
+  [/remoteok\.(com|io)/i, "RemoteOK"],
+  [/weworkremotely\.com/i, "We Work Remotely"],
+  [/himalayas\.app/i, "Himalayas"],
+  // ATS / company career platforms
+  [/greenhouse\.io/i, "Greenhouse"],
+  [/lever\.co/i, "Lever"],
+  [/ashbyhq\.com/i, "Ashby"],
+  [/workable\.com/i, "Workable"],
+  [/workday\.com/i, "Workday"],
+  [/smartrecruiters\.com/i, "SmartRecruiters"],
+  [/recruitee\.com/i, "Recruitee"],
+  [/breezy\.hr/i, "Breezy"],
+  [/jobvite\.com/i, "Jobvite"],
+  [/icims\.com/i, "iCIMS"],
+  [/bamboohr\.com/i, "BambooHR"],
 ];
 
 export function detectJobBoardSource(from: string): string {
@@ -437,13 +472,19 @@ const INVALID_COMPANY_OR_POSITION_MARKETING = [
 /** Reject platform names, agency updates, and other non-job titles before creating a Job record. */
 export function validateExtractedJobFields(
   company: string,
-  position: string
+  position: string,
+  jobUrl?: string | null
 ): { valid: true } | { valid: false; reason: string } {
   const c = company.trim();
   const p = position.trim();
 
   if (!c || c === "Unknown Company") return { valid: false, reason: "Missing company" };
   if (!p || p === "Unknown Position") return { valid: false, reason: "Missing position" };
+
+  // LinkedIn connection/PYMK links are never job postings.
+  if (jobUrl && /(?:linkedin\.com\/(?:comm\/)?mynetwork\/|send-invite)/i.test(jobUrl)) {
+    return { valid: false, reason: "Job URL is a LinkedIn connection link, not a job posting" };
+  }
 
   if (FAKE_COMPANY_EXACT.test(c) || FAKE_COMPANY_BY_PREFIX.test(c)) {
     return { valid: false, reason: `Company "${c}" is not a hiring company` };

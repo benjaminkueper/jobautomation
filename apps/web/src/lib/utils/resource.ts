@@ -219,7 +219,9 @@ export function normalizeJobSourceForUi(raw: unknown): JobSource {
   for (const k of known) {
     if (k.toLowerCase() === lower) return k;
   }
-  return "Other";
+  // Preserve unknown but real board/ATS labels (e.g. Bayt, Rozee, Greenhouse)
+  // instead of collapsing everything into "Other".
+  return s as JobSource;
 }
 
 /**
@@ -256,7 +258,10 @@ export function normalizeJobForUi(raw: unknown): Job {
     url: ((j.url ?? j.jobUrl) as string) ?? "",
     salaryRange: (j.salaryRange as string) ?? "",
     deadline: (j.deadline as string | undefined),
-    dateFound: ((j.dateFound ?? j.createdAt) as string) ?? new Date().toISOString(),
+    dateFound:
+      ((j.dateFound ??
+        (j.rawSourceData as { payload?: { date?: string } } | undefined)?.payload?.date ??
+        j.createdAt) as string) ?? new Date().toISOString(),
     dateApplied: (j.dateApplied as string | undefined),
     lastUpdated: ((j.lastUpdated ?? j.updatedAt) as string) ?? new Date().toISOString(),
     createdAt: ((j.createdAt ?? j.dateFound) as string) ?? new Date().toISOString(),

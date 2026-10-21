@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SimplePageHeader } from "@/components/shared/SimplePageHeader";
 import { SimplePageShell } from "@/components/shared/SimplePageShell";
 import { CustomerListPageSkeleton } from "@/components/shared/CustomerPageSkeletons";
@@ -36,9 +36,8 @@ export function JobInboxPage() {
   const totalPages = Math.max(1, Math.ceil(filteredJobs.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedJobs = useMemo(() => filteredJobs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE), [filteredJobs, currentPage]);
-  useMemo(() => {
+  useEffect(() => {
     if (page !== currentPage) setPage(currentPage);
-    return null;
   }, [page, currentPage]);
 
   if (jobsApi.loading && !jobsApi.data) {

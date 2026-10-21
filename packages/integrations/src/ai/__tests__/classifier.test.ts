@@ -375,3 +375,70 @@ describe("Stepstone digest preamble — must not become fake jobs", () => {
     expect(validateExtractedJobFields(extracted.company, extracted.position).valid).toBe(true);
   });
 });
+
+describe("LinkedIn PYMK / social notifications (rejected)", () => {
+  const pymkPayload = makePayload({
+    from: "messages-noreply@linkedin.com",
+    subject: "Someone at Combined Military Hospital (CMH) you may know",
+    bodyText: [
+      "Do you know Nida Amir?1 mutual connection",
+      "Yes, connect: https://www.linkedin.com/comm/mynetwork/send-invite/nida-amir-0299b2236/?trk=eml-email_pymk_02",
+      "More people you may know",
+      "Shifa Waseem",
+      "BS Computer Science Graduate",
+    ].join("\n"),
+  });
+
+  it("rejects the person-you-may-know email", () => {
+    const result = isRealJobOpportunity(pymkPayload);
+    expect(result.isJob).toBe(false);
+    expect(result.detectedType).toBe("linkedin_update");
+  });
+
+  it("rejects a generic 'Someone at Company' subject without a job URL", () => {
+    const result = isRealJobOpportunity(
+      makePayload({
+        from: "messages-noreply@linkedin.com",
+        subject: "Someone at Acme you may know",
+        bodyText: "More people you may know. Connect with them on LinkedIn.",
+      })
+    );
+    expect(result.isJob).toBe(false);
+  });
+
+  it("still accepts a real job alert with a /jobs/view/ link", () => {
+    const result = isRealJobOpportunity(
+      makePayload({
+        from: "jobalerts-noreply@linkedin.com",
+        subject: "Acme is hiring a Senior Backend Developer",
+        bodyText: [
+          "Senior Backend Developer",
+          "Acme",
+          "Islamabad",
+          "View job: https://www.linkedin.com/comm/jobs/view/123456789/",
+        ].join("\n"),
+      })
+    );
+    expect(result.isJob).toBe(true);
+  });
+});
+
+describe("Job URL validation (rejects connection links)", () => {
+  it("rejects LinkedIn send-invite URLs", () => {
+    const result = validateExtractedJobFields(
+      "Sawda Rehman",
+      "UI/UX Designer",
+      "https://www.linkedin.com/comm/mynetwork/send-invite/nida-amir-0299b2236/"
+    );
+    expect(result.valid).toBe(false);
+  });
+
+  it("accepts LinkedIn /jobs/view/ URLs", () => {
+    const result = validateExtractedJobFields(
+      "E Technologies",
+      "Senior Backend Developer",
+      "https://www.linkedin.com/comm/jobs/view/4477096774/"
+    );
+    expect(result.valid).toBe(true);
+  });
+});

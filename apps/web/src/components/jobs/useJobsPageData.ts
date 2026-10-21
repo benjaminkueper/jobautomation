@@ -67,7 +67,7 @@ export function useJobsPageData() {
   const searchParams = useSearchParams();
   const pipeline = useJobPipelineSummary();
   const [filters, setFilters] = useState<JobFiltersType>(initialJobFilters);
-  const [activeTab, setActiveTab] = useState<JobTab>("new");
+  const [activeTab, setActiveTab] = useState<JobTab>("all");
   const [isAddJobOpen, setIsAddJobOpen] = useState(false);
   const [localJobsOverlay, setLocalJobsOverlay] = useState<Job[]>([]);
 

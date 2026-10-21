@@ -1,4 +1,5 @@
 import { IntegrationConnectionModel } from "@jobflow/database/models";
+import { isRealJobOpportunity } from "@jobflow/integrations/ai/ai.service";
 import type { JobIntakeEmailPayload } from "@jobflow/shared/types/job";
 import { env } from "../config/env";
 import { ApiError } from "../utils/errors";
@@ -93,28 +94,23 @@ export async function ensureUnipileWebhookRegistered(apiPublicOrigin?: string): 
   return webhookEnsurePromise;
 }
 
-/** Heuristic: likely a job-alert email worth intake. */
+/**
+ * Pre-filter before spending AI credits. Uses the same rule-based classifier
+ * as the intake service, so LinkedIn connection/PYMK notifications are never
+ * treated as jobs just because the word "linkedin" appears in the body.
+ */
 export function looksLikeJobAlertEmail(input: { from: string; subject: string; bodyText: string }): boolean {
-  const hay = `${input.from} ${input.subject} ${input.bodyText}`.toLowerCase();
-  const keywords = [
-    "linkedin",
-    "indeed",
-    "stepstone",
-    "xing",
-    "glassdoor",
-    "monster",
-    "job alert",
-    "job recommendation",
-    "new jobs",
-    "stellenanzeige",
-    "job alert",
-    "bewerbung",
-    "easy apply",
-    "you have a new job",
-    "jobs for you",
-    "recommended jobs",
-  ];
-  return keywords.some((k) => hay.includes(k));
+  return isRealJobOpportunity({
+    provider: "unipile",
+    providerMessageId: "prefilter",
+    providerThreadId: undefined,
+    from: input.from,
+    subject: input.subject,
+    bodyText: input.bodyText,
+    receivedAt: new Date().toISOString(),
+    labels: undefined,
+    raw: undefined,
+  }).isJob;
 }
 
 /**
@@ -173,12 +169,24 @@ async function listFolderEmails(
   folder: UnipileFolder | null,
   limit: number
 ): Promise<UnipileEmail[]> {
-  const res = await listUnipileEmails({
-    accountId,
-    limit,
-    folder: folder ? folderRef(folder) || undefined : undefined,
-  });
-  return res.items ?? res.data ?? [];
+  const all: UnipileEmail[] = [];
+  const pageSize = Math.min(100, Math.max(1, limit));
+  let cursor: string | undefined;
+
+  for (let page = 0; page < 50; page++) {
+    const res = await listUnipileEmails({
+      accountId,
+      limit: pageSize,
+      folder: folder ? folderRef(folder) || undefined : undefined,
+      cursor,
+    });
+    const batch = res.items ?? res.data ?? [];
+    all.push(...batch);
+    cursor = res.cursor;
+    if (!cursor || batch.length === 0 || all.length >= limit) break;
+  }
+
+  return all.slice(0, limit);
 }
 
 export function mapUnipileEmailToIntakePayload(email: UnipileEmail): JobIntakeEmailPayload {
@@ -360,7 +368,7 @@ export async function scanUnipileEmailsForTenant(input: {
 
   void ensureUnipileWebhookRegistered();
 
-  const limit = input.limit ?? 50;
+  const limit = Math.min(1000, Math.max(1, input.limit ?? 200));
   const { inbox, jobLabel, jobLabelName } = await resolveUnipileScanFolders(connected.accountId);
 
   // Scan the whole inbox AND the job-alerts label (when it exists), then de-dupe.
@@ -381,6 +389,7 @@ export async function scanUnipileEmailsForTenant(input: {
   let processed = 0;
   let skipped = 0;
   let created = 0;
+  let duplicates = 0;
   const errors: string[] = [];
 
   for (const item of items) {
@@ -405,7 +414,8 @@ export async function scanUnipileEmailsForTenant(input: {
         payload,
       });
       processed++;
-      if (result.status === "created" || result.jobId) created++;
+      if (result.status === "created") created++;
+      else if (result.status === "duplicate") duplicates++;
     } catch (err) {
       errors.push(err instanceof Error ? err.message : String(err));
     }
@@ -422,6 +432,7 @@ export async function scanUnipileEmailsForTenant(input: {
     processed,
     skipped,
     created,
+    duplicates,
     folders: {
       inbox: inbox ? String(inbox.name ?? inbox.id) : null,
       jobLabel: jobLabel ? String(jobLabel.name ?? jobLabel.provider_id) : jobLabelName,

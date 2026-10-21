@@ -109,7 +109,7 @@ export async function processJobIntakeEmail(input: ProcessInput): Promise<JobInt
       };
     }
 
-    const fieldValidation = validateExtractedJobFields(company, position);
+    const fieldValidation = validateExtractedJobFields(company, position, extraction.jobUrl);
     if (!fieldValidation.valid) {
       logs.push(`job-intake:rejected-bad-extraction:${fieldValidation.reason}`);
       await createAutomationLog({
@@ -208,9 +208,13 @@ export async function processJobIntakeEmail(input: ProcessInput): Promise<JobInt
 
     await assertCanCreateJob(tenantId);
 
+    const receivedAt = input.payload.receivedAt ? new Date(input.payload.receivedAt) : new Date();
+    const dateFound = Number.isNaN(receivedAt.getTime()) ? new Date() : receivedAt;
+
     const created = await JobModel.create({
       tenantId,
       createdBy: input.userId || "system",
+      dateFound,
       company: extraction.company,
       position: extraction.position,
       location: extraction.location,
