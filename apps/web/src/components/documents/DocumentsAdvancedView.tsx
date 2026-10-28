@@ -60,6 +60,7 @@ export interface DocumentsAdvancedViewProps {
   onCreateDocument: (payload: UploadPayload) => Promise<void>;
   createLoading: boolean;
   onExportPdf: (record: DocumentRecord) => void;
+  onPreviewPdfText?: (record: PDFExportRecord) => void;
   onRouteCv: (record: DocumentRecord) => void;
   onOpenFolder: (record: DocumentRecord) => void;
   onSetActive: (record: DocumentRecord) => void;
@@ -94,6 +95,7 @@ export function DocumentsAdvancedView({
   onCreateDocument,
   createLoading,
   onExportPdf,
+  onPreviewPdfText,
   onRouteCv,
   onOpenFolder,
   onSetActive,
@@ -207,7 +209,7 @@ export function DocumentsAdvancedView({
       ) : null}
       {tab === "Cover Letters" ? <CoverLettersSection records={coverRows} /> : null}
       {tab === "Research Docs" ? <ResearchDocsSection records={researchRows} /> : null}
-      {tab === "PDF Exports" ? <PDFExportsSection records={pdfRows} onExportAgain={onPdfExportAgain} /> : null}
+      {tab === "PDF Exports" ? <PDFExportsSection records={pdfRows} onPreviewText={onPreviewPdfText} onExportAgain={onPdfExportAgain} /> : null}
       {tab === "Folder Automation" && isGoogleDriveEnabled() ? (
         <FolderAutomationSection
           activity={folderActivity}

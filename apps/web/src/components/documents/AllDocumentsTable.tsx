@@ -182,13 +182,23 @@ export function AllDocumentsTable({
                   </Button>
                 </>
               )}
-              {viewRecord.storageUrl && (
+              {viewRecord.storageUrl ? (
                 <a href={viewRecord.storageUrl} target="_blank" rel="noreferrer">
                   <Button type="button" variant="outline" size="sm" className="h-8 text-xs">
                     Open ↗
                   </Button>
                 </a>
-              )}
+              ) : onOpenFolder ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => void onOpenFolder(viewRecord)}
+                >
+                  Open
+                </Button>
+              ) : null}
             </div>
 
             {/* Content */}

@@ -311,30 +311,36 @@ export function DocumentsPageClient() {
   };
 
   const handleOpenDocument = useCallback(async (record: DocumentRecord) => {
+    const popup = window.open("", "_blank", "noopener,noreferrer");
     const url = record.pdfUrl || record.storageUrl || record.driveFileLink;
     if (url && isPublicFileUrl(url, API_URL)) {
-      window.open(url, "_blank", "noopener,noreferrer");
+      if (popup) popup.location.href = url;
+      else window.location.href = url;
       return;
     }
     const id = getResourceId(record);
     try {
       const result = await apiFetch<{ url?: string; contentText?: string }>(`/documents/${id}/open`);
       if (result?.url) {
-        window.open(result.url, "_blank", "noopener,noreferrer");
+        if (popup) popup.location.href = result.url;
+        else window.location.href = result.url;
         return;
       }
       if (result?.contentText) {
         const objectUrl = URL.createObjectURL(new Blob([result.contentText], { type: "text/plain;charset=utf-8" }));
-        window.open(objectUrl, "_blank", "noopener,noreferrer");
+        if (popup) popup.location.href = objectUrl;
+        else window.location.href = objectUrl;
         window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
         return;
       }
+      if (popup) popup.close();
       if (advancedUi) {
         showInfo(t("documents.toast.openFolderNote"));
         return;
       }
       showInfo(t("documents.simple.openUnavailable"));
     } catch {
+      if (popup) popup.close();
       showError(t("documents.toast.couldNotCreateRecord"));
     }
   }, [advancedUi, t]);
@@ -571,6 +577,10 @@ export function DocumentsPageClient() {
         onCreateDocument={handleCreateDocumentRecord}
         createLoading={documentsApi.mutations.createLoading}
         onExportPdf={(r) => void handleExportPdf(r)}
+        onPreviewPdfText={(r) => {
+          const doc = documents.find((d) => d.id === r.id);
+          if (doc) void handleOpenDocument(doc);
+        }}
         onRouteCv={(r) => void handleRouteCv(r)}
         onOpenFolder={handleOpenFolder}
         onSetActive={(r) => void handleSetActive(r)}
