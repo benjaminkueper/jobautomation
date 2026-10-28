@@ -1,6 +1,7 @@
 import { z } from "zod";
 export const idParamSchema=z.object({id:z.string().min(1)});
 export const jobIdParamSchema = z.object({ id: z.string().min(1) });
+export const applyDocumentRoleParamSchema = z.object({ id: z.string().min(1), role: z.enum(["cv", "cover_letter"]) });
 export const documentIdParamSchema = z.object({ id: z.string().min(1) });
 export const interviewIdParamSchema = z.object({ id: z.string().min(1) });
 export const moduleKeyParamSchema=z.object({moduleKey:z.string().min(1)});

@@ -50,8 +50,6 @@ export function Topbar() {
   return (
     <header className="jf-topbar hidden md:flex">
       <div className="jf-crumb flex items-center gap-2 text-[13px] font-medium text-[var(--text-3)]">
-        <span>{t("topbar.workspace")}</span>
-        <span className="text-[var(--text-5)]">›</span>
         <b className="font-semibold text-[var(--text-1)]">{title}</b>
       </div>
       <div className="flex-1" />

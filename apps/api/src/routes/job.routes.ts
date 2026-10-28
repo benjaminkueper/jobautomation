@@ -33,7 +33,7 @@ import {
 import { requirePermission } from "../middleware/rbac.middleware";
 import { validateBody, validateParams, validateQuery } from "../middleware/validate.middleware";
 import { aiProcessingRunSchema } from "../validators/ai-processing.validator";
-import { jobIdParamSchema, listQuerySchema } from "../validators/common.validator";
+import { applyDocumentRoleParamSchema, jobIdParamSchema, listQuerySchema } from "../validators/common.validator";
 
 export const jobRoutes = Router();
 
@@ -76,7 +76,7 @@ jobRoutes.get(
 jobRoutes.get(
   "/:id/apply/documents/:role/stream",
   requirePermission("jobs.read"),
-  validateParams(jobIdParamSchema),
+  validateParams(applyDocumentRoleParamSchema),
   streamApplyDocumentHandler
 );
 jobRoutes.post(
