@@ -123,7 +123,8 @@ export function useJobsPageData() {
   const savedTabCount = useServerPipelineCounts
     ? pipeline.count("Saved") + pipeline.count("Drafting") + pipeline.count("Ready")
     : jobs.filter((j) => TAB_STATUSES.saved!.includes(j.status)).length;
-  const allTabCount = useServerPipelineCounts ? pipeline.totalActive : jobs.length;
+  // "All" must reflect the jobs actually loaded, not the pipeline summary (which can drift / include closed stages).
+  const allTabCount = jobs.length;
 
   const tabFilteredJobs = useMemo(() => {
     const allowed = TAB_STATUSES[activeTab];

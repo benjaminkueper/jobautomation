@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
-import { ChevronDownIcon, PlusIcon, SearchIcon } from "@/components/icons";
+import { ChevronDownIcon, SearchIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+
 import { useTranslation } from "@/i18n/useTranslation";
 import { useLogoutAction } from "@/hooks/useLogoutAction";
 import { useAuthSession } from "@/context/AuthSessionContext";
@@ -70,16 +69,7 @@ export function Topbar() {
         <LanguageSwitcher />
         <NotificationBell />
         <ThemeToggle />
-        <Link
-          href="/jobs"
-          className={cn(
-            buttonVariants({ variant: "default", size: "default" }),
-            "hidden h-[34px] bg-gradient-to-b from-[#024F38] to-[#013B2A] px-3 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_12px_-4px_rgba(1,59,42,0.45)] hover:from-[#0A5A42] hover:to-[#024F38] sm:inline-flex"
-          )}
-        >
-          <PlusIcon size={14} className="mr-1.5" />
-          {t("topbar.newJob")}
-        </Link>
+        {/* "New Job" shortcut removed: it duplicated the Job Inbox route and confused users. */}
         <DropdownMenu>
           <DropdownMenuTrigger>
             <button
