@@ -16,6 +16,7 @@ import { enqueueAutomationModule } from "../services/automation-queue.service";
 import { sanitizeDocumentForApi } from "../utils/document-response";
 import { processUploadedProfileDocument } from "@jobflow/workers/processors/document-upload";
 import { syncDocumentToFirebase } from "../services/document-firebase-sync.service";
+import { getFirebaseSignedUrl } from "../services/firebase-storage.service";
 import { extractPdfTextFromBase64, isPdfUpload } from "../utils/pdf-text";
 
 function profileTypeFromBody(body: Record<string, unknown>) {
@@ -177,6 +178,27 @@ export const getDocumentById = asyncHandler(async (req: Request, res) => {
   if (!row) throw new ApiError("Not found", 404, "NOT_FOUND");
   const plain = typeof row.toObject === "function" ? row.toObject() : row;
   return successResponse(res, sanitizeDocumentForApi(plain));
+});
+
+export const getDocumentOpenUrl = asyncHandler(async (req: Request, res) => {
+  const tenantId = assertTenantId(req.tenantId);
+  const row = await findTenantScopedById(DocumentModel, tenantId, req.params.id);
+  if (!row) throw new ApiError("Not found", 404, "NOT_FOUND");
+  const plain = (typeof row.toObject === "function" ? row.toObject() : row) as Record<string, unknown>;
+  const storageProvider = String(plain.storageProvider ?? "");
+  const storagePath = String(plain.storagePath ?? "");
+  if (storageProvider === "Firebase" && storagePath) {
+    const url = await getFirebaseSignedUrl(storagePath, 7 * 24 * 60 * 60 * 1000);
+    return successResponse(res, { url, fileName: plain.fileName });
+  }
+  const meta = plain.metadata && typeof plain.metadata === "object" ? (plain.metadata as Record<string, unknown>) : {};
+  const text =
+    typeof plain.contentText === "string" && plain.contentText.trim()
+      ? plain.contentText
+      : typeof meta.textExportContent === "string"
+        ? meta.textExportContent
+        : "";
+  return successResponse(res, { contentText: text, fileName: plain.fileName });
 });
 export const updateDocument = asyncHandler(async (req: Request, res) => {
   const tenantId = assertTenantId(req.tenantId);

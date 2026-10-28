@@ -310,17 +310,33 @@ export function DocumentsPageClient() {
     }
   };
 
-  const handleOpenDocument = useCallback((record: DocumentRecord) => {
+  const handleOpenDocument = useCallback(async (record: DocumentRecord) => {
     const url = record.pdfUrl || record.storageUrl || record.driveFileLink;
-    if (url) {
+    if (url && isPublicFileUrl(url, API_URL)) {
       window.open(url, "_blank", "noopener,noreferrer");
       return;
     }
-    if (advancedUi) {
-      showInfo(t("documents.toast.openFolderNote"));
-      return;
+    const id = getResourceId(record);
+    try {
+      const result = await apiFetch<{ url?: string; contentText?: string }>(`/documents/${id}/open`);
+      if (result?.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer");
+        return;
+      }
+      if (result?.contentText) {
+        const objectUrl = URL.createObjectURL(new Blob([result.contentText], { type: "text/plain;charset=utf-8" }));
+        window.open(objectUrl, "_blank", "noopener,noreferrer");
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+        return;
+      }
+      if (advancedUi) {
+        showInfo(t("documents.toast.openFolderNote"));
+        return;
+      }
+      showInfo(t("documents.simple.openUnavailable"));
+    } catch {
+      showError(t("documents.toast.couldNotCreateRecord"));
     }
-    showInfo(t("documents.simple.openUnavailable"));
   }, [advancedUi, t]);
 
   const handleOpenFolder = (record: DocumentRecord) => {
@@ -563,8 +579,7 @@ export function DocumentsPageClient() {
         onCvSetDefault={(id) => setCvDefaultId(id)}
         onCvView={(cv) => {
           const doc = documents.find((d) => d.id === cv.id);
-          const url = doc?.pdfUrl || doc?.storageUrl;
-          if (url) window.open(url, "_blank", "noopener,noreferrer");
+          if (doc) void handleOpenDocument(doc);
           else showInfo("No file URL available for this CV.");
         }}
         onPdfExportAgain={(r) => {

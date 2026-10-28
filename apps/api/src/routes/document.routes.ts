@@ -5,6 +5,7 @@ import {
   downloadDocumentText,
   exportPdf,
   getDocumentById,
+  getDocumentOpenUrl,
   listDocuments,
   routeCv,
   updateDocument,
@@ -25,6 +26,7 @@ documentRoutes.get(
   validateParams(documentIdParamSchema),
   downloadDocumentText
 );
+documentRoutes.get("/:id/open", requirePermission("documents.read"), validateParams(documentIdParamSchema), getDocumentOpenUrl);
 documentRoutes.get("/:id", requirePermission("documents.read"), validateParams(documentIdParamSchema), getDocumentById);
 documentRoutes.patch(
   "/:id",
