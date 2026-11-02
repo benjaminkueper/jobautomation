@@ -16,7 +16,7 @@ export function JobDetailPrepareStickyBar({ jobId }: { jobId: string }) {
     >
       <Link
         href={`/jobs/${jobId}/apply`}
-        className="flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-gradient-to-b from-[#024F38] to-[#013B2A] px-4 text-[16px] font-semibold text-white shadow-sm hover:from-[#0A5A42] hover:to-[#024F38]"
+        className="flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-[#2563EB] px-4 text-[16px] font-semibold text-white shadow-sm hover:bg-[#1D4ED8]"
       >
         {t("labels.prepare")}
       </Link>

@@ -118,7 +118,7 @@ export function JobDetailAdvancedView({
               {job.description}
             </p>
             {job.aiSummary ? (
-              <div className="mt-4 rounded-lg border border-[rgba(1,59,42,0.18)] bg-[rgba(1,59,42,0.06)] p-3 dark:border-[rgba(253,162,1,0.25)] dark:bg-[rgba(1,59,42,0.28)]">
+              <div className="mt-4 rounded-lg border border-[rgba(37,99,235,0.18)] bg-[rgba(37,99,235,0.06)] p-3 dark:border-[rgba(253,162,1,0.25)] dark:bg-[rgba(1,59,42,0.28)]">
                 <div className="mb-1 flex items-center gap-2">
                   <SparklesIcon size={16} className="text-[var(--violet)]" />
                   <p className="text-sm font-medium text-[var(--accent-lo)] dark:text-[var(--text-1)]">{t("jobDetail.aiSummary")}</p>

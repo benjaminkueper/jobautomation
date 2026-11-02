@@ -130,10 +130,7 @@ export function ProfilePhotoUpload({
 
         <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto">
           {embedded ? (
-            <>
-              <p className="text-[13px] font-semibold text-[var(--text-1)]">{t("profile.photoTitle")}</p>
-              <p className="max-w-sm text-[12px] leading-relaxed text-[var(--text-4)]">{t("profile.photoHint")}</p>
-            </>
+            <p className="text-[13px] font-semibold text-[var(--text-1)]">{t("profile.photoTitle")}</p>
           ) : null}
           <input
             ref={inputRef}
@@ -145,7 +142,8 @@ export function ProfilePhotoUpload({
           <Button
             type="button"
             variant="outline"
-            className="min-h-[44px] w-full touch-manipulation sm:w-auto"
+            size="sm"
+            className="w-full touch-manipulation sm:w-auto"
             disabled={uploading || removing}
             onClick={() => inputRef.current?.click()}
           >

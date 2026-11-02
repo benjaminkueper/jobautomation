@@ -178,7 +178,7 @@ function statusIcon(status: DemoStepStatus) {
     case "Failed":
       return <XCircleIcon size={20} className="text-[var(--rose)]" />;
     case "Running":
-      return <LoaderIcon size={20} className="text-[var(--accent)]" />;
+      return <LoaderIcon size={20} className="text-[var(--accent-hi)]" />;
     default:
       return <CircleDashedIcon size={20} className="text-[var(--text-3)]" />;
   }
@@ -480,7 +480,7 @@ export function DemoWalkthroughClient() {
         </div>
       ) : null}
 
-      <MotionCard className="overflow-hidden border-border/60 bg-gradient-to-br from-slate-950/80 via-slate-900/60 to-[rgba(1,59,42,0.45)] p-6 text-slate-50 shadow-xl">
+      <MotionCard className="overflow-hidden border-border/60 bg-gradient-to-br from-slate-950/80 via-slate-900/60 to-[rgba(37,99,235,0.45)] p-6 text-slate-50 shadow-xl">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">

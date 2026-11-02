@@ -62,7 +62,7 @@ export function JobCard({ job, variant = "default", onSkip }: JobCardProps) {
         <div className="flex min-w-0 flex-col gap-2 pt-1 sm:flex-row sm:items-center">
           <Link
             href={`/jobs/${job.id}/apply`}
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-xl bg-gradient-to-b from-[#024F38] to-[#013B2A] px-4 text-[14px] font-semibold text-white shadow-sm hover:from-[#0A5A42] hover:to-[#024F38] sm:flex-1"
+            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-xl bg-[#2563EB] px-4 text-[14px] font-semibold text-white shadow-sm hover:bg-[#1D4ED8] sm:flex-1"
           >
             {t("labels.prepare")}
           </Link>

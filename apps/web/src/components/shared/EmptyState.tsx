@@ -28,7 +28,7 @@ function EmptyStatePrimaryCta({ cta }: { cta: EmptyStateCta }) {
   if (!cta.href && !cta.onClick) return null;
 
   const className =
-    "inline-flex min-h-[48px] w-full max-w-xs items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-[#024F38] to-[#013B2A] px-5 text-[15px] font-semibold text-white shadow-[0_8px_24px_-8px_rgba(1,59,42,0.45)] transition-opacity hover:from-[#0A5A42] hover:to-[#024F38]";
+    "inline-flex min-h-[48px] w-full max-w-xs items-center justify-center gap-1.5 rounded-2xl bg-[#2563EB] px-5 text-[15px] font-semibold text-white shadow-[0_8px_24px_-8px_rgba(37,99,235,0.45)] transition-opacity hover:bg-[#1D4ED8]";
 
   if (cta.href) {
     return (

@@ -27,24 +27,26 @@
 
 .dashboard-bg.light,
 .dashboard-bg[data-theme="light"] {
-  --background: 220 14% 98%;
-  --foreground: 222 28% 8%;
+  /* Landing palette: Background #FFFFFF · Text #0F172A · Primary #2563EB · Tint #E0EAFF · Muted #475569 */
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 222 28% 8%;
+  --card-foreground: 222 47% 11%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 28% 8%;
-  /* Brand green #013B2A */
-  --primary: 160 97% 12%;
+  --popover-foreground: 222 47% 11%;
+  /* Primary #2563EB */
+  --primary: 221 83% 53%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 220 14% 95%;
-  --secondary-foreground: 222 28% 8%;
-  --muted: 220 14% 95%;
-  --muted-foreground: 218 8% 45%;
-  --accent: 150 30% 96%;
-  --accent-foreground: 160 97% 12%;
-  --destructive: 350 65% 48%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 20% 35%;
+  /* Tint #E0EAFF */
+  --accent: 221 100% 94%;
+  --accent-foreground: 221 83% 53%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border: 220 13% 91%;
-  --input: 220 13% 91%;
-  --ring: 160 97% 12%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 221 83% 53%;
 }

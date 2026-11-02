@@ -64,7 +64,7 @@ export function PricingSection() {
             className="mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]"
             style={{ borderColor: LP.line, background: LP.surface, color: LP.muted }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.yellow }} />
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.green }} />
             Pricing
           </span>
 
@@ -79,7 +79,7 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid items-stretch gap-4 lg:grid-cols-3 lg:gap-5">
+        <div className="grid items-stretch gap-4 md:grid-cols-3 md:gap-3 lg:gap-5">
           {PLANS.map((plan, i) => (
             <motion.article
               key={plan.name}
@@ -92,7 +92,7 @@ export function PricingSection() {
                 background: plan.featured ? LP.green : LP.surface,
                 color: plan.featured ? "#fff" : LP.ink,
                 boxShadow: plan.featured
-                  ? "0 20px 44px rgba(1,59,42,0.28)"
+                  ? "0 20px 44px rgba(37, 99, 235, 0.32)"
                   : LP.shadow,
               }}
             >

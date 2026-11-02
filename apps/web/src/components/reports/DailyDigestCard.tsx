@@ -43,7 +43,7 @@ export function DailyDigestCard({ report }: DailyDigestCardProps) {
           <ul className="space-y-1">
             {report.highlights.map((h, i) => (
               <li key={i} className="flex gap-1.5 text-xs text-[var(--text-3)]">
-                <span className="text-[var(--accent)]">•</span>
+                <span className="text-[var(--accent-hi)]">•</span>
                 {h}
               </li>
             ))}

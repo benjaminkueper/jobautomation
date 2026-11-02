@@ -65,7 +65,7 @@ export function WeeklyReportCard({ report }: WeeklyReportCardProps) {
                   borderRadius: "var(--r-md)",
                 }}
               />
-              <Bar dataKey="count" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="var(--accent-hi)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

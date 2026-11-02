@@ -5,10 +5,10 @@ import { ArrowUpRight, FileText, Lock } from "lucide-react";
 import { LP } from "./landing-theme";
 
 const PIPELINE = [
-  { role: "Product Designer", company: "Northwind", status: "Saved", tone: "muted" as const, initial: "N", iconBg: "#0B6B4A" },
-  { role: "Senior UI Designer", company: "Brightline", status: "Applied", tone: "mint" as const, initial: "B", iconBg: "#7BC47F" },
-  { role: "Staff Designer", company: "Kestrel AI", status: "Interview", tone: "yellow" as const, initial: "K", iconBg: "#C5D96A", highlight: true },
-  { role: "Design Manager", company: "Harbor & Co.", status: "Offer", tone: "green" as const, initial: "H", iconBg: "#F5A623" },
+  { role: "Product Designer", company: "Northwind", status: "Saved", tone: "muted" as const, initial: "N", iconBg: "#1d4ed8" },
+  { role: "Senior UI Designer", company: "Brightline", status: "Applied", tone: "mint" as const, initial: "B", iconBg: "#2563eb" },
+  { role: "Staff Designer", company: "Kestrel AI", status: "Interview", tone: "yellow" as const, initial: "K", iconBg: "#3b82f6", highlight: true },
+  { role: "Design Manager", company: "Harbor & Co.", status: "Offer", tone: "green" as const, initial: "H", iconBg: "#475569" },
 ];
 
 const DOCS = [
@@ -32,23 +32,23 @@ export function ToolsBentoSection() {
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-5 flex flex-col gap-2 sm:mb-6 lg:flex-row lg:items-end lg:justify-between"
+          className="mb-5 flex flex-col gap-2 text-center sm:mb-6 md:flex-row md:items-end md:justify-between md:text-left"
         >
-          <h2 className="max-w-md text-[1.6rem] font-extrabold tracking-tight text-white sm:text-[1.9rem] lg:text-[2.15rem]">
+          <h2 className="mx-auto max-w-md text-[1.6rem] font-extrabold tracking-tight text-white sm:text-[1.9rem] md:mx-0 lg:text-[2.15rem]">
             Powerful tools.{" "}
             <span style={{ color: LP.yellow }}>Zero busywork.</span>
           </h2>
-          <p className="max-w-xs text-sm leading-relaxed text-white/70 lg:text-right">
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-white/70 md:mx-0 md:text-right">
             Everything works together, so your search runs itself while you prepare for interviews.
           </p>
         </motion.div>
 
-        <div className="grid items-stretch gap-2.5 lg:grid-cols-[0.9fr_1.05fr_1.05fr]">
+        <div className="grid items-stretch gap-2.5 md:grid-cols-2 lg:grid-cols-[0.9fr_1.05fr_1.05fr]">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex h-full flex-col rounded-[1.15rem] p-4"
+            className="flex h-full flex-col rounded-[1.15rem] p-4 md:col-span-2 lg:col-span-1"
             style={{ background: LP.surface }}
           >
             <p className="text-[15px] font-extrabold" style={{ color: LP.heading }}>
@@ -103,7 +103,7 @@ export function ToolsBentoSection() {
                   style={{
                     height: h,
                     background:
-                      i === 0 ? LP.chip : i === 1 ? "#A8C5A8" : i === 2 ? LP.green : LP.yellow,
+                      i === 0 ? LP.chip : i === 1 ? "#94a3b8" : i === 2 ? LP.green : "#93c5fd",
                   }}
                 />
               ))}
@@ -223,14 +223,14 @@ export function ToolsBentoSection() {
                   className="rounded-xl px-2.5 py-2 text-[11px] font-semibold"
                   style={{ background: LP.surface, color: LP.ink }}
                 >
-                  <span style={{ color: LP.yellow }}>• </span>
+                  <span style={{ color: LP.green }}>• </span>
                   Follow up with Brightline today
                 </div>
                 <div
                   className="rounded-xl px-2.5 py-2 text-[11px] font-medium text-white/85"
                   style={{ background: "rgba(0,0,0,0.18)" }}
                 >
-                  <span style={{ color: "#B7E4C7" }}>• </span>
+                  <span style={{ color: "#93c5fd" }}>• </span>
                   Thank-you note to Kestrel AI
                 </div>
               </div>

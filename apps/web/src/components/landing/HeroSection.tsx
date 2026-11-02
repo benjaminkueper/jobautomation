@@ -14,32 +14,85 @@ const STATS = [
   { value: "10+", label: "Job sites supported" },
 ];
 
-const AVATARS = ["#C4A484", "#8B7355", "#D4B896", "#A08060"];
+const AVATARS = ["#cbd5e1", "#64748b", "#bfdbfe", "#0f172a"];
 
 export function HeroSection() {
   return (
     <section
-      className="relative overflow-hidden pb-14 pt-[72px] sm:pb-16 sm:pt-[76px]"
-      style={{
-        background:
-          "radial-gradient(ellipse 85% 75% at 72% 18%, #0A5A42 0%, #013B2A 48%, #01281D 100%)",
-      }}
+      className="relative overflow-hidden pb-14 pt-[72px] sm:pb-16 sm:pt-[76px] lg:min-h-[640px]"
+      style={{ background: LP.bg }}
     >
-      <div className="relative mx-auto grid max-w-7xl items-center gap-5 px-5 sm:px-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+      {/* Full-bleed hero photo — on desktop it lives in a right-side zone,
+          clearly separated from the headline (left edge fades via mask, so no
+          photo corner can ever show a hard seam) */}
+      <div
+        className="absolute inset-0 md:inset-y-0 md:right-0 md:left-auto md:top-[68px] md:w-[min(66%,1000px)] md:[mask-image:linear-gradient(90deg,transparent,black_16%)]"
+        aria-hidden
+      >
+        <Image
+          src="/heroside.png?v=2"
+          alt=""
+          fill
+          priority
+          className="object-cover object-[85%_22%] md:object-[100%_22%]"
+          sizes="100vw"
+        />
+        {/* Readability wash: heavy vertical wash on phones only; on md+ just a
+            slim feather on the photo's left edge so it stays fully visible */}
+        <div
+          className="absolute inset-0 md:hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.85) 40%, rgba(255,255,255,0.55) 70%, rgba(255,255,255,0.15) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-y-0 right-0 hidden md:block"
+          style={{
+            background:
+              "linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0.75) 6%, rgba(255,255,255,0.15) 11%, rgba(255,255,255,0) 16%)",
+          }}
+        />
+        {/* Soft top wash so the photo zone dissolves below the fixed nav */}
+        <div
+          className="absolute inset-x-0 top-0 h-16 md:hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-x-0 top-0 hidden h-24 md:block"
+          style={{
+            background:
+              "linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.35) 45%, rgba(255,255,255,0) 100%)",
+          }}
+        />
+        {/* Soft floor fade so the stats card sits clean on the photo */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-28"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 100%)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-xl"
+          className="max-w-xl lg:flex lg:min-h-[520px] lg:flex-col lg:justify-center"
         >
           <span
-            className="mb-3 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide"
-            style={{ background: LP.yellow, color: LP.onYellow }}
+            className="mb-3 inline-flex self-start items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide"
+            style={{ background: LP.mint, color: LP.mintText }}
           >
             New: Multi-Platform Support
           </span>
 
-          <h1 className="text-[2.2rem] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[2.7rem] lg:text-[3.1rem]">
+          <h1 className="text-[2.2rem] font-extrabold leading-[1.08] tracking-tight sm:text-[2.7rem] lg:text-[3.1rem]" style={{ color: LP.ink }}>
             <span className="block">Your AI-powered</span>
             <span className="block">job search</span>
             <HighlightPill variant="yellow" className="mt-1.5 text-[0.9em]">
@@ -50,19 +103,20 @@ export function HeroSection() {
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold"
-              style={{ background: LP.yellow, color: LP.onYellow }}
+              className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+              style={{ background: LP.green }}
             >
               Get started
               <ArrowRight size={16} />
             </Link>
             <a
               href="#how-it-works"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white"
+              className="inline-flex items-center gap-2.5 text-sm font-semibold"
+              style={{ color: LP.ink }}
             >
               <span
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full"
-                style={{ background: "rgba(255,255,255,0.12)" }}
+                style={{ background: LP.mint, color: LP.mintText }}
               >
                 <Play size={12} fill="currentColor" />
               </span>
@@ -76,35 +130,13 @@ export function HeroSection() {
                 <span
                   key={color}
                   className="inline-block h-8 w-8 rounded-full border-2"
-                  style={{ background: color, borderColor: LP.green, zIndex: AVATARS.length - i }}
+                  style={{ background: color, borderColor: LP.surface, zIndex: AVATARS.length - i }}
                 />
               ))}
             </div>
-            <p className="text-sm font-medium text-white/80">
-              <span className="font-bold text-white">20k+</span> users joined the revolution.
+            <p className="text-sm font-medium" style={{ color: LP.muted }}>
+              <span className="font-bold" style={{ color: LP.ink }}>20k+</span> users joined the revolution.
             </p>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mx-auto w-full max-w-[280px] sm:max-w-[320px] lg:ml-auto lg:mr-2 lg:max-w-[360px]"
-        >
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
-            style={{ background: "rgba(253, 162, 1, 0.14)" }}
-          />
-          <div className="relative mx-auto aspect-[3/4] w-full max-h-[420px] overflow-hidden rounded-[1.5rem]">
-            <Image
-              src="/heroside.png"
-              alt="Job seeker using NewJob Guru"
-              fill
-              priority
-              className="object-cover object-[center_18%]"
-              sizes="360px"
-            />
           </div>
         </motion.div>
       </div>
@@ -118,7 +150,7 @@ export function HeroSection() {
         <div
           className="grid grid-cols-2 gap-4 rounded-2xl px-4 py-3.5 sm:grid-cols-4 sm:gap-3 sm:px-6 sm:py-4"
           style={{
-            background: LP.surface,
+            background: LP.panel,
             boxShadow: LP.shadowLg,
           }}
         >

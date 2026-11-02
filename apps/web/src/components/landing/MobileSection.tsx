@@ -33,11 +33,12 @@ export function MobileSection() {
       className="relative overflow-x-clip py-12 md:py-16"
       style={{ background: LP.green }}
     >
-      <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:gap-12">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 sm:px-8 md:grid-cols-2 md:gap-10 lg:gap-12">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          className="text-center md:text-left"
         >
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-black/20 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.yellow }} />
@@ -48,13 +49,13 @@ export function MobileSection() {
             Your job search,{" "}
             <span style={{ color: LP.yellow }}>in your pocket.</span>
           </h2>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-white/80 sm:text-[15px]">
+          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/80 sm:text-[15px] md:mx-0">
             Great roles don&apos;t wait until you&apos;re at your desk. Get notified the moment a strong match lands and apply right from your phone.
           </p>
 
           <ul className="mt-6 space-y-4">
             {FEATURES.map(({ icon: Icon, title, body }) => (
-              <li key={title} className="flex items-start gap-3">
+              <li key={title} className="flex flex-col items-center gap-2 text-center md:flex-row md:items-start md:gap-3 md:text-left">
                 <span
                   className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                   style={{ background: "rgba(0,0,0,0.22)", color: LP.yellow }}
@@ -71,13 +72,13 @@ export function MobileSection() {
 
           <Link
             href="/register"
-            className="mt-7 inline-flex items-center gap-3 rounded-full py-1.5 pl-5 pr-1.5 text-sm font-bold"
-            style={{ background: LP.yellow, color: LP.onYellow }}
+            className="mt-7 inline-flex items-center gap-3 rounded-full py-1.5 pl-5 pr-1.5 text-sm font-bold text-white"
+            style={{ background: LP.green }}
           >
             Get started on mobile
             <span
               className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white"
-              style={{ background: LP.green }}
+              style={{ background: LP.ink }}
             >
               <ArrowRight size={15} />
             </span>
@@ -88,7 +89,7 @@ export function MobileSection() {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative mx-auto w-full max-w-[420px] lg:ml-auto"
+          className="relative mx-auto w-full max-w-[420px] md:ml-auto"
         >
           <div
             className="rounded-[1.75rem] px-6 pb-8 pt-8 sm:px-10 sm:pb-10 sm:pt-10"
@@ -138,8 +139,8 @@ export function MobileSection() {
                 {READY.map((item) => (
                   <div key={item} className="flex items-center gap-2 text-[11px] font-medium" style={{ color: LP.ink }}>
                     <span
-                      className="inline-flex h-4 w-4 items-center justify-center rounded-full"
-                      style={{ background: LP.yellow, color: LP.onYellow }}
+                      className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white"
+                      style={{ background: LP.green }}
                     >
                       <Check size={10} strokeWidth={3} />
                     </span>
@@ -150,8 +151,8 @@ export function MobileSection() {
 
               <button
                 type="button"
-                className="mt-3.5 w-full rounded-full py-2.5 text-xs font-bold"
-                style={{ background: LP.yellow, color: LP.onYellow }}
+                className="mt-3.5 w-full rounded-full py-2.5 text-xs font-bold text-white"
+                style={{ background: LP.green }}
               >
                 Apply with Assistant
               </button>
@@ -159,7 +160,7 @@ export function MobileSection() {
           </div>
 
           <div
-            className="absolute left-0 top-4 z-20 w-[158px] px-3 py-2.5 sm:-left-3 sm:top-6"
+            className="absolute left-0 top-4 z-20 w-[140px] px-3 py-2.5 sm:-left-3 sm:top-6 sm:w-[158px]"
             style={{
               background: LP.yellow,
               color: LP.onYellow,
@@ -172,7 +173,7 @@ export function MobileSection() {
           </div>
 
           <div
-            className="absolute bottom-2 right-0 z-20 flex w-[178px] items-start gap-2.5 px-3 py-2.5 sm:-right-2 sm:bottom-3"
+            className="absolute bottom-2 right-0 z-20 flex w-[152px] items-start gap-2.5 px-3 py-2.5 sm:-right-2 sm:bottom-3 sm:w-[178px]"
             style={{
               background: LP.surface,
               borderRadius: 18,

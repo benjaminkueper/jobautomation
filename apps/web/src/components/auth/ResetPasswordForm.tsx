@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,13 +12,25 @@ export function ResetPasswordForm() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") ?? "";
+
+  // Token is resolved post-hydration so the first client render matches the
+  // server shell (useSearchParams differs between SSR and the browser).
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    setToken(searchParams.get("token") ?? "");
+  }, [searchParams]);
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (token === null) {
+    // First paint (server + client) — content resolves after hydration.
+    return null;
+  }
 
   if (!token) {
     return (
@@ -33,6 +45,7 @@ export function ResetPasswordForm() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!token) return;
     if (password !== confirm) {
       setError(t("auth.passwordsDoNotMatch"));
       return;

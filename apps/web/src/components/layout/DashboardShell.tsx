@@ -10,7 +10,6 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { BottomNav } from "./BottomNav";
 import { JobPipelineSummaryProvider } from "@/context/JobPipelineSummaryContext";
-import { PushNotificationPrompt } from "@/components/shared/PushNotificationPrompt";
 import { PwaInstallPrompt } from "@/components/shared/PwaInstallPrompt";
 
 interface DashboardShellProps {
@@ -47,7 +46,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
                   <div className="mb-4 w-full space-y-3 md:mb-5">
                     <div className="grid gap-3 md:grid-cols-2 xl:max-w-4xl">
                       <PwaInstallPrompt />
-                      <PushNotificationPrompt />
+
                     </div>
                   </div>
                   {children}

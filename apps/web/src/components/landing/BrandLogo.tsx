@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  /** Dark green surfaces need the light wordmark variant. */
+  /** Dark surfaces (e.g. footer) need the light wordmark variant. */
   onDark?: boolean;
   className?: string;
   priority?: boolean;

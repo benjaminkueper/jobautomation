@@ -44,12 +44,14 @@ export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [redirecting, setRedirecting] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Handle already-authenticated and Google callback token
+  // Handle already-authenticated and Google callback token.
+  // The form always renders from the first paint (server + client) so hydration
+  // stays stable; the redirect decision happens post-hydration only.
   useEffect(() => {
     // Google OAuth callback: ?token=...&tenantId=...&userId=...
     const token = searchParams.get("token");
@@ -70,6 +72,7 @@ export function LoginForm() {
     }
 
     if (token && tenantId && userId) {
+      setRedirecting(true);
       setAuthToken(token);
       try {
         localStorage.setItem("tenantId", tenantId);
@@ -85,6 +88,7 @@ export function LoginForm() {
     }
 
     if (getAuthToken()) {
+      setRedirecting(true);
       void me()
         .then((session) => router.replace(getPostLoginPath(session.user)))
         .catch(() => {
@@ -131,7 +135,13 @@ export function LoginForm() {
   if (redirecting) return null;
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-4"
+      // Password managers / autofill extensions may inject buttons into this
+      // form before React hydrates; suppress that class of hydration noise.
+      suppressHydrationWarning
+    >
       {successMsg && (
         <p className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
           {successMsg}

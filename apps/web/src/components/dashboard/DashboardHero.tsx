@@ -45,7 +45,7 @@ export function DashboardHero({ showMockIndicator }: DashboardHeroProps) {
           href="/jobs"
           className={cn(
             buttonVariants({ variant: "default", size: "default" }),
-            "h-[40px] w-full justify-center bg-gradient-to-b from-[#024F38] to-[#013B2A] px-4 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_12px_-4px_rgba(1,59,42,0.45)] hover:from-[#0A5A42] hover:to-[#024F38] sm:h-[38px] sm:w-auto"
+            "h-[40px] w-full justify-center bg-[#2563EB] px-4 text-[13px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_4px_12px_-4px_rgba(37,99,235,0.45)] hover:bg-[#1D4ED8] sm:h-[38px] sm:w-auto"
           )}
         >
           <PlusIcon size={14} className="mr-2" />

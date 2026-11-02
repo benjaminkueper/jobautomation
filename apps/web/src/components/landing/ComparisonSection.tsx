@@ -34,7 +34,7 @@ export function ComparisonSection() {
             className="mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]"
             style={{ borderColor: LP.line, background: LP.surface, color: LP.ink }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.yellow }} />
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.green }} />
             Why NewJob Guru
           </span>
 
@@ -50,7 +50,7 @@ export function ComparisonSection() {
           </p>
         </motion.div>
 
-        <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-4 lg:gap-5">
           <motion.article
             initial={{ opacity: 0, x: -12 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -105,7 +105,7 @@ export function ComparisonSection() {
           >
             <span
               className="mb-4 inline-flex rounded-full px-3 py-1.5 text-xs font-semibold"
-              style={{ background: LP.yellow, color: LP.onYellow }}
+              style={{ background: LP.surface, color: LP.green }}
             >
               With NewJob Guru
             </span>

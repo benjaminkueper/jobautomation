@@ -30,15 +30,15 @@ export function CTASection() {
     <section className="py-8 md:py-12" style={{ background: LP.bg }}>
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div
-          className="overflow-hidden rounded-[2rem] px-5 pt-8 sm:px-8 sm:pt-10 lg:px-12 lg:pt-12"
+          className="overflow-hidden rounded-[2rem] px-5 pt-8 sm:px-8 sm:pt-10 md:px-10 md:pt-12 lg:px-12"
           style={{ background: LP.creamWarm }}
         >
-          <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="grid items-stretch gap-8 md:grid-cols-2 md:gap-8 lg:gap-10">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="flex flex-col justify-center pb-8 sm:pb-10 lg:pb-12"
+              className="flex flex-col justify-center pb-8 text-center sm:pb-10 md:pb-12 md:text-left"
             >
               <h2
                 className="text-[1.75rem] font-extrabold tracking-tight sm:text-3xl lg:text-[2.4rem]"
@@ -46,7 +46,7 @@ export function CTASection() {
               >
                 Start automating your <HighlightPill variant="green">job search</HighlightPill> today
               </h2>
-              <p className="mt-3 max-w-md text-sm leading-relaxed sm:text-[15px]" style={{ color: LP.body }}>
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed sm:text-[15px] md:mx-0" style={{ color: LP.body }}>
                 Stop juggling spreadsheets. Let NewJob Guru handle the busywork while you focus on landing the role.
               </p>
 
@@ -73,7 +73,7 @@ export function CTASection() {
                 </button>
               </form>
 
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+              <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 md:justify-start">
                 {TRUST.map((item) => (
                   <span
                     key={item}
@@ -82,7 +82,7 @@ export function CTASection() {
                   >
                     <span
                       className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white"
-                      style={{ background: LP.yellow }}
+                      style={{ background: LP.green }}
                     >
                       <Check size={10} strokeWidth={3} />
                     </span>
@@ -96,7 +96,7 @@ export function CTASection() {
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mx-auto flex w-full max-w-[340px] flex-col lg:mx-0 lg:ml-auto lg:max-w-[360px]"
+              className="mx-auto flex w-full max-w-[340px] flex-col md:mx-0 md:ml-auto md:max-w-[360px]"
             >
               <div
                 className="relative flex h-full min-h-[320px] flex-col items-center px-6 pb-6 pt-8"

@@ -55,6 +55,8 @@
   --accent-bg: rgba(1, 59, 42, 0.22);
   --accent-bg-hi: rgba(1, 59, 42, 0.32);
   --accent-ring: rgba(253, 162, 1, 0.32);
+  --accent-border: rgba(1, 59, 42, 0.22);
+  --violet-border: rgba(253, 162, 1, 0.28);
   --emerald: #38c793;
   --emerald-bg: rgba(56, 199, 147, 0.1);
   --amber: #e5a23b;
@@ -72,81 +74,108 @@
   background: var(--bg-0);
 }
 
-/* Light theme — warm canvas, white cards, stronger edges */
+/* Light theme — landing palette: Background #FFFFFF · Text #0F172A · Primary #2563EB · Tint #E0EAFF · Muted #475569 */
 .dashboard-bg.light,
 .dashboard-bg[data-theme="light"] {
-  /* Canvas — soft warm off-white, NOT pure white */
-  --bg-0: #eef0f4;
-  --bg-1: rgba(238, 240, 244, 0.78);
+  /* Canvas — brand white; cards stay white but are lifted by borders */
+  --bg-0: #ffffff;
+  --bg-1: rgba(255, 255, 255, 0.78);
 
-  /* Sidebar — slightly darker than canvas to recede */
-  --surface-1: #e6e9ef;
+  /* Sidebar — landing panel tone (#F8FAFC) so it recedes from the white cards */
+  --surface-1: #f8fafc;
 
-  /* Cards — pure white, clearly elevated above canvas */
+  /* Cards — white, elevated above the canvas */
   --surface-2: #ffffff;
-  --surface-3: #f7f8fa;
-  --surface-4: #eef0f4;
+  --surface-3: #f1f5f9;
+  --surface-4: #e2e8f0;
 
-  /* Borders — stronger than dark theme so cards have visible edges */
-  --border-subtle: rgba(15, 18, 24, 0.06);
-  --border-default: rgba(15, 18, 24, 0.1);
-  --border-strong: rgba(15, 18, 24, 0.16);
-  --border-focus: rgba(1, 59, 42, 0.4);
+  /* Borders — landing hairline rgba(15,23,42,0.10) */
+  --border-subtle: rgba(15, 23, 42, 0.06);
+  --border-default: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --border-focus: rgba(37, 99, 235, 0.45);
 
-  /* Text — proper contrast hierarchy on white */
-  --text-1: #0e1116;
-  --text-2: #3c414b;
-  --text-3: #6b7280;
-  --text-4: #9aa0ab;
-  --text-5: #c4c8d0;
-  /* Solid chrome bars (topbar / mobile bottom nav) — light gray band, clearly off the canvas */
-  --bar-bg: #e4e7ed;
-  --bar-border: rgba(15, 18, 24, 0.14);
-  --topbar-shadow: 0 10px 24px -18px rgba(15, 18, 24, 0.32);
-  --bottombar-shadow: 0 -10px 30px -18px rgba(15, 18, 24, 0.3);
+  /* Text — #0F172A text, #475569 muted, slate scale between */
+  --text-1: #0f172a;
+  --text-2: #475569;
+  --text-3: #64748b;
+  --text-4: #94a3b8;
+  --text-5: #cbd5e1;
+  /* Solid chrome bars (topbar / mobile bottom nav) — white with a hairline */
+  --bar-bg: #ffffff;
+  --bar-border: rgba(15, 23, 42, 0.1);
+  --topbar-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 10px 24px -22px rgba(15, 23, 42, 0.28);
+  --bottombar-shadow: 0 -10px 30px -20px rgba(15, 23, 42, 0.24);
 
-  /* Brand — NewJob Guru green + yellow (same as landing) */
-  --accent: #013b2a;
-  --accent-hi: #024f38;
-  --accent-lo: #01281d;
-  --accent-bg: rgba(1, 59, 42, 0.08);
-  --accent-bg-hi: rgba(1, 59, 42, 0.14);
-  --accent-ring: rgba(1, 59, 42, 0.28);
+  /* Brand — landing primary #2563EB with #E0EAFF tint */
+  --accent: #2563eb;
+  --accent-hi: #1d4ed8;
+  --accent-lo: #1e40af;
+  --accent-bg: rgba(37, 99, 235, 0.08);
+  --accent-bg-hi: rgba(37, 99, 235, 0.14);
+  --accent-ring: rgba(37, 99, 235, 0.28);
+  --accent-border: rgba(37, 99, 235, 0.22);
 
-  /* Semantic colors — darker for contrast on white */
-  --emerald: #1f8f66;
-  --emerald-bg: rgba(56, 199, 147, 0.12);
-  --amber: #b07320;
-  --amber-bg: rgba(229, 162, 59, 0.14);
-  --rose: #b83344;
-  --rose-bg: rgba(229, 88, 109, 0.1);
-  --violet: #c47e00;
-  --violet-bg: rgba(253, 162, 1, 0.14);
-  --teal: #2a8fa3;
-  --teal-bg: rgba(79, 194, 216, 0.14);
+  /* Semantic colors — readable on white, blue kept for brand-tinted chips */
+  --emerald: #059669;
+  --emerald-bg: rgba(5, 150, 105, 0.1);
+  --amber: #b45309;
+  --amber-bg: rgba(217, 119, 6, 0.12);
+  --rose: #dc2626;
+  --rose-bg: rgba(220, 38, 38, 0.08);
+  --violet: #2563eb;
+  --violet-bg: #e0eaff;
+  --violet-border: rgba(37, 99, 235, 0.28);
+  --teal: #0e7490;
+  --teal-bg: rgba(14, 116, 144, 0.1);
 
-  /* Shadows — stronger so cards lift visibly off the warm canvas */
+  /* Shadows — landing card shadow */
   --shadow-card:
-    0 1px 0 0 rgba(255, 255, 255, 0.6) inset,
-    0 1px 2px rgba(15, 18, 24, 0.04),
-    0 2px 6px -2px rgba(15, 18, 24, 0.06);
+    0 1px 0 0 rgba(255, 255, 255, 0.7) inset,
+    0 2px 6px -2px rgba(15, 23, 42, 0.06);
   --shadow-pop:
     0 1px 0 0 rgba(255, 255, 255, 0.8) inset,
-    0 4px 12px -2px rgba(15, 18, 24, 0.08),
-    0 12px 32px -8px rgba(15, 18, 24, 0.12);
+    0 4px 12px -2px rgba(15, 23, 42, 0.08),
+    0 12px 32px -8px rgba(15, 23, 42, 0.12);
   --shadow-glow:
     0 0 0 1px var(--accent-ring),
-    0 8px 24px -10px rgba(1, 59, 42, 0.28);
+    0 8px 24px -10px rgba(37, 99, 235, 0.28);
 
   color: var(--text-1);
   background: var(--bg-0);
 }
 
-/* Light canvas: soften ambient gradients + grain */
+/* Light canvas: landing tint (#E0EAFF) glow, no warm green */
 .dashboard-bg.light .jf-app-bg {
   background:
-    radial-gradient(800px 500px at 18% -10%, rgba(1, 59, 42, 0.05), transparent 60%),
-    radial-gradient(600px 500px at 100% 0%, rgba(253, 162, 1, 0.04), transparent 60%);
+    radial-gradient(800px 500px at 18% -10%, rgba(37, 99, 235, 0.06), transparent 60%),
+    radial-gradient(600px 500px at 100% 0%, rgba(224, 234, 255, 0.55), transparent 65%);
+}
+
+/* Light hero / empty / brand mark: landing blue tints */
+.dashboard-bg.light .jf-hero {
+  background:
+    radial-gradient(900px 300px at 0% 0%, rgba(37, 99, 235, 0.08), transparent 65%),
+    radial-gradient(600px 300px at 100% 100%, rgba(224, 234, 255, 0.7), transparent 65%),
+    linear-gradient(180deg, var(--surface-2) 0%, var(--surface-1) 100%);
+}
+
+.dashboard-bg.light .jf-empty {
+  background:
+    radial-gradient(220px 120px at 50% 0%, rgba(37, 99, 235, 0.06), transparent 70%),
+    var(--surface-1);
+}
+
+.dashboard-bg.light .jf-brand-mark {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 4px 14px -4px rgba(37, 99, 235, 0.45);
+}
+
+.dashboard-bg.light .jf-nav-item.is-active::before {
+  background: linear-gradient(180deg, var(--accent-hi), var(--accent-lo));
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.45);
 }
 
 .dashboard-bg.light .jf-app-grain {
@@ -332,7 +361,7 @@
   width: 3px;
   height: 18px;
   border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, var(--accent-hi), var(--accent));
+  background: linear-gradient(180deg, var(--accent-hi), var(--accent-lo));
   box-shadow: 0 0 12px rgba(1, 59, 42, 0.55);
 }
 

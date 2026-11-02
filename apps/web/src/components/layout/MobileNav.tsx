@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { BRAND } from "@/lib/brand";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -101,8 +100,8 @@ export function MobileNav() {
     <>
       <header className="jf-mobile-topbar flex min-h-[52px] items-center justify-between gap-1.5 border-b border-[var(--bar-border)] bg-[var(--bar-bg)] px-2.5 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shadow-[var(--topbar-shadow)] sm:gap-2 sm:px-4 md:hidden">
         <Link href="/today" className="flex min-w-0 flex-1 items-center gap-2">
-          <Image src={BRAND.iconPath} alt={BRAND.name} width={26} height={26} priority className="shrink-0" />
-          <span className="truncate text-sm font-semibold text-[var(--text-1)] sm:max-w-none">{BRAND.name}</span>
+          <img src="/logo-transparent.png" alt={BRAND.name} className="h-8 w-auto max-w-[150px] object-contain object-left dark:hidden" />
+          <img src="/logo-on-dark.png" alt={BRAND.name} className="hidden h-8 w-auto max-w-[150px] object-contain object-left dark:block" />
         </Link>
         <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
           <button

@@ -43,13 +43,13 @@ const CHECKLIST = [
 export function HowItWorksSection() {
   return (
     <section id="how-it-works" className="py-10 md:py-14" style={{ background: LP.bg }}>
-      <div className="mx-auto grid max-w-7xl items-start gap-8 px-5 sm:px-8 lg:grid-cols-2 lg:gap-10">
-        <div>
+      <div className="mx-auto grid max-w-7xl items-start gap-8 px-5 sm:px-8 md:grid-cols-2 md:gap-8 lg:gap-10">
+        <div className="text-center md:text-left">
           <span
             className="mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]"
             style={{ borderColor: LP.line, background: LP.panelSoft, color: LP.ink }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.yellow }} />
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.green }} />
             How it works
           </span>
 
@@ -59,7 +59,7 @@ export function HowItWorksSection() {
           >
             Up and running in <HighlightPill variant="yellow">5 minutes</HighlightPill>.
           </h2>
-          <p className="mt-2.5 max-w-md text-sm sm:text-[15px]" style={{ color: LP.muted }}>
+          <p className="mx-auto mt-2.5 max-w-md text-sm sm:text-[15px] md:mx-0" style={{ color: LP.muted }}>
             Connect your accounts once and let the automation handle everything else.
           </p>
 
@@ -132,7 +132,7 @@ export function HowItWorksSection() {
                   ) : (
                     <span
                       className="mt-0.5 inline-flex h-6 w-6 shrink-0 rounded-full border-2"
-                      style={{ borderColor: LP.yellow }}
+                      style={{ borderColor: LP.green }}
                     />
                   )}
                   <div className="min-w-0">
@@ -148,7 +148,7 @@ export function HowItWorksSection() {
             </ul>
 
             <div className="mt-4 h-2 overflow-hidden rounded-full" style={{ background: LP.progress }}>
-              <div className="h-full w-3/4 rounded-full" style={{ background: LP.yellow }} />
+              <div className="h-full w-3/4 rounded-full" style={{ background: LP.green }} />
             </div>
           </div>
 

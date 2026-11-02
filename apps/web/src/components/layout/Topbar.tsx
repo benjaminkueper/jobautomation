@@ -52,7 +52,7 @@ export function Topbar() {
         <b className="font-semibold text-[var(--text-1)]">{title}</b>
       </div>
       <div className="flex-1" />
-      <div className="relative hidden w-[340px] max-w-[35vw] items-center gap-2 rounded-[var(--r-sm)] border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-0 transition-colors focus-within:border-[var(--border-focus)] focus-within:shadow-[0_0_0_3px_rgba(1,59,42,0.14)] lg:flex lg:h-[34px]">
+      <div className="relative hidden w-[340px] max-w-[35vw] items-center gap-2 rounded-[var(--r-sm)] border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-0 transition-colors focus-within:border-[var(--border-focus)] focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.14)] lg:flex lg:h-[34px]">
         <SearchIcon size={14} className="shrink-0 text-[var(--text-4)]" />
         <input
           ref={searchRef}

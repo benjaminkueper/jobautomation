@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 type Variant = "yellow" | "green" | "outline" | "cream";
 
 const styles: Record<Variant, string> = {
-  yellow: "bg-[var(--lp-yellow)] text-[var(--lp-on-yellow)]",
+  // Both accent variants render the primary blue pill (#2563EB, white text).
+  yellow: "bg-[var(--lp-brand)] text-white",
   green: "bg-[var(--lp-brand)] text-white",
   outline: "border-[2.5px] border-[var(--lp-heading)] bg-transparent text-[var(--lp-heading)]",
   cream: "border-[2.5px] border-white/80 bg-transparent text-white",

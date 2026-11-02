@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoginBackground } from "@/components/auth/LoginBackground";
+import { AuthBrandHeader } from "@/components/auth/AuthBrandHeader";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
-import { BrandIcon } from "@/components/auth/BrandIcon";
-import { APP_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = { title: "Reset Password" };
 
@@ -11,13 +10,10 @@ export default function ResetPasswordPage() {
   return (
     <>
       <LoginBackground />
-      <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-8 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <main className="auth-light relative z-10 flex min-h-screen items-center justify-center px-4 py-8 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))]">
         <div className="w-full max-w-sm space-y-5">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <BrandIcon size={40} />
-            <h1 className="text-2xl font-bold text-white">{APP_NAME}</h1>
-          </div>
-          <div className="space-y-4 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
+          <AuthBrandHeader headingKey="auth.resetPassword" />
+          <div className="space-y-4 rounded-[1.35rem] border border-[rgba(15,23,42,0.10)] bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:p-6">
             <Suspense>
               <ResetPasswordForm />
             </Suspense>

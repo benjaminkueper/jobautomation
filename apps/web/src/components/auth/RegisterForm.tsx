@@ -18,17 +18,19 @@ export function RegisterForm() {
   const [workspaceName, setWorkspaceName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [redirecting, setRedirecting] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
 
+  // The form always renders from the first paint (server + client) so hydration
+  // stays stable; the already-authenticated redirect happens post-hydration.
   useEffect(() => {
     const token = getAuthToken();
     if (token) {
+      setRedirecting(true);
       void me()
         .then((session) => router.replace(getPostLoginPath(session.user)))
         .catch(() => router.replace("/today"));
       return;
     }
-    setRedirecting(false);
   }, [router]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -46,7 +48,13 @@ export function RegisterForm() {
   if (redirecting) return null;
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-4"
+      // Password managers / autofill extensions may inject buttons into this
+      // form before React hydrates; suppress that class of hydration noise.
+      suppressHydrationWarning
+    >
       {error ? (
         <p className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>
       ) : null}

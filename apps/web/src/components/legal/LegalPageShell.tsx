@@ -1,5 +1,4 @@
-import { PublicHeader } from "@/components/marketing/PublicHeader";
-import { PublicThemeScript } from "@/components/marketing/PublicThemeScript";
+import { PublicChrome } from "@/components/marketing/PublicChrome";
 
 export function LegalPageShell({
   title,
@@ -11,10 +10,7 @@ export function LegalPageShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-white text-slate-900 dark:bg-[#0a0b10] dark:text-white">
-      <PublicThemeScript />
-      <PublicHeader section="company" />
-
+    <PublicChrome>
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">{title}</h1>
         <p className="mt-2 text-sm text-slate-400 dark:text-slate-500">Last updated: {lastUpdated}</p>
@@ -30,6 +26,6 @@ export function LegalPageShell({
           </p>
         </footer>
       </main>
-    </div>
+    </PublicChrome>
   );
 }

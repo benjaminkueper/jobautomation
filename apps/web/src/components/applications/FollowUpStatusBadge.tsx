@@ -9,7 +9,7 @@ const FOLLOWUP_STYLES: Record<FollowUpStatus, string> = {
   "Not Needed":
     "bg-[var(--surface-3)] text-[var(--text-2)] border border-[var(--border-default)]",
   Scheduled:
-    "bg-[var(--accent-bg)] text-[var(--accent-hi)] border border-[rgba(1,59,42,0.22)]",
+    "bg-[var(--accent-bg)] text-[var(--accent-hi)] border border-[var(--accent-border)]",
   "Due Today":
     "bg-[var(--amber-bg)] text-[var(--amber)] border border-[rgba(229,162,59,0.18)]",
   Overdue:

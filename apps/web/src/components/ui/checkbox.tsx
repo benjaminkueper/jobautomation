@@ -19,7 +19,7 @@ export function Checkbox({ checked, onCheckedChange, className, ...props }: Chec
       className={cn(
         "inline-flex h-5 w-5 items-center justify-center rounded border transition-colors",
         checked
-          ? "border-[var(--accent)] bg-[var(--accent)] text-white"
+          ? "border-[var(--accent-hi)] bg-[var(--accent-hi)] text-white"
           : "border-[var(--border-default)] bg-[var(--surface-2)] text-transparent",
         className
       )}

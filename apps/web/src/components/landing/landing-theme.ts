@@ -1,65 +1,66 @@
 /** NewJob Guru landing tokens — CSS vars swap for light/dark. */
+/** Palette: Background #FFFFFF · Text #0F172A · Primary #2563EB · Tint #E0EAFF · Muted #475569 */
 
 export const LP_LIGHT_VARS = `
   --lp-bg: #ffffff;
   --lp-surface: #ffffff;
-  --lp-panel: #f3f1ec;
-  --lp-panel-soft: #f7f8f7;
-  --lp-cream: #f3eee6;
-  --lp-cream-soft: #f7f4ee;
-  --lp-cream-warm: #fff7e8;
-  --lp-ink: #0b1f18;
-  --lp-muted: #5c6b64;
-  --lp-heading: #013b2a;
-  --lp-body: #0a5a42;
-  --lp-line: rgba(1, 59, 42, 0.12);
-  --lp-brand: #013b2a;
-  --lp-brand-deep: #01281d;
-  --lp-brand-mid: #024f38;
-  --lp-brand-soft: #0a5a42;
-  --lp-yellow: #fda201;
-  --lp-yellow-hover: #e89200;
-  --lp-yellow-soft: #ffe7b0;
-  --lp-on-yellow: #013b2a;
-  --lp-chip: #eef0ee;
-  --lp-mint: #e7f6ec;
-  --lp-mint-text: #013b2a;
-  --lp-progress: #e4e0d8;
-  --lp-tag: #e8eef2;
-  --lp-tag-text: #3a4a5a;
-  --lp-shadow: 0 8px 24px rgba(1, 59, 42, 0.08);
-  --lp-shadow-lg: 0 18px 40px rgba(1, 40, 29, 0.22);
+  --lp-panel: #f1f5f9;
+  --lp-panel-soft: #f8fafc;
+  --lp-cream: #f8fafc;
+  --lp-cream-soft: #f1f5f9;
+  --lp-cream-warm: #e0eaff;
+  --lp-ink: #0f172a;
+  --lp-muted: #475569;
+  --lp-heading: #0f172a;
+  --lp-body: #475569;
+  --lp-line: rgba(15, 23, 42, 0.10);
+  --lp-brand: #2563eb;
+  --lp-brand-deep: #0f172a;
+  --lp-brand-mid: #1d4ed8;
+  --lp-brand-soft: #3b82f6;
+  --lp-yellow: #e0eaff;
+  --lp-yellow-hover: #2563eb;
+  --lp-yellow-soft: #e0eaff;
+  --lp-on-yellow: #2563eb;
+  --lp-chip: #e2e8f0;
+  --lp-mint: #e0eaff;
+  --lp-mint-text: #2563eb;
+  --lp-progress: #e2e8f0;
+  --lp-tag: #e0eaff;
+  --lp-tag-text: #2563eb;
+  --lp-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --lp-shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.16);
 `;
 
 export const LP_DARK_VARS = `
-  --lp-bg: #0b1410;
-  --lp-surface: #15241c;
-  --lp-panel: #1a2c22;
-  --lp-panel-soft: #122019;
-  --lp-cream: #1a2820;
-  --lp-cream-soft: #16241c;
-  --lp-cream-warm: #243528;
-  --lp-ink: #e8f0eb;
-  --lp-muted: #8fa399;
-  --lp-heading: #f3f7f4;
-  --lp-body: #a8c5b5;
-  --lp-line: rgba(255, 255, 255, 0.12);
-  --lp-brand: #013b2a;
-  --lp-brand-deep: #071510;
-  --lp-brand-mid: #0e3d2c;
-  --lp-brand-soft: #0a5a42;
-  --lp-yellow: #fda201;
-  --lp-yellow-hover: #e89200;
-  --lp-yellow-soft: #4a3a14;
-  --lp-on-yellow: #013b2a;
-  --lp-chip: #243830;
-  --lp-mint: #1a3328;
-  --lp-mint-text: #b7e4c7;
-  --lp-progress: #2a3a32;
-  --lp-tag: #243830;
-  --lp-tag-text: #c5d4cc;
+  --lp-bg: #0f172a;
+  --lp-surface: #1e293b;
+  --lp-panel: #243350;
+  --lp-panel-soft: #19233a;
+  --lp-cream: #19233a;
+  --lp-cream-soft: #16202f;
+  --lp-cream-warm: #1e3a5f;
+  --lp-ink: #e2e8f0;
+  --lp-muted: #94a3b8;
+  --lp-heading: #f8fafc;
+  --lp-body: #cbd5e1;
+  --lp-line: rgba(255, 255, 255, 0.10);
+  --lp-brand: #3b82f6;
+  --lp-brand-deep: #0b1120;
+  --lp-brand-mid: #1d4ed8;
+  --lp-brand-soft: #60a5fa;
+  --lp-yellow: #bfdbfe;
+  --lp-yellow-hover: #93c5fd;
+  --lp-yellow-soft: #bfdbfe;
+  --lp-on-yellow: #0f172a;
+  --lp-chip: #263551;
+  --lp-mint: #1e3a5f;
+  --lp-mint-text: #bfdbfe;
+  --lp-progress: #334155;
+  --lp-tag: #263551;
+  --lp-tag-text: #cbd5e1;
   --lp-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --lp-shadow-lg: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --lp-shadow-lg: 0 18px 40px rgba(0, 0, 0, 0.5);
 `;
 
 /** Theme-aware landing palette (reads CSS vars from .lp-root). */
@@ -76,16 +77,17 @@ export const LP = {
   heading: "var(--lp-heading)",
   body: "var(--lp-body)",
   line: "var(--lp-line)",
-  /** Brand fill green — stays deep green in both themes */
+  /** Primary brand fill (#2563EB) — same in both themes. */
   green: "var(--lp-brand)",
   greenDeep: "var(--lp-brand-deep)",
   greenMid: "var(--lp-brand-mid)",
   greenSoft: "var(--lp-brand-soft)",
+  /** Accent chip color (tint #E0EAFF in light) + readable text paired with it. */
   yellow: "var(--lp-yellow)",
   yellowHover: "var(--lp-yellow-hover)",
   yellowSoft: "var(--lp-yellow-soft)",
   onYellow: "var(--lp-on-yellow)",
-  /** Card / elevated surface (was white) */
+  /** Card / elevated surface */
   white: "var(--lp-surface)",
   chip: "var(--lp-chip)",
   mint: "var(--lp-mint)",

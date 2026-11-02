@@ -63,7 +63,7 @@ function LocaleItem({ code, name, active }: { code: Locale; name: string; active
         <FlagIcon code={code} className="h-[14px] w-[21px] shrink-0 rounded-[2px] ring-1 ring-black/10" />
         <span className="truncate">{name}</span>
       </span>
-      {active ? <CheckIcon size={14} className="shrink-0 text-[var(--accent)]" /> : null}
+      {active ? <CheckIcon size={14} className="shrink-0 text-[var(--accent-hi)]" /> : null}
     </DropdownMenuItem>
   );
 }
@@ -88,7 +88,7 @@ export function LanguageSwitcher({ compact }: Props) {
               className={cn(
                 "flex min-h-10 min-w-[44px] items-center justify-center gap-1 rounded-md px-2.5 text-[13px] font-semibold transition-colors",
                 active
-                  ? "bg-[var(--accent)] text-white shadow-sm"
+                  ? "bg-[var(--accent-hi)] text-white shadow-sm"
                   : "text-[var(--text-2)] hover:bg-[var(--surface-3)] hover:text-[var(--text-1)]"
               )}
               aria-pressed={active}

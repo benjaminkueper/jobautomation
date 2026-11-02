@@ -39,13 +39,13 @@ export function TestimonialsSection() {
   return (
     <section id="testimonials" className="py-10 md:py-14" style={{ background: LP.panelSoft }}>
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-7 flex flex-col items-center gap-5 text-center md:flex-row md:items-end md:justify-between md:text-left">
           <div>
             <span
               className="mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]"
               style={{ borderColor: LP.line, background: LP.surface, color: LP.heading }}
             >
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.yellow }} />
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.green }} />
               Testimonials
             </span>
             <h2
@@ -57,14 +57,14 @@ export function TestimonialsSection() {
           </div>
 
           <div
-            className="inline-flex items-center gap-3 self-start rounded-2xl border px-4 py-3 sm:self-auto"
+            className="inline-flex items-center gap-3 self-center rounded-2xl border px-4 py-3 md:self-auto"
             style={{ borderColor: LP.line, background: LP.surface }}
           >
             <span className="text-2xl font-extrabold" style={{ color: LP.heading }}>
               [4.9]
             </span>
             <div>
-              <div className="flex gap-0.5" style={{ color: LP.yellow }}>
+              <div className="flex gap-0.5" style={{ color: LP.green }}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} size={14} fill="currentColor" />
                 ))}
@@ -91,7 +91,7 @@ export function TestimonialsSection() {
                 boxShadow: item.highlight ? "none" : LP.shadow,
               }}
             >
-              <p className="text-3xl font-serif leading-none" style={{ color: LP.yellow }}>
+              <p className="text-3xl font-serif leading-none" style={{ color: item.highlight ? "rgba(255,255,255,0.85)" : LP.green }}>
                 ”
               </p>
               <p className="mt-3 flex-1 text-sm leading-relaxed sm:text-[15px]">

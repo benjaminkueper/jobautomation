@@ -33,33 +33,37 @@ export function FAQSection() {
 
   return (
     <section id="faq" className="py-10 md:py-14" style={{ background: LP.bg }}>
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.2fr] lg:gap-12">
-        <div>
+      <div className="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 md:grid-cols-[0.9fr_1.2fr] md:gap-8 lg:gap-12">
+        <div className="text-center md:text-left">
           <span
             className="mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]"
             style={{ borderColor: LP.line, background: LP.panelSoft, color: LP.muted }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.yellow }} />
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.green }} />
             FAQ
           </span>
 
           <h2
-            className="max-w-[14ch] text-[1.75rem] font-extrabold tracking-tight sm:text-3xl lg:text-[2.4rem]"
+            className="mx-auto max-w-[14ch] text-[1.75rem] font-extrabold tracking-tight sm:text-3xl md:mx-0 lg:text-[2.4rem]"
             style={{ color: LP.heading }}
           >
             Everything you need to know
           </h2>
 
-          <div className="mt-6 rounded-[1.35rem] p-5" style={{ background: LP.green }}>
-            <p className="text-base font-extrabold text-white">Still have questions?</p>
-            <p className="mt-1 text-sm text-white/70">Our team replies within 24 hours.</p>
-            <a
-              href="mailto:hello@newjob.guru"
-              className="mt-4 inline-flex rounded-full px-4 py-2 text-sm font-bold"
-              style={{ background: LP.yellow, color: LP.onYellow }}
-            >
-              Email us
-            </a>
+          <div className="mt-6 rounded-[1.35rem] p-5 text-left" style={{ background: LP.green }}>
+            <div className="flex items-center justify-between gap-3 sm:gap-4">
+              <div className="min-w-0">
+                <p className="text-base font-extrabold text-white">Still have questions?</p>
+                <p className="mt-1 text-sm text-white/70">Our team replies within 24 hours.</p>
+              </div>
+              <a
+                href="mailto:hello@newjob.guru"
+                className="shrink-0 rounded-full px-4 py-2 text-sm font-bold"
+                style={{ background: LP.yellow, color: LP.onYellow }}
+              >
+                Email us
+              </a>
+            </div>
           </div>
         </div>
 

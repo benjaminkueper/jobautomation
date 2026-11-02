@@ -99,7 +99,7 @@ export function FeatureShowcaseSection() {
             className="mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]"
             style={{ borderColor: LP.line, background: LP.surface, color: LP.ink }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.yellow }} />
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: LP.green }} />
             Features
           </span>
 
@@ -142,10 +142,10 @@ export function FeatureShowcaseSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}
-            className="grid items-center gap-6 rounded-[1.5rem] p-5 sm:p-6 lg:grid-cols-2 lg:gap-8 lg:p-8"
+            className="grid items-center gap-6 rounded-[1.5rem] p-5 sm:p-6 md:grid-cols-2 md:gap-6 lg:gap-8 lg:p-8"
             style={{ background: LP.panel }}
           >
-            <div>
+            <div className="text-center md:text-left">
               <h3 className="text-xl font-extrabold tracking-tight sm:text-2xl" style={{ color: LP.heading }}>
                 {tab.title}
               </h3>

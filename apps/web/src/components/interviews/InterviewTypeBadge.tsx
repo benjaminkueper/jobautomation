@@ -6,13 +6,13 @@ import type { InterviewType } from "@/types/interview";
 
 const styles: Record<InterviewType, string> = {
   "Recruiter Screen":
-    "bg-[var(--accent-bg)] text-[var(--accent-hi)] border border-[rgba(1,59,42,0.22)]",
+    "bg-[var(--accent-bg)] text-[var(--accent-hi)] border border-[var(--accent-border)]",
   Technical:
-    "bg-[var(--violet-bg)] text-[var(--violet)] border border-[rgba(253,162,1,0.28)]",
+    "bg-[var(--violet-bg)] text-[var(--violet)] border border-[var(--violet-border)]",
   Behavioral:
     "bg-[var(--teal-bg)] text-[var(--teal)] border border-[rgba(79,194,216,0.18)]",
   "Hiring Manager":
-    "bg-[var(--accent-bg)] text-[var(--accent)] border border-[rgba(1,59,42,0.22)]",
+    "bg-[var(--accent-bg)] text-[var(--accent-hi)] border border-[var(--accent-border)]",
   Panel:
     "bg-[var(--amber-bg)] text-[var(--amber)] border border-[rgba(229,162,59,0.18)]",
   "Final Round":

@@ -1,11 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { LiveIcon } from "@/components/icons";
-import { BRAND } from "@/lib/brand";
 import { useAutomationApi } from "@/hooks/api/useAutomationApi";
 import { useInterviewsApi } from "@/hooks/api/useInterviewsApi";
 import { useJobsApi } from "@/hooks/api/useJobsApi";
@@ -72,18 +70,20 @@ export function Sidebar() {
   return (
     <aside className="jf-sidebar">
       <div className="mb-3 border-b border-[var(--border-subtle)] pb-3.5">
-        <div className="flex items-center gap-2.5 px-2 py-1.5">
-          <div className="flex-none">
-            <Image src={BRAND.iconPath} alt={BRAND.name} width={30} height={30} priority />
-          </div>
-          <div className="jf-sidebar-collapsed-text min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[13.5px] font-bold tracking-[-0.012em] text-[var(--text-1)]">{BRAND.name}</span>
-              <span className="rounded-full border border-[var(--accent-ring)] bg-[var(--accent-bg)] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-[var(--accent-hi)]">
-                Beta
-              </span>
-            </div>
-            <p className="mt-0.5 text-[10.5px] font-medium uppercase tracking-[0.04em] text-[var(--text-4)]">
+        <div className="flex flex-col items-center gap-2 py-1.5 min-[861px]:items-start min-[861px]:px-1.5">
+          <Link href="/" aria-label="NewJob Guru home" className="flex flex-none items-center">
+            {/* Latest wordmark when the rail is expanded */}
+            <span className="hidden min-[861px]:block">
+              <img src="/logo-transparent.png" alt="NewJob Guru" className="h-10 w-auto max-w-[190px] object-contain object-left dark:hidden" />
+              <img src="/logo-on-dark.png" alt="NewJob Guru" className="hidden h-10 w-auto max-w-[190px] object-contain object-left dark:block" />
+            </span>
+            {/* Compact mark inside the 64px icon rail */}
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#2563EB] text-[15px] font-extrabold text-white min-[861px]:hidden">
+              N
+            </span>
+          </Link>
+          <div className="jf-sidebar-collapsed-text w-full min-w-0">
+            <p className="text-[10.5px] font-medium uppercase leading-snug tracking-[0.04em] text-[var(--text-4)]">
               {t("sidebar.assistantLine")}
             </p>
           </div>

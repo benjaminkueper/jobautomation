@@ -129,8 +129,8 @@ export function SimpleTodayDashboard({ today }: Pick<TodayDashboardProps, "today
             <Link
               href="/jobs/review"
               className={cn(
-                "flex min-h-[52px] w-full items-center justify-center rounded-2xl px-5 text-[16px] font-semibold text-white shadow-[0_8px_24px_-8px_rgba(1,59,42,0.45)]",
-                "bg-gradient-to-b from-[#024F38] to-[#013B2A] hover:from-[#0A5A42] hover:to-[#024F38]"
+                "flex min-h-[52px] w-full items-center justify-center rounded-2xl px-5 text-[16px] font-semibold text-white shadow-[0_8px_24px_-8px_rgba(37,99,235,0.45)]",
+                "bg-[#2563EB] hover:bg-[#1D4ED8]"
               )}
             >
               {t("labels.reviewJobs")}

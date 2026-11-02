@@ -34,7 +34,7 @@ export function ProfileSection({ profile, onChange, onAvatarUpdated, variant = "
       <SettingSectionCard title={t("settings.section.profile")} description={t("profile.description")}>
         <div className="space-y-6">
           {/* Identity row — uses full content width */}
-          <div className="grid gap-6 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] p-4 sm:p-5 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center lg:gap-8 lg:p-6">
+          <div className="grid gap-6 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] p-4 sm:p-5 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-center xl:gap-8 xl:p-6">
             <ProfilePhotoUpload
               name={profile.name}
               avatarUrl={profile.avatarUrl}
@@ -45,7 +45,7 @@ export function ProfileSection({ profile, onChange, onAvatarUpdated, variant = "
                 onAvatarUpdated?.(avatarUrl);
               }}
             />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4">
               <div>
                 <FieldLabel>{t("form.label.name")}</FieldLabel>
                 <Input

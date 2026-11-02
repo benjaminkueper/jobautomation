@@ -8,26 +8,28 @@
 
 @layer base {
   :root {
-    --background: 222 60% 99%;
+    /* Landing palette: Background #FFFFFF · Text #0F172A · Primary #2563EB · Tint #E0EAFF · Muted #475569 */
+    --background: 0 0% 100%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    /* Brand green #013B2A */
-    --primary: 160 97% 12%;
+    /* Primary #2563EB */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 30% 96%;
-    --secondary-foreground: 160 97% 12%;
-    --muted: 220 23% 95%;
-    --muted-foreground: 215 15% 40%;
-    --accent: 150 30% 96%;
-    --accent-foreground: 160 97% 12%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 20% 35%;
+    /* Tint #E0EAFF */
+    --accent: 221 100% 94%;
+    --accent-foreground: 221 83% 53%;
     --destructive: 347 77% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 26% 90%;
-    --input: 220 26% 90%;
-    --ring: 160 97% 12%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
     --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
@@ -44,20 +46,20 @@
     --card-foreground: 210 40% 98%;
     --popover: 225 36% 12%;
     --popover-foreground: 210 40% 98%;
-    /* Brand soft green / yellow ring on dark */
-    --primary: 158 80% 20%;
+    /* Landing dark primary #3B82F6 */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
     --secondary: 225 24% 18%;
     --secondary-foreground: 210 40% 98%;
     --muted: 225 20% 18%;
     --muted-foreground: 215 20% 72%;
-    --accent: 158 45% 14%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 221 60% 20%;
+    --accent-foreground: 213 94% 78%;
     --destructive: 347 77% 58%;
     --destructive-foreground: 0 0% 100%;
     --border: 226 20% 24%;
     --input: 226 20% 24%;
-    --ring: 38 99% 50%;
+    --ring: 217 91% 60%;
     --success: 160 84% 42%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 56%;
@@ -78,6 +80,32 @@
 }
 
 @layer components {
+  /* Auth pages always render in the landing light palette, even if the app
+     theme is dark — the card otherwise inherits dark shadcn tokens. */
+  .auth-light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 20% 35%;
+    --accent: 221 100% 94%;
+    --accent-foreground: 221 83% 53%;
+    --destructive: 347 77% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+    /* Inherited text inside the card follows the landing ink color. */
+    color: hsl(var(--foreground));
+  }
+
   .dashboard-bg {
     min-height: 100vh;
   }

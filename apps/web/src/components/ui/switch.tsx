@@ -17,7 +17,7 @@ export function Switch({ checked, onCheckedChange, className, ...props }: Switch
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-[var(--dur-fast)] [transition-timing-function:var(--ease)]",
-        checked ? "bg-[var(--accent)]" : "bg-[var(--surface-4)]",
+        checked ? "bg-[var(--accent-hi)]" : "bg-[var(--surface-4)]",
         className
       )}
       {...props}

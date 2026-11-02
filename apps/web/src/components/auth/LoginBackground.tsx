@@ -174,7 +174,7 @@ export function LoginBackground() {
         const radius = POINT_RADIUS * (0.6 + depth * 0.6);
 
         ctx.beginPath();
-        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        ctx.fillStyle = `rgba(37, 99, 235, ${opacity * 0.55})`;
         ctx.arc(sx, sy, radius, 0, Math.PI * 2);
         ctx.fill();
       }
@@ -201,14 +201,14 @@ export function LoginBackground() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-black"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#F8FAFC]"
     >
       <canvas ref={canvasRef} className="absolute inset-0 block" />
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.85) 100%)",
+            "radial-gradient(ellipse at 50% 45%, rgba(224,234,255,0.55) 0%, rgba(248,250,252,0.85) 58%, #FFFFFF 100%)",
         }}
       />
     </div>
