@@ -26,7 +26,7 @@ export function PDFExportsTable({
 
   return (
     <SectionCard title={t("reports.pdf.title")} description={t("reports.pdf.subtitle")} contentClassName="p-0">
-      <div className="grid gap-3 p-4 md:hidden">
+      <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
         {records.map((record) => (
           <PDFExportCard
             key={record.id}

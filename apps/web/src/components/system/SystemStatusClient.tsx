@@ -4,7 +4,6 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSystemStatus, type ServiceStatus, type SystemStatusResponse } from "@/lib/api/system.api";
 import { useApiQuery } from "@/hooks/api/useApiQuery";
-import { StatusIcon } from "@/components/icons";
 import { useTranslation } from "@/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -15,33 +14,33 @@ import { API_URL } from "@/config/env";
 const STATUS_CONFIG: Record<ServiceStatus, { label: string; dot: string; badge: string }> = {
   healthy: {
     label: "system.statusHealthy",
-    dot: "bg-green-500",
-    badge: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+    dot: "bg-[var(--emerald)]",
+    badge: "bg-[var(--emerald-bg)] text-[var(--emerald)]",
   },
   warning: {
     label: "system.statusWarning",
-    dot: "bg-amber-400",
-    badge: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+    dot: "bg-[var(--amber)]",
+    badge: "bg-[var(--amber-bg)] text-[var(--amber)]",
   },
   needs_attention: {
     label: "system.statusNeedsAttention",
-    dot: "bg-amber-500",
-    badge: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+    dot: "bg-[var(--amber)]",
+    badge: "bg-[var(--amber-bg)] text-[var(--amber)]",
   },
   not_configured: {
     label: "system.statusNotConfigured",
-    dot: "bg-gray-300 dark:bg-gray-600",
-    badge: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+    dot: "bg-[var(--text-5)]",
+    badge: "bg-[var(--surface-3)] text-[var(--text-3)]",
   },
   offline: {
     label: "system.statusOffline",
-    dot: "bg-red-500",
-    badge: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    dot: "bg-[var(--rose)]",
+    badge: "bg-[var(--rose-bg)] text-[var(--rose)]",
   },
   disabled: {
     label: "system.statusDisabled",
-    dot: "bg-gray-300 dark:bg-gray-600",
-    badge: "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500",
+    dot: "bg-[var(--text-5)]",
+    badge: "bg-[var(--surface-3)] text-[var(--text-3)]",
   },
 };
 
@@ -63,17 +62,17 @@ function OverallBanner({ status, failedLast24h, t }: { status: ServiceStatus; fa
       className={cn(
         "flex flex-col gap-1 rounded-xl border px-5 py-4 sm:flex-row sm:items-center sm:justify-between",
         isGood
-          ? "border-green-200 bg-green-50 dark:border-green-900/40 dark:bg-green-950/20"
+          ? "border-[var(--border-default)] bg-[var(--emerald-bg)]"
           : isOffline
-            ? "border-red-200 bg-red-50 dark:border-red-900/40 dark:bg-red-950/20"
-            : "border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-950/20",
+            ? "border-[var(--border-default)] bg-[var(--rose-bg)]"
+            : "border-[var(--border-default)] bg-[var(--amber-bg)]",
       )}
     >
       <div className="flex items-center gap-3">
         <span
           className={cn(
             "h-3 w-3 rounded-full",
-            isGood ? "bg-green-500" : isOffline ? "bg-red-500" : "bg-amber-400",
+            isGood ? "bg-[var(--emerald)]" : isOffline ? "bg-[var(--rose)]" : "bg-[var(--amber)]",
           )}
         />
         <span className="font-semibold text-sm text-[var(--text-1)]">
@@ -97,7 +96,7 @@ function ServiceRow({ name, label, status, detail, t }: {
   t: (k: string) => string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-[var(--border)] last:border-0">
+    <div className="flex items-start justify-between gap-3 py-2.5 border-b border-border last:border-0">
       <div className="min-w-0">
         <p className="text-sm font-medium text-[var(--text-1)] truncate">{label}</p>
         {detail && (
@@ -150,8 +149,6 @@ export function SystemStatusClient() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={StatusIcon}
-        eyebrow={t("system.eyebrow")}
         title={t("system.title")}
         description={t("system.description")}
       />
@@ -161,7 +158,7 @@ export function SystemStatusClient() {
         <OverallBanner status={overallHealth} failedLast24h={failedLast24h} t={t} />
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Services checklist */}
         <Card className="border shadow-none">
           <CardHeader className="pb-2">
@@ -171,11 +168,11 @@ export function SystemStatusClient() {
             {system.loading && !payload ? (
               <p className="text-sm text-[var(--text-3)] py-4">{t("system.loadingHealth")}</p>
             ) : system.error && !payload ? (
-              <p className="text-sm text-amber-700 py-2">{t("system.signInForFullStatus")}</p>
+              <p className="text-sm text-[var(--amber)] py-2">{t("system.signInForFullStatus")}</p>
             ) : (
               <div>
                 {/* API reachable row — from public /health */}
-                <div className="flex items-center justify-between gap-3 py-2.5 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between gap-3 py-2.5 border-b border-border">
                   <p className="text-sm font-medium text-[var(--text-1)]">{t("system.apiHealth")}</p>
                   <StatusBadge
                     status={apiReachable === null ? "not_configured" : apiReachable ? "healthy" : "offline"}
@@ -183,7 +180,7 @@ export function SystemStatusClient() {
                   />
                 </div>
                 {queueMode && (
-                  <div className="flex items-center justify-between gap-3 py-2.5 border-b border-[var(--border)]">
+                  <div className="flex items-center justify-between gap-3 py-2.5 border-b border-border">
                     <p className="text-sm font-medium text-[var(--text-1)]">{t("system.queueMode")}</p>
                     <StatusBadge
                       status={queueMode === "bullmq" ? "healthy" : queueMode === "memory" ? "warning" : "disabled"}
@@ -264,7 +261,7 @@ export function SystemStatusClient() {
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-semibold">{t("system.recentFailedLogs")}</CardTitle>
             {failedLast24h > 0 && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
+              <span className="rounded-full bg-[var(--rose-bg)] px-2 py-0.5 text-xs font-medium text-[var(--rose)]">
                 {failedLast24h} {t("system.failuresLast24h")}
               </span>
             )}
@@ -280,19 +277,19 @@ export function SystemStatusClient() {
               {recentFailedLogs.map((log) => (
                 <li
                   key={log.id}
-                  className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm dark:border-red-900/40 dark:bg-red-950/20"
+                  className="rounded-lg border border-[var(--rose)] bg-[var(--rose-bg)] px-3 py-2 text-sm"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-medium text-red-900 dark:text-red-200">{log.moduleName}</span>
+                    <span className="font-medium text-[var(--rose)]">{log.moduleName}</span>
                     {log.createdAt && (
-                      <span className="shrink-0 text-xs text-red-600/70 dark:text-red-400/70">
+                      <span className="shrink-0 text-xs text-[var(--rose)]">
                         {new Date(log.createdAt).toLocaleString()}
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-red-800/80 dark:text-red-300/80">{log.message}</p>
+                  <p className="mt-0.5 text-xs text-[var(--text-2)]">{log.message}</p>
                   {log.error && (
-                    <p className="mt-1 font-mono text-[10px] text-red-700/70 dark:text-red-400/70 truncate">{log.error}</p>
+                    <p className="mt-1 font-mono text-[10px] text-[var(--text-3)] truncate">{log.error}</p>
                   )}
                 </li>
               ))}
@@ -306,8 +303,8 @@ export function SystemStatusClient() {
 
 function IntegrationSummaryRow({ label, count, variant }: { label: string; count: number; variant: "green" | "amber" | "gray" }) {
   const colors = {
-    green: "text-green-700 dark:text-green-300",
-    amber: "text-amber-700 dark:text-amber-300",
+    green: "text-[var(--emerald)]",
+    amber: "text-[var(--amber)]",
     gray: "text-[var(--text-3)]",
   };
   return (

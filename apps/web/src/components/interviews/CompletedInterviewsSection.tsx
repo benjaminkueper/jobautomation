@@ -35,7 +35,7 @@ export function CompletedInterviewsSection({ interviews }: { interviews: Complet
   return (
     <>
       <SectionCard title={t("interviews.completed.title")} description={t("interviews.completed.subtitle")} contentClassName="p-0">
-        <div className="grid gap-3 p-4 md:hidden">
+        <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
           {interviews.map((iv) => (
             <article key={iv.id} className="mobile-list-card rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] p-4 shadow-sm">
               <div className="flex items-start gap-3">

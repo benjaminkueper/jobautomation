@@ -131,7 +131,7 @@ export function AdvancedTodayDashboard({ today, todayLoading, todayError }: Toda
         <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-widest text-[var(--text-4)]">
           {t("today.actionsTitle")}
         </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {actionCards.map((card) => (
             <div
               key={card.id}

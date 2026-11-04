@@ -37,7 +37,6 @@ import {
   ArrowRightIcon,
   CheckCircleIcon,
   CircleDashedIcon,
-  DemoIcon,
   LoaderIcon,
   PlayIcon,
   RotateCcwIcon,
@@ -447,8 +446,6 @@ export function DemoWalkthroughClient() {
   return (
     <div className="space-y-8">
       <PageHeader
-        icon={DemoIcon}
-        eyebrow={t("demo.eyebrow")}
         title={t("demo.title")}
         description={t("demo.pageDescription")}
         actions={
@@ -497,7 +494,7 @@ export function DemoWalkthroughClient() {
         </div>
       </MotionCard>
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {STEP_DEFS.map((step, index) => {
           const st = statusMap[step.id] ?? "Not Started";
           const result = resultMap[step.id];

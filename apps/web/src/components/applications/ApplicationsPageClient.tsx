@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ApplicationsIcon } from "@/components/icons";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -395,8 +394,6 @@ export function ApplicationsPageClient() {
     return (
       <div className="space-y-6">
         <PageHeader
-          icon={ApplicationsIcon}
-          eyebrow={t("applications.eyebrow")}
           title={t("applications.title")}
           description={t("applications.description")}
           actions={
@@ -417,8 +414,6 @@ export function ApplicationsPageClient() {
     <>
       <div className="space-y-6">
         <PageHeader
-          icon={ApplicationsIcon}
-          eyebrow={t("applications.eyebrow")}
           title={t("applications.title")}
           description={t("applications.description")}
           actions={
@@ -493,7 +488,7 @@ export function ApplicationsPageClient() {
         ) : (
           <>
             {/* Mobile: card grid */}
-            <div className="grid min-w-0 gap-3 md:hidden">
+            <div className="grid grid-cols-1 min-w-0 gap-3 md:hidden">
               {filteredApplications.map((app) => (
                 <ApplicationCard
                   key={app.id}

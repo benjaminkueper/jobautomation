@@ -69,9 +69,9 @@ export function BillingSection({
     >
       {/* Not configured notice */}
       {!stripeConfigured && (
-        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className="mb-4 rounded-md border border-[var(--border-default)] bg-[var(--amber-bg)] px-4 py-3 text-sm text-[var(--amber)]">
           <p className="font-medium">{t("settings.billing.notConfiguredTitle")}</p>
-          <p className="mt-0.5 text-xs text-amber-700">{billingNotice ?? t("settings.billing.notConfiguredDescription")}</p>
+          <p className="mt-0.5 text-xs text-[var(--amber)]">{billingNotice ?? t("settings.billing.notConfiguredDescription")}</p>
         </div>
       )}
 
@@ -140,7 +140,7 @@ export function BillingSection({
         <div className="mt-4 space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs font-medium text-[var(--text-2)]">{t("settings.billing.availablePlans")}</p>
-            <div className="inline-flex rounded-md border border-[var(--border)] p-0.5 text-xs">
+            <div className="inline-flex rounded-md border border-border p-0.5 text-xs">
               <button
                 type="button"
                 className={`rounded px-2 py-1 ${billingCycle === "monthly" ? "bg-[var(--surface-3)] font-medium" : "text-[var(--text-3)]"}`}
@@ -157,7 +157,7 @@ export function BillingSection({
               </button>
             </div>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {availablePlans.map((plan) => (
               <PlanCard
                 key={plan.planKey}
@@ -207,11 +207,11 @@ export function BillingSection({
 
 function BillingStatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    Active: "text-green-600",
-    Trialing: "text-blue-600",
-    "Past Due": "text-amber-600",
-    Cancelled: "text-rose-600",
-    Suspended: "text-rose-600",
+    Active: "text-[var(--emerald)]",
+    Trialing: "text-[var(--accent-hi)]",
+    "Past Due": "text-[var(--amber)]",
+    Cancelled: "text-[var(--rose)]",
+    Suspended: "text-[var(--rose)]",
   };
   return <span className={colors[status] ?? "text-[var(--text-3)]"}>{status}</span>;
 }
@@ -231,7 +231,7 @@ function UsageMeter({
 }) {
   const isUnlimited = limit === "unlimited" || limit === "custom" || info?.limit === "unlimited";
   const percent = info?.percent ?? null;
-  const barColor = percent === null ? "bg-blue-500" : percent >= 90 ? "bg-rose-500" : percent >= 70 ? "bg-amber-500" : "bg-blue-500";
+  const barColor = percent === null ? "bg-[var(--accent)]" : percent >= 90 ? "bg-[var(--rose)]" : percent >= 70 ? "bg-[var(--amber)]" : "bg-[var(--accent)]";
 
   return (
     <div>
@@ -274,12 +274,12 @@ function PlanCard({
       : `${plan.currency.toUpperCase()} ${price}/mo`;
 
   return (
-    <div className={`rounded-md border p-3 text-xs sm:p-4 ${isCurrent ? "border-blue-400 bg-blue-50" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
+    <div className={`rounded-md border p-3 text-xs sm:p-4 ${isCurrent ? "border-[var(--accent-border)] bg-[var(--accent-bg)]" : "border-border bg-[var(--surface-2)]"}`}>
       <p className="font-semibold text-[var(--text-1)]">{plan.displayName}</p>
       <p className="mt-0.5 text-[var(--text-3)]">{priceLabel}</p>
       <div className="mt-2">
         {isCurrent ? (
-          <span className="font-medium text-blue-600">{t("settings.billing.currentPlanBadge")}</span>
+          <span className="font-medium text-[var(--accent-hi)]">{t("settings.billing.currentPlanBadge")}</span>
         ) : stripeConfigured && purchasable ? (
           <Button
             size="sm"

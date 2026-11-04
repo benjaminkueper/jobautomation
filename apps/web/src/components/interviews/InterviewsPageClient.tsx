@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { InterviewsIcon, PlusIcon, RefreshIcon } from "@/components/icons";
+import { PlusIcon, RefreshIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n/useTranslation";
 import { Input } from "@/components/ui/input";
@@ -389,8 +389,6 @@ export function InterviewsPageClient() {
     return (
       <div className="space-y-6">
         <PageHeader
-          icon={InterviewsIcon}
-          eyebrow={t("interviews.eyebrow")}
           title={t("interviews.title")}
           description={t("interviews.description")}
           actions={
@@ -418,8 +416,6 @@ export function InterviewsPageClient() {
     <>
       <div className="space-y-6">
         <PageHeader
-          icon={InterviewsIcon}
-          eyebrow={t("interviews.eyebrow")}
           title={t("interviews.title")}
           description={t("interviews.description")}
           actions={

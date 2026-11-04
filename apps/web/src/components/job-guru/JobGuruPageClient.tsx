@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { SparkleIcon } from "@/components/icons";
 import { useTranslation } from "@/i18n/useTranslation";
-import { BRAND } from "@/lib/brand";
 
 export function JobGuruPageClient() {
   const { t } = useTranslation();
@@ -12,8 +10,6 @@ export function JobGuruPageClient() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={SparkleIcon}
-        eyebrow={BRAND.productName}
         title={t("jobGuru.title")}
         description={t("jobGuru.description")}
       />

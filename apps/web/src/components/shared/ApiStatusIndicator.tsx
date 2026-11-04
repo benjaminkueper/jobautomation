@@ -38,10 +38,10 @@ export function ApiStatusIndicator({
 
   const copy =
     status === "connected"
-      ? { text: labels?.connected ?? "Connected", className: "bg-emerald-100 text-emerald-700" }
+      ? { text: labels?.connected ?? "Connected", className: "bg-[var(--emerald-bg)] text-[var(--emerald)]" }
       : status === "mock"
-        ? { text: labels?.mock ?? "Using Mock Data", className: "bg-amber-100 text-amber-700" }
-        : { text: labels?.offline ?? "API Offline", className: "bg-rose-100 text-rose-700" };
+        ? { text: labels?.mock ?? "Using Mock Data", className: "bg-[var(--amber-bg)] text-[var(--amber)]" }
+        : { text: labels?.offline ?? "API Offline", className: "bg-[var(--rose-bg)] text-[var(--rose)]" };
 
   return <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${copy.className}`}>{copy.text}</span>;
 }

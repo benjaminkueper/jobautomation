@@ -114,7 +114,7 @@ export function JobInboxPage() {
 
       <JobInboxFilters filters={filters} onChange={setFilters} onClear={() => setFilters(initialJobFilters)} />
 
-      <div className="grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {pagedJobs.map((job, index) => (
           <JobCard
             key={job.id ? job.id : `job-inbox-${index}`}

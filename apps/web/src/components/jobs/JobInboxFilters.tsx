@@ -78,7 +78,7 @@ export function JobInboxFilters({ filters, onChange, onClear }: JobInboxFiltersP
       </div>
 
       {open ? (
-        <div className="grid gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] p-4">
+        <div className="grid grid-cols-1 gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] p-4">
           <Select
             value={filters.status ?? "All"}
             onChange={(e) => onChange({ ...filters, status: e.target.value as JobFiltersType["status"] })}

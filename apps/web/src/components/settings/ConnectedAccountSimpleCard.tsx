@@ -49,15 +49,17 @@ export function ConnectedAccountSimpleCard({
   const needsReconnect = item.status !== "Connected";
 
   return (
-    <article className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] p-4 shadow-sm">
+    <article className="flex h-full flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] p-4 shadow-sm">
       <div className="flex items-start gap-3">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--accent-bg)]">
           <ProviderIcon slug={item.slug} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[15px] font-semibold text-[var(--text-1)]">{item.provider}</h3>
-            <ConnectionStatusBadge status={item.status} />
+            <h3 className="min-w-0 text-[15px] font-semibold text-[var(--text-1)]">{item.provider}</h3>
+            <div className="shrink-0">
+              <ConnectionStatusBadge status={item.status} />
+            </div>
           </div>
           <p className="mt-1 text-[13px] leading-relaxed text-[var(--text-3)]">{description}</p>
           {account ? (
@@ -65,20 +67,22 @@ export function ConnectedAccountSimpleCard({
           ) : null}
         </div>
       </div>
-      <Button
-        type="button"
-        variant={needsReconnect ? "default" : "outline"}
-        size="lg"
-        className="mt-4 min-h-[44px] w-full rounded-xl"
-        disabled={loading}
-        onClick={onReconnect}
-      >
-        {loading
-          ? "…"
-          : needsReconnect
-            ? t("settings.connectedAccounts.connect")
-            : t("labels.reconnect")}
-      </Button>
+      <div className="mt-auto pt-4">
+        <Button
+          type="button"
+          variant={needsReconnect ? "default" : "outline"}
+          size="lg"
+          className="min-h-[44px] w-full rounded-xl"
+          disabled={loading}
+          onClick={onReconnect}
+        >
+          {loading
+            ? "…"
+            : needsReconnect
+              ? t("settings.connectedAccounts.connect")
+              : t("labels.reconnect")}
+        </Button>
+      </div>
     </article>
   );
 }

@@ -42,7 +42,7 @@ export function AutomationLogsTable({ logs }: { logs: AutomationLog[] }) {
         description={t("automation.logs.recentDesc")}
         contentClassName="p-0"
       >
-        <div className="grid gap-3 p-4 md:hidden">
+        <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
           {logs.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">{t("automation.logs.empty")}</p>
           ) : (

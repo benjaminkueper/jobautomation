@@ -117,20 +117,22 @@ export function IntegrationCard({ item, onConnect, onTest, onDisconnect, pending
   };
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex gap-3">
+          <div className="flex min-w-0 gap-3">
             <ProviderIcon slug={item.slug} />
-            <div>
+            <div className="min-w-0">
               <CardTitle className="text-base">{item.provider}</CardTitle>
               <CardDescription className="mt-1">{description}</CardDescription>
             </div>
           </div>
-          <ConnectionStatusBadge status={item.status} />
+          <div className="shrink-0">
+            <ConnectionStatusBadge status={item.status} />
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">
+      <CardContent className="flex flex-1 flex-col gap-3 text-sm">
         <Field label={t("integrations.requiredFor")} value={item.requiredFor.length ? item.requiredFor.join(", ") : "—"} />
         <Field label={t("integrations.connectedAccount")} value={account ?? "—"} />
         {lastSync ? <Field label={t("integrations.lastSync")} value={lastSync} /> : null}
@@ -199,7 +201,7 @@ export function IntegrationCard({ item, onConnect, onTest, onDisconnect, pending
           </div>
         ) : null}
 
-        <div className="flex flex-wrap gap-2 pt-2">
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-2 [&>button]:min-w-[88px]">
           <Button variant="default" size="sm" onClick={onConnect} disabled={isBusy(pending, item.slug, "connect")}>
             {isResend
               ? t("integrations.actions.configureInstructions")

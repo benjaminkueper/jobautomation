@@ -67,8 +67,8 @@ export function ContactFilters({
   return (
     <div className="premium-card p-4">
       {aside ? <div className="mb-3 flex justify-end">{aside}</div> : null}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
-        <div className="relative xl:col-span-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
+        <div className="relative lg:col-span-2">
           <SearchIcon
             size={16}
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-4)]"

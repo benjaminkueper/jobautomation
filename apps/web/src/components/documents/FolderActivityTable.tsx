@@ -27,7 +27,7 @@ export function FolderActivityTable({ records }: { records: FolderActivityRecord
 
   return (
     <SectionCard title={t("documents.folderAutomation.recentActivity")} contentClassName="p-0">
-      <div className="grid gap-3 p-4 md:hidden">
+      <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
         {records.map((r) => (
           <article key={r.id} className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] p-4 shadow-sm">
             <div className="flex items-start justify-between gap-2">

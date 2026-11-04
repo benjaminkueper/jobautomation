@@ -225,10 +225,7 @@ export function SuperAdminDashboard() {
     <div className="space-y-6 pb-8">
       <header className="flex flex-col gap-4 border-b border-[var(--border-default)] pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[var(--accent-hi)]">
-            {t("superAdmin.eyebrow")}
-          </p>
-          <h1 className="mt-1 text-[28px] font-bold tracking-[-0.03em] text-[var(--text-1)] lg:text-[34px]">
+          <h1 className="text-[28px] font-bold tracking-[-0.03em] text-[var(--text-1)] lg:text-[34px]">
             {t("superAdmin.dashboardTitle")}
           </h1>
           <p className="mt-2 max-w-2xl text-[14px] leading-relaxed text-[var(--text-3)]">
@@ -251,7 +248,7 @@ export function SuperAdminDashboard() {
         />
       ) : null}
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         <KpiCard
           label={t("superAdmin.kpis.activeUsers")}
           value={formatKpiValue(data.kpis, "activeUsers", t)}
@@ -287,13 +284,13 @@ export function SuperAdminDashboard() {
       </section>
 
       <section className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <h2 className="text-[16px] font-semibold text-[var(--text-1)]">{t("superAdmin.automationModules")}</h2>
           <Link href="/automation" className="text-[12px] font-semibold text-[var(--accent-hi)] hover:underline">
             {t("superAdmin.openAutomationCenter")}
           </Link>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data.moduleSlots.map((slot) => (
             <ModuleTile key={slot.slotId} slot={slot} t={t} />
           ))}
@@ -306,7 +303,7 @@ export function SuperAdminDashboard() {
       </div>
 
       <section className="rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] p-5 shadow-sm">
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <h2 className="text-[16px] font-semibold text-[var(--text-1)]">{t("superAdmin.recentActivity")}</h2>
           <Link href="/automation" className="text-[12px] font-semibold text-[var(--accent-hi)] hover:underline">
             {t("superAdmin.viewLogs")}
@@ -317,7 +314,7 @@ export function SuperAdminDashboard() {
 
       <section className="space-y-3">
         <h2 className="text-[16px] font-semibold text-[var(--text-1)]">{t("superAdmin.quickActions")}</h2>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (

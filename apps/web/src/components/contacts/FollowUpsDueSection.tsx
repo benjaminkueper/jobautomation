@@ -23,9 +23,9 @@ export function FollowUpsDueSection({
       {contacts.map((contact, index) => {
         const urgentTone =
           contact.followUpStatus === "Overdue"
-            ? "border-rose-300/80 dark:border-rose-700/70"
+            ? "border-[var(--rose)]"
             : contact.followUpStatus === "Due Today"
-              ? "border-amber-300/80 dark:border-amber-700/70"
+              ? "border-[var(--amber)]"
               : "";
         return (
           <MotionCard key={contact.id} delay={index * 0.03} className={cn("hover-lift p-4", urgentTone)}>

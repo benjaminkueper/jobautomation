@@ -11,16 +11,16 @@ export function ApplyAssistantIntegrationCard() {
   const { t } = useTranslation();
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <CardHeader>
         <CardTitle className="text-base">{t("integrations.applyAssistantCard.title")}</CardTitle>
         <CardDescription>{t("integrations.applyAssistantCard.description")}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm text-muted-foreground">
+      <CardContent className="flex flex-1 flex-col gap-3 text-sm text-muted-foreground">
         <p>{t("integrations.applyAssistantCard.body")}</p>
         <Link
           href="/apply-assistant"
-          className={cn(buttonVariants({ variant: "default" }), "min-h-[44px] w-full sm:w-auto")}
+          className={cn(buttonVariants({ variant: "default" }), "mt-auto min-h-[44px] w-full sm:w-auto")}
         >
           {t("labels.openApplyAssistant")}
         </Link>

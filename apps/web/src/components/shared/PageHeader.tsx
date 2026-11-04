@@ -1,5 +1,4 @@
-import type { ComponentType, ReactNode } from "react";
-import type { IconProps } from "@/components/icons";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
@@ -7,12 +6,9 @@ interface PageHeaderProps {
   description?: string;
   actions?: ReactNode;
   className?: string;
-  eyebrow?: string;
-  /** Renders a 28×28 tile matching `.jf-panel-title-icon` (accent surface + ring). */
-  icon?: ComponentType<IconProps>;
 }
 
-export function PageHeader({ title, description, actions, className, eyebrow, icon: Icon }: PageHeaderProps) {
+export function PageHeader({ title, description, actions, className }: PageHeaderProps) {
   return (
     <div
       className={cn(
@@ -21,28 +17,13 @@ export function PageHeader({ title, description, actions, className, eyebrow, ic
       )}
     >
       <div className="min-w-0 flex-1">
-        <div className="flex items-start gap-3">
-          {Icon ? (
-            <div
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] border border-[var(--accent-ring)] bg-[var(--accent-bg)] text-[var(--accent-hi)]"
-              aria-hidden
-            >
-              <Icon size={18} />
-            </div>
+        <div className="min-w-0 space-y-1.5">
+          <h1 className="font-display text-[22px] font-bold tracking-[-0.02em] text-[var(--text-1)] sm:text-[26px] lg:text-[30px]">
+            {title}
+          </h1>
+          {description ? (
+            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--text-3)] lg:text-sm">{description}</p>
           ) : null}
-          <div className="min-w-0 flex-1 space-y-1.5">
-            {eyebrow ? (
-              <span className="inline-flex rounded-full border border-[var(--accent-ring)] bg-[var(--accent-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent-hi)]">
-                {eyebrow}
-              </span>
-            ) : null}
-            <h1 className="font-display text-[22px] font-bold tracking-[-0.02em] text-[var(--text-1)] sm:text-[26px] lg:text-[30px]">
-              {title}
-            </h1>
-            {description ? (
-              <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--text-3)] lg:text-sm">{description}</p>
-            ) : null}
-          </div>
         </div>
       </div>
       {actions ? (

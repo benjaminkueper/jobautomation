@@ -71,7 +71,7 @@ export function JobDetailAdvancedView({
           <JobOverviewCard job={job} />
 
           <SectionCard title="Application Materials">
-            <div className="grid gap-3 text-sm sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
               <div>
                 <p className="text-xs font-medium text-[var(--text-3)]">Source CV used</p>
                 <p className="mt-1 break-words text-[var(--text-1)]">{job.sourceCvFileName ?? "—"}</p>

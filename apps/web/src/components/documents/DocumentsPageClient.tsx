@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { DocumentsIcon } from "@/components/icons";
 import { useTranslation } from "@/i18n/useTranslation";
 import { useAdvancedUi } from "@/context/AuthSessionContext";
 import type {
@@ -522,8 +521,6 @@ export function DocumentsPageClient() {
     return (
       <div className="space-y-6">
         <PageHeader
-          icon={DocumentsIcon}
-          eyebrow={advancedUi ? t("documents.eyebrow") : undefined}
           title={advancedUi ? t("documents.title") : t("documents.simple.title")}
           description={advancedUi ? t("documents.description") : t("documents.simple.subtitle")}
         />
@@ -536,8 +533,6 @@ export function DocumentsPageClient() {
     return (
       <div className="space-y-6">
         <PageHeader
-          icon={DocumentsIcon}
-          eyebrow={advancedUi ? t("documents.eyebrow") : undefined}
           title={advancedUi ? t("documents.title") : t("documents.simple.title")}
           description={advancedUi ? t("documents.description") : t("documents.simple.subtitle")}
         />

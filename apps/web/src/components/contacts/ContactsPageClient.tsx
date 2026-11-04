@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ContactsIcon, DownloadIcon, PlusIcon } from "@/components/icons";
+import { DownloadIcon, PlusIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -313,8 +313,6 @@ export function ContactsPageClient() {
     return (
       <div className="space-y-6">
         <PageHeader
-          icon={ContactsIcon}
-          eyebrow={t("contacts.pageEyebrow")}
           title={t("contacts.title")}
           description={t("contacts.pageDescription")}
           actions={headerActions}
@@ -336,8 +334,6 @@ export function ContactsPageClient() {
     <>
       <div className="space-y-6">
         <PageHeader
-          icon={ContactsIcon}
-          eyebrow={t("contacts.pageEyebrow")}
           title={t("contacts.title")}
           description={t("contacts.pageDescription")}
           actions={headerActions}
@@ -372,7 +368,7 @@ export function ContactsPageClient() {
         ) : (
           <>
             {/* Mobile: card grid */}
-            <div className="grid min-w-0 gap-3 md:hidden">
+            <div className="grid grid-cols-1 min-w-0 gap-3 md:hidden">
               {filteredContacts.map((c) => (
                 <ContactCard
                   key={c.id}

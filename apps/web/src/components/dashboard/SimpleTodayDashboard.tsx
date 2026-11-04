@@ -85,7 +85,7 @@ export function SimpleTodayDashboard({ today }: Pick<TodayDashboardProps, "today
 
   return (
     <SimplePageShell className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start xl:gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start xl:gap-8">
         <div className="min-w-0 space-y-6">
           <div className="space-y-2">
             <p className="text-[15px] font-medium text-[var(--text-3)]">{getGreeting(t)}</p>
@@ -125,7 +125,7 @@ export function SimpleTodayDashboard({ today }: Pick<TodayDashboardProps, "today
             <p className="text-[14px] leading-relaxed text-[var(--text-3)]">{t("today.simple.noActivityYet")}</p>
           ) : null}
 
-          <section className="grid gap-3 sm:grid-cols-2">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Link
               href="/jobs/review"
               className={cn(

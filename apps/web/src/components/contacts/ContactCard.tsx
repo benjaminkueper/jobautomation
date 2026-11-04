@@ -32,7 +32,7 @@ export function ContactCard({ contact, onView, onMarkFollowedUp }: ContactCardPr
     <div
       className={cn(
         "mobile-list-card flex flex-col gap-3 rounded-xl border bg-[var(--surface-1)] p-4 shadow-sm transition-shadow hover:shadow-md",
-        followUpDue ? "border-amber-500/40" : "border-[var(--border-default)]"
+        followUpDue ? "border-[var(--amber)]" : "border-[var(--border-default)]"
       )}
     >
       <div className="flex items-start gap-3">
@@ -70,7 +70,7 @@ export function ContactCard({ contact, onView, onMarkFollowedUp }: ContactCardPr
           {followUpDue && onMarkFollowedUp ? (
             <Button
               size="sm"
-              className="min-h-[44px] border-0 bg-amber-500/15 text-[12px] text-amber-700 hover:bg-amber-500/25"
+              className="min-h-[44px] border-0 bg-[var(--amber-bg)] text-[12px] text-[var(--amber)] hover:bg-[var(--surface-3)]"
               onClick={() => onMarkFollowedUp(contact.id)}
             >
               Mark contacted

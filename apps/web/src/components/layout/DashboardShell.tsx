@@ -37,14 +37,14 @@ export function DashboardShell({ children }: DashboardShellProps) {
               <PageTransition>
                 <div
                   className={cn(
-                    "w-full min-w-0 px-3.5 pt-3.5 sm:px-5 sm:pt-6 md:px-6 md:pt-7 lg:px-8 xl:px-10 2xl:px-12",
+                    "mx-auto w-full min-w-0 max-w-[1440px] px-3.5 pt-3.5 sm:px-5 sm:pt-6 md:px-6 md:pt-7 lg:px-8 xl:px-10 2xl:px-12",
                     hasMobileBottomNav
                       ? "pb-mobile-shell"
                       : "pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-7 lg:pb-8 xl:pb-10 2xl:pb-12"
                   )}
                 >
                   <div className="mb-4 w-full space-y-3 md:mb-5">
-                    <div className="grid gap-3 md:grid-cols-2 xl:max-w-4xl">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:max-w-4xl">
                       <PwaInstallPrompt />
 
                     </div>

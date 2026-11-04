@@ -50,8 +50,8 @@ export function DeleteWorkspaceConfirmModal({
       size="md"
     >
       <div className="space-y-4">
-        <div className="bg-red-900/20 border border-red-900/30 rounded-lg p-4">
-          <p className="text-sm text-red-200 font-medium">
+        <div className="rounded-lg border border-[var(--rose)] bg-[var(--rose-bg)] p-4">
+          <p className="text-sm font-medium text-[var(--rose)]">
             {t("settings.dataStorage.deleteModal.warningLabel")}
           </p>
           <p className="text-sm text-[var(--text-2)] mt-2">
@@ -68,7 +68,7 @@ export function DeleteWorkspaceConfirmModal({
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={t("settings.dataStorage.deleteModal.typeDeletePlaceholder")}
-            className="text-red-400"
+            className="text-[var(--rose)]"
           />
           <p className="mt-1 text-xs text-[var(--text-3)]">
             {t("settings.dataStorage.deleteModal.disabledNotice")}

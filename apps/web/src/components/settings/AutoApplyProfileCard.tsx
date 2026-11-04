@@ -42,7 +42,7 @@ export function AutoApplyProfileCard() {
       title="Auto-Apply Profile"
       description="These details are used by the Auto Apply bot to fill in job application forms on your behalf."
     >
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Current job title">
           <Input
             value={prefs.currentTitle ?? ""}

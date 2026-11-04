@@ -70,15 +70,15 @@ export function Sidebar() {
   return (
     <aside className="jf-sidebar">
       <div className="mb-3 border-b border-[var(--border-subtle)] pb-3.5">
-        <div className="flex flex-col items-center gap-2 py-1.5 min-[861px]:items-start min-[861px]:px-1.5">
+        <div className="flex flex-col items-center gap-2 py-1.5 min-[1024px]:items-start min-[1024px]:px-1.5">
           <Link href="/" aria-label="NewJob Guru home" className="flex flex-none items-center">
             {/* Latest wordmark when the rail is expanded */}
-            <span className="hidden min-[861px]:block">
+            <span className="hidden min-[1024px]:block">
               <img src="/logo-transparent.png" alt="NewJob Guru" className="h-10 w-auto max-w-[190px] object-contain object-left dark:hidden" />
               <img src="/logo-on-dark.png" alt="NewJob Guru" className="hidden h-10 w-auto max-w-[190px] object-contain object-left dark:block" />
             </span>
             {/* Compact mark inside the 64px icon rail */}
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#2563EB] text-[15px] font-extrabold text-white min-[861px]:hidden">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#2563EB] text-[15px] font-extrabold text-white min-[1024px]:hidden">
               N
             </span>
           </Link>

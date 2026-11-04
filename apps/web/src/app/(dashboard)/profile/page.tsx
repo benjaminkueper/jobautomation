@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { SectionCard } from "@/components/shared/SectionCard";
 import { Button } from "@/components/ui/button";
-import { SettingsIcon } from "@/components/icons";
 import { EditProfileModal } from "@/components/profile/EditProfileModal";
 import { ChangePasswordModal } from "@/components/profile/ChangePasswordModal";
 import { me } from "@/lib/api/auth.api";
@@ -64,8 +63,6 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={SettingsIcon}
-        eyebrow={t("profile.eyebrow")}
         title={t("profile.title")}
         description={t("profile.description")}
       />

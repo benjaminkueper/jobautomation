@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { RefreshIcon, ReportsIcon } from "@/components/icons";
+import { RefreshIcon } from "@/components/icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/PageHeader";
 import type {
@@ -586,8 +586,6 @@ export function ReportsPageClient() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={ReportsIcon}
-        eyebrow={t("reports.eyebrow")}
         title={t("reports.title")}
         description={t("reports.description")}
         actions={
@@ -696,8 +694,8 @@ export function ReportsPageClient() {
             Boolean(selectedReport?.providerSummary) ||
             Boolean(selectedReport?.googleDeliveryHint)) &&
           !selectedReport?.pdfUnavailableNotice ? (
-            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-[var(--text-2)]">
-              <p className="font-medium text-amber-200">{t("reports.modal.deliveryDetails")}</p>
+            <div className="rounded-md border border-[var(--amber)] bg-[var(--amber-bg)] px-3 py-2 text-sm text-[var(--text-2)]">
+              <p className="font-medium text-[var(--amber)]">{t("reports.modal.deliveryDetails")}</p>
               {selectedReport?.previewOnly ? (
                 <p className="mt-1 text-xs">
                   {t("reports.modal.noExternalProvider")}
@@ -720,7 +718,7 @@ export function ReportsPageClient() {
             </div>
           ) : null}
           {selectedReport?.pdfUnavailableNotice ? (
-            <p className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-[var(--text-2)]">
+            <p className="rounded-md border border-[var(--amber)] bg-[var(--amber-bg)] px-3 py-2 text-sm text-[var(--text-2)]">
               {selectedReport.pdfUnavailableNotice}
             </p>
           ) : null}

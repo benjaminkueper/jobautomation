@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { JobsIcon } from "@/components/icons";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { AddJobModal } from "@/components/jobs/AddJobModal";
 import { JobTable } from "@/components/jobs/JobTable";
@@ -38,8 +37,6 @@ export function JobsAdvancedPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          icon={JobsIcon}
-          eyebrow={t("jobs.eyebrow")}
           title={t("jobs.title")}
           description={t("jobs.description")}
           actions={
@@ -56,8 +53,6 @@ export function JobsAdvancedPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={JobsIcon}
-        eyebrow={t("jobs.eyebrow")}
         title={t("jobs.title")}
         description={t("jobs.description")}
         actions={
@@ -118,7 +113,7 @@ export function JobsAdvancedPage() {
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-3 md:hidden">
+      <div className="grid grid-cols-1 min-w-0 gap-3 md:hidden">
         {filteredJobs.map((job, index) => (
           <JobCard key={job.id ? job.id : `job-card-${index}`} job={job} />
         ))}

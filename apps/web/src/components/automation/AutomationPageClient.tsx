@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AutomationIcon, RefreshIcon, SettingsIcon } from "@/components/icons";
+import { RefreshIcon, SettingsIcon } from "@/components/icons";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { AutomationStatsCards } from "./AutomationStatsCards";
@@ -307,8 +307,6 @@ export function AutomationPageClient() {
     <>
       <div className="space-y-6">
         <PageHeader
-          icon={AutomationIcon}
-          eyebrow={t("automation.eyebrow")}
           title={t("automation.centerTitle")}
           description={t("automation.centerDescription")}
           actions={

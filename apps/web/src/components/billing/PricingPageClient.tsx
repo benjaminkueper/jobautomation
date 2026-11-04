@@ -35,7 +35,6 @@ export function PricingPageClient() {
   return (
     <div className="space-y-6 pb-10 sm:space-y-8">
       <PageHeader
-        eyebrow="Pricing"
         title="Choose the plan that fits your job search"
         description="Track jobs, prepare documents, manage applications, and never miss a follow-up."
         actions={
@@ -66,7 +65,7 @@ export function PricingPageClient() {
 
       {taxNotice ? <p className="text-center text-xs text-[var(--text-3)]">{taxNotice}</p> : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {availablePlans.map((plan) => {
           const price = billingCycle === "yearly" ? plan.priceYearly : plan.priceMonthly;
           const purchasable = billingCycle === "yearly" ? plan.purchasableYearly : plan.purchasableMonthly;

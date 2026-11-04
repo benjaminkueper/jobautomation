@@ -32,7 +32,7 @@ export function CalendarWeekView({ interviews }: { interviews: Interview[] }) {
 
   return (
     <SectionCard title={t("interviews.calendar.title")} description={t("interviews.calendar.subtitle")} contentClassName="space-y-3">
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         {grouped.map((day) => (
           <div key={day.label} className="rounded-xl border border-border/70 bg-card/40 p-3">
             <p className="mb-2 text-sm font-semibold text-foreground">{day.label}</p>

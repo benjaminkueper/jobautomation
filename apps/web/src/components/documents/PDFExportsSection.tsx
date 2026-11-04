@@ -23,7 +23,7 @@ export function PDFExportsSection({
 
   return (
     <SectionCard title={t("documents.pdfExports.title")} description={t("documents.pdfExports.subtitle")} contentClassName="p-0">
-      <div className="grid min-w-0 gap-3 p-3 sm:p-4 md:hidden">
+      <div className="grid grid-cols-1 min-w-0 gap-3 p-3 sm:p-4 md:hidden">
         {records.map((r) => (
           <article key={r.id} className="mobile-list-card rounded-xl border border-[var(--border-default)] bg-[var(--surface-1)] p-4 shadow-sm">
             <div className="flex items-start gap-3">

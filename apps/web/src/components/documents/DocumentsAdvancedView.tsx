@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DocumentsIcon } from "@/components/icons";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingState } from "@/components/shared/LoadingState";
 import { EmptyState } from "@/components/shared/EmptyState";
@@ -113,8 +112,6 @@ export function DocumentsAdvancedView({
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={DocumentsIcon}
-        eyebrow={t("documents.eyebrow")}
         title={t("documents.title")}
         description={t("documents.description")}
         actions={
@@ -131,7 +128,7 @@ export function DocumentsAdvancedView({
         loading={createLoading}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-[var(--r-md)] border border-[var(--border-default)] bg-[var(--surface-2)] p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Active CV / Resume</p>
           <p className="mt-2 line-clamp-2 break-all text-sm font-semibold leading-snug text-[var(--text-1)]">

@@ -4,7 +4,6 @@ import type { ApplyAnswerVariant, ApplyCompleteStatus, ApplyDocumentStatus, Scre
 import { APPLY_ANSWER_LIMIT_PRESETS } from "@/lib/api/apply-assistant.api";
 import type { Job } from "@/types/job";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { JobsIcon } from "@/components/icons";
 import { MissingDocumentCard } from "@/components/jobs/apply-assistant-shared";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n/useTranslation";
@@ -179,8 +178,6 @@ export function ApplyAssistantAdvancedView({
   return (
     <div className="pb-mobile-sticky">
       <PageHeader
-        icon={JobsIcon}
-        eyebrow={t("applyAssistant.eyebrow")}
         title={t("applyAssistant.title")}
         description={`${job.position} · ${job.company}`}
       />
@@ -219,7 +216,7 @@ export function ApplyAssistantAdvancedView({
           />
         ) : null}
 
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Button
             type="button"
             variant="outline"

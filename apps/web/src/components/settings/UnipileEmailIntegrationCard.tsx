@@ -141,12 +141,12 @@ export function UnipileEmailIntegrationCard() {
   const configured = status?.configured !== false;
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <CardHeader>
         <CardTitle className="text-base">{t("integrations.unipile.title")}</CardTitle>
         <CardDescription>{t("integrations.unipile.description")}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 text-sm">
+      <CardContent className="flex flex-1 flex-col gap-3 text-sm">
         <p className="text-muted-foreground">{t("integrations.unipile.body")}</p>
 
         {!configured ? (
@@ -171,7 +171,7 @@ export function UnipileEmailIntegrationCard() {
           <p className="text-xs text-muted-foreground">{t("integrations.unipile.notConnected")}</p>
         )}
 
-        <div className="flex flex-wrap gap-2">
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-2 [&>button]:min-w-[88px]">
           {!connected ? (
             <Button type="button" size="sm" disabled={loading || !configured} onClick={() => void handleConnect()}>
               {loading ? t("integrations.unipile.connecting") : t("integrations.unipile.connect")}

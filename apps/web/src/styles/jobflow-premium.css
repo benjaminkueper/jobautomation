@@ -98,7 +98,7 @@
   /* Text — #0F172A text, #475569 muted, slate scale between */
   --text-1: #0f172a;
   --text-2: #475569;
-  --text-3: #64748b;
+  --text-3: #475569;
   --text-4: #94a3b8;
   --text-5: #cbd5e1;
   /* Solid chrome bars (topbar / mobile bottom nav) — white with a hairline */
@@ -1154,7 +1154,9 @@
   }
 }
 
-@media (max-width: 860px) {
+/* Compact icon rail: tablets and small laptops keep a 64px rail so the
+   content column never gets narrower than it is on a phone-width layout. */
+@media (max-width: 1023px) {
   .dashboard-bg {
     --side-w: 64px;
   }
@@ -1184,6 +1186,9 @@
   .jf-avatar-name {
     display: none;
   }
+}
+
+@media (max-width: 860px) {
   .jf-kpi-grid {
     grid-template-columns: 1fr;
   }

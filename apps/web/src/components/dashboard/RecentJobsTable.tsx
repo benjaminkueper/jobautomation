@@ -45,7 +45,7 @@ export function RecentJobsTable({ jobs }: RecentJobsTableProps) {
         </Link>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="grid gap-3 p-4 md:hidden">
+        <div className="grid grid-cols-1 gap-3 p-4 md:hidden">
           {jobs.map((job) => {
             const priorityKey = getPriorityKey(job);
             return (
