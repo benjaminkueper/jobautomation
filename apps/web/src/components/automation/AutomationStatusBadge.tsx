@@ -41,5 +41,5 @@ function statusLabel(status: AutomationStatus, t: (key: string) => string): stri
 
 export function AutomationStatusBadge({ status, className }: { status: AutomationStatus; className?: string }) {
   const { t } = useTranslation();
-  return <Badge className={cn(statusStyles[status], className)}>{statusLabel(status, t)}</Badge>;
+  return <Badge className={cn(statusStyles[status], "whitespace-nowrap", className)}>{statusLabel(status, t)}</Badge>;
 }

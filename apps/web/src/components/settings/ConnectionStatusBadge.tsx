@@ -1,5 +1,6 @@
 import type { IntegrationStatus } from "@/types/integrations";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "@/i18n/I18nProvider";
 
 const styles: Record<IntegrationStatus, string> = {
@@ -20,5 +21,5 @@ const STATUS_KEY: Record<IntegrationStatus, string> = {
 
 export function ConnectionStatusBadge({ status }: { status: IntegrationStatus }) {
   const { t } = useTranslation();
-  return <Badge className={styles[status]}>{STATUS_KEY[status] ? t(STATUS_KEY[status]) : status}</Badge>;
+  return <Badge className={cn(styles[status], "whitespace-nowrap")}>{STATUS_KEY[status] ? t(STATUS_KEY[status]) : status}</Badge>;
 }

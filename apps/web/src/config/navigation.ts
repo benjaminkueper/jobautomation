@@ -72,7 +72,7 @@ export const SUPER_ADMIN_NAV_ITEMS: readonly AppNavItem[] = [
   { href: "/insights", labelKey: "nav.insights", icon: ReportsIcon },
   { href: "/automation", labelKey: "nav.automation", icon: AutomationIcon },
   { href: "/reports", labelKey: "nav.reports", icon: ReportsIcon },
-  { id: "users", href: "/settings", labelKey: "nav.users", icon: UserIcon },
+  { id: "users", href: "/users", labelKey: "nav.users", icon: UserIcon },
   { id: "settings", href: "/settings", labelKey: "nav.settings", icon: SettingsIcon },
   { href: "/system-status", labelKey: "nav.systemStatus", icon: StatusIcon },
 ];

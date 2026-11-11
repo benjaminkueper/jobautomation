@@ -17,6 +17,7 @@ import { getProfileDocumentContextFlags } from "../services/profile-document-con
 import { assertCanCreateJob, assertCanUseAiCredits } from "../services/plan-limit.service";
 import { logAiUsage } from "../services/ai-usage.service";
 import { incrementUsage } from "../services/usage.service";
+import { createJobFingerprint } from "@jobflow/shared/utils/fingerprint";
 /** Conditions that identify demo/test/stub jobs that must never appear in production. */
 function buildTestJobFilter(): Record<string, unknown> {
   return {
@@ -83,7 +84,34 @@ export const listJobs = asyncHandler(async (req: Request, res) => {
   ]);
   return paginatedResponse(res, rows, { page, limit, total, totalPages: Math.ceil(total / limit) });
 });
-export const createJob = asyncHandler(async (req: Request, res) => { const tenantId=assertTenantId(req.tenantId); await assertCanCreateJob(tenantId); const row=await createTenantScopedRecord(JobModel,tenantId,req.user?.id??'system',req.body); await incrementUsage({ tenantId, metric: "jobsCount", amount: 1 }); return successResponse(res,row,'Created',201); });
+export const createJob = asyncHandler(async (req: Request, res) => {
+  const tenantId = assertTenantId(req.tenantId);
+  await assertCanCreateJob(tenantId);
+
+  const payload = { ...(req.body as Record<string, unknown>) };
+  const company = String(payload.company ?? "").trim();
+  const position = String(payload.position ?? "").trim();
+  const jobUrl = typeof payload.jobUrl === "string" && payload.jobUrl.trim() ? payload.jobUrl.trim() : undefined;
+
+  // Manual jobs need a fingerprint too: the unique (tenantId, fingerprintHash) index otherwise
+  // treats every job without one as the same document.
+  const fingerprintHash = createJobFingerprint({ tenantId, company, position, jobUrl });
+  const existing = await JobModel.findOne({ tenantId, fingerprintHash }).select("_id company position").lean();
+  if (existing) {
+    throw new ApiError(
+      `A job for "${position}" at "${company}" already exists`,
+      409,
+      "DUPLICATE_JOB"
+    );
+  }
+
+  const row = await createTenantScopedRecord(JobModel, tenantId, req.user?.id ?? "system", {
+    ...payload,
+    fingerprintHash,
+  });
+  await incrementUsage({ tenantId, metric: "jobsCount", amount: 1 });
+  return successResponse(res, row, "Created", 201);
+});
 export const getJobById = asyncHandler(async (req: Request, res) => {
   const tenantId = assertTenantId(req.tenantId);
   const row = await findTenantScopedById(JobModel, tenantId, req.params.id);

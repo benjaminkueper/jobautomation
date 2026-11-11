@@ -137,7 +137,7 @@ export function AutomationModuleCard({ module, variant = "default", onView, onTo
                 <p className="mt-0.5 text-xs text-[var(--text-3)]">{displayDesc}</p>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex shrink-0 flex-col items-end gap-2">
               <AutomationStatusBadge status={module.status} />
               <AutomationCategoryBadge category={module.category} />
             </div>

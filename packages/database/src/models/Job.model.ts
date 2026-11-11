@@ -122,7 +122,15 @@ JobSchema.index({ tenantId: 1, status: 1 });
 JobSchema.index({ tenantId: 1, pipelineStage: 1 });
 JobSchema.index({ tenantId: 1, company: 1, position: 1 });
 JobSchema.index({ tenantId: 1, jobUrl: 1 });
-JobSchema.index({ tenantId: 1, fingerprintHash: 1 }, { unique: true, sparse: true });
+/**
+ * Unique per tenant only for documents that actually have a string fingerprint.
+ * A plain `sparse: true` still indexes documents whose `fingerprintHash` is null,
+ * which allowed exactly one manual job per tenant before this partial filter.
+ */
+JobSchema.index(
+  { tenantId: 1, fingerprintHash: 1 },
+  { unique: true, partialFilterExpression: { fingerprintHash: { $type: "string" } } }
+);
 JobSchema.index({ deadline: 1 });
 JobSchema.index({ tenantId: 1, deadlineAlertKey: 1 }, { sparse: true });
 JobSchema.index({ tenantId: 1, reviewStatus: 1 });

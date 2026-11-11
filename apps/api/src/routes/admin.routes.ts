@@ -1,8 +1,27 @@
 import { Router } from "express";
 import { requireRole } from "../middleware/rbac.middleware";
+import { requireSuperAdmin } from "../middleware/super-admin.middleware";
 import { getDebugDataCounts, requireAdminResetToken, resetOperationalData, cleanupNonJobIntake, recalculateJobsCount, cleanupTestJobsHandler } from "../controllers/admin.controller";
+import {
+  createUser,
+  deleteUser,
+  getTenants,
+  getUserStats,
+  getUsers,
+  resetUserPassword,
+  updateUser,
+} from "../controllers/user-admin.controller";
 
 export const adminRoutes = Router();
+
+// ─── Platform user management (super admins only) ───────────────────────────
+adminRoutes.get("/users", requireSuperAdmin, getUsers);
+adminRoutes.get("/users/stats", requireSuperAdmin, getUserStats);
+adminRoutes.get("/tenants", requireSuperAdmin, getTenants);
+adminRoutes.post("/users", requireSuperAdmin, createUser);
+adminRoutes.patch("/users/:id", requireSuperAdmin, updateUser);
+adminRoutes.delete("/users/:id", requireSuperAdmin, deleteUser);
+adminRoutes.post("/users/:id/reset-password", requireSuperAdmin, resetUserPassword);
 
 adminRoutes.post(
   "/workspace/reset-operational-data",

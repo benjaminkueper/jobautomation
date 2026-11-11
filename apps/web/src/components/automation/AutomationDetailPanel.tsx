@@ -33,7 +33,7 @@ export function AutomationDetailPanel({ module, open, onClose, onRun, onConfigur
       {module ? (
         <>
         <div className="mb-5 flex items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <h2 className="text-xl font-semibold text-[var(--text-1)]">{moduleTitle}</h2>
             <p className="mt-1 text-sm text-[var(--text-2)]">{moduleDescription}</p>
             <div className="mt-3 flex flex-wrap gap-2">

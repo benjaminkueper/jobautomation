@@ -88,16 +88,18 @@ function ModuleTile({ slot, t }: { slot: SuperAdminModuleSlot; t: (k: string) =>
   return (
     <div className="flex min-h-[148px] flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] p-4 shadow-sm">
       <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className="text-[14px] font-semibold text-[var(--text-1)]">{t(slot.labelKey)}</h3>
           <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-[var(--text-3)]">
             {module?.description || t(slot.placeholderDescriptionKey)}
           </p>
         </div>
-        <AutomationStatusBadge status={status} />
+        <div className="shrink-0">
+          <AutomationStatusBadge status={status} />
+        </div>
       </div>
       <div className="mt-auto flex items-end justify-between gap-2 pt-4">
-        <div className="text-[11px] text-[var(--text-4)]">
+        <div className="min-w-0 text-[11px] text-[var(--text-4)]">
           <span className="block font-semibold text-[var(--text-2)]">{successRate}%</span>
           {t("superAdmin.modules.successRate")}
           <span className="mx-1">·</span>
@@ -105,7 +107,7 @@ function ModuleTile({ slot, t }: { slot: SuperAdminModuleSlot; t: (k: string) =>
         </div>
         <Link
           href="/automation"
-          className="text-[12px] font-semibold text-[var(--accent-hi)] hover:underline"
+          className="shrink-0 text-[12px] font-semibold text-[var(--accent-hi)] hover:underline"
         >
           {t("superAdmin.modules.manage")}
         </Link>
@@ -157,7 +159,9 @@ function ConnectedAccountsPanel({
                 <p className="truncate text-[13px] font-medium text-[var(--text-1)]">{item.provider}</p>
                 <p className="truncate text-[11px] text-[var(--text-4)]">{item.connectedEmail ?? item.accountName ?? "—"}</p>
               </div>
-              <ConnectionStatusBadge status={item.status} />
+              <div className="shrink-0">
+                <ConnectionStatusBadge status={item.status} />
+              </div>
             </li>
           ))
         )}
@@ -205,7 +209,7 @@ function AlertsPanel({
 }
 
 const QUICK_ACTIONS = [
-  { href: "/settings?section=Profile", labelKey: "superAdmin.actions.addUser", icon: UserIcon },
+  { href: "/users?add=1", labelKey: "superAdmin.actions.addUser", icon: UserIcon },
   { href: "/automation", labelKey: "superAdmin.actions.manageModules", icon: BotIcon },
   { href: "/system-status", labelKey: "superAdmin.actions.systemLogs", icon: StatusIcon },
   { href: "/settings?section=Integrations", labelKey: "superAdmin.actions.apiKeys", icon: SettingsIcon },

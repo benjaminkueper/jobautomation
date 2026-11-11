@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef } from "react";
 import { ChevronDownIcon, SearchIcon } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +17,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 export function Topbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { t } = useTranslation();
   const handleLogout = useLogoutAction();
   const authSession = useAuthSession();
@@ -46,13 +47,23 @@ export function Topbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchRef.current?.value.trim() ?? "";
+    router.push(q ? `/jobs?q=${encodeURIComponent(q)}` : "/jobs");
+  }
+
   return (
     <header className="jf-topbar hidden md:flex">
       <div className="jf-crumb flex items-center gap-2 text-[13px] font-medium text-[var(--text-3)]">
         <b className="font-semibold text-[var(--text-1)]">{title}</b>
       </div>
       <div className="flex-1" />
-      <div className="relative hidden w-[340px] max-w-[35vw] items-center gap-2 rounded-[var(--r-sm)] border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-0 transition-colors focus-within:border-[var(--border-focus)] focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.14)] lg:flex lg:h-[34px]">
+      <form
+        role="search"
+        onSubmit={handleSearch}
+        className="relative hidden h-[34px] w-[220px] max-w-[35vw] items-center gap-2 rounded-[var(--r-sm)] border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-0 transition-colors focus-within:border-[var(--border-focus)] focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.14)] md:flex lg:w-[300px] xl:w-[340px]"
+      >
         <SearchIcon size={14} className="shrink-0 text-[var(--text-4)]" />
         <input
           ref={searchRef}
@@ -64,7 +75,7 @@ export function Topbar() {
         <span className="inline-flex h-[18px] items-center gap-0.5 rounded border border-[var(--border-subtle)] border-b-2 bg-[var(--surface-4)] px-1.5 font-mono text-[10.5px] font-medium text-[var(--text-3)]">
           ⌘K
         </span>
-      </div>
+      </form>
       <div className="flex items-center gap-2">
         <LanguageSwitcher />
         <NotificationBell />
@@ -89,13 +100,13 @@ export function Topbar() {
             <DropdownMenuItem>
               <Link
                 href={customerNav ? "/settings?section=Profile" : "/profile"}
-                className="block cursor-pointer"
+                className="-mx-2 -my-1.5 block cursor-pointer px-2 py-1.5"
               >
                 {t("topbar.accountProfile")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link href="/settings" className="block cursor-pointer">
+              <Link href="/settings" className="-mx-2 -my-1.5 block cursor-pointer px-2 py-1.5">
                 {t("topbar.settings")}
               </Link>
             </DropdownMenuItem>

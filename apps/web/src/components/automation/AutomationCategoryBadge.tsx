@@ -35,5 +35,5 @@ function categoryLabel(category: string, t: (key: string) => string): string {
 
 export function AutomationCategoryBadge({ category }: { category: string }) {
   const { t } = useTranslation();
-  return <Badge variant="default">{categoryLabel(category, t)}</Badge>;
+  return <Badge variant="default" className="whitespace-nowrap">{categoryLabel(category, t)}</Badge>;
 }

@@ -11,6 +11,7 @@ import { Topbar } from "./Topbar";
 import { BottomNav } from "./BottomNav";
 import { JobPipelineSummaryProvider } from "@/context/JobPipelineSummaryContext";
 import { PwaInstallPrompt } from "@/components/shared/PwaInstallPrompt";
+import { Toaster } from "@/components/ui/toaster";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <div className="jf-app-bg" aria-hidden />
         <div className="jf-app-grain" aria-hidden />
         <div className="jf-shell">
+          <Toaster />
           <Sidebar />
           <div className="jf-main flex min-w-0 flex-col bg-[var(--bg-0)] md:min-h-screen">
             <MobileNav />

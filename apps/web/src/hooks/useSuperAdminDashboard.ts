@@ -5,6 +5,7 @@ import { useAutomationApi } from "@/hooks/api/useAutomationApi";
 import { useIntegrationsApi } from "@/hooks/api/useIntegrationsApi";
 import { useAiApi } from "@/hooks/api/useAiApi";
 import { useApiQuery } from "@/hooks/api/useApiQuery";
+import { getAdminUserStats } from "@/lib/api/admin-users.api";
 import { getSystemStatus, type SystemStatusResponse } from "@/lib/api/system.api";
 import { getTodaySummary } from "@/lib/api/today.api";
 import { normalizeListResponse } from "@/lib/api/normalizeResource";
@@ -90,6 +91,7 @@ function placeholderStatusForSlot(slotId: string, system?: SystemStatusResponse)
 export function useSuperAdminDashboard() {
   const systemQuery = useApiQuery(() => getSystemStatus(), { enabled: true });
   const todayQuery = useApiQuery(() => getTodaySummary(), { enabled: true });
+  const userStatsQuery = useApiQuery(() => getAdminUserStats(), { enabled: true });
   const automationApi = useAutomationApi({ fallbackToMock: false, params: { limit: 80 } });
   const integrationsApi = useIntegrationsApi({ fallbackToMock: false });
   const aiApi = useAiApi();
@@ -126,14 +128,14 @@ export function useSuperAdminDashboard() {
           : null;
 
     return {
-      activeUsers: null,
+      activeUsers: userStatsQuery.data?.active ?? null,
       activeUsersHint: "platformMetric",
       jobsProcessedToday: jobsProcessedToday || todayQuery.data?.jobsToReviewToday || 0,
       automationSuccessRate: avgSuccess,
       aiCreditsUsed,
       needsAttention: integrationAttention + failedModules + failedLogs,
     };
-  }, [logs, modules, integrationsApi.health, system, aiApi.usage, todayQuery.data]);
+  }, [logs, modules, integrationsApi.health, system, aiApi.usage, todayQuery.data, userStatsQuery.data]);
 
   const moduleSlots = useMemo((): SuperAdminModuleSlot[] => {
     return MODULE_SLOTS.map((slot) => ({
@@ -196,7 +198,7 @@ export function useSuperAdminDashboard() {
   const connectedIntegrations = useMemo(
     () =>
       integrations.filter((i) =>
-        ["gmail", "google-drive", "google-calendar", "linkedin", "claude", "resend", "telegram", "smtp"].includes(i.slug)
+        ["gmail", "google-drive", "google-calendar", "linkedin", "claude", "resend", "telegram", "smtp", "slack"].includes(i.slug)
       ),
     [integrations]
   );
@@ -205,7 +207,8 @@ export function useSuperAdminDashboard() {
     systemQuery.loading ||
     automationApi.loading ||
     integrationsApi.integrationsLoading ||
-    aiApi.usageLoading;
+    aiApi.usageLoading ||
+    userStatsQuery.loading;
 
   const refetch = async () => {
     await Promise.all([
@@ -214,6 +217,7 @@ export function useSuperAdminDashboard() {
       automationApi.refetch(),
       integrationsApi.refetch(),
       aiApi.refetchUsage(),
+      userStatsQuery.refetch(),
     ]);
   };
 
