@@ -116,7 +116,7 @@ export function SimpleTodayDashboard({ today }: Pick<TodayDashboardProps, "today
           {showStats ? (
             <section className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:gap-4">
               <SummaryCard label={t("today.simple.readyToApply")} count={readyToApply} href="/apply-assistant" />
-              <SummaryCard label={t("today.simple.followUps")} count={followUps} href="/jobs?status=Applied" />
+              <SummaryCard label={t("today.simple.followUps")} count={followUps} href="/applications?filter=follow-up-due" />
               <SummaryCard label={t("today.simple.replies")} count={replies} href="/jobs?status=Interview" />
             </section>
           ) : null}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "@/i18n/useTranslation";
 import { useAdvancedUi } from "@/context/AuthSessionContext";
 import type {
@@ -126,6 +126,7 @@ function uploadTypeForRecord(record: DocumentRecord): UploadPayload["type"] {
 export function DocumentsPageClient() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const advancedUi = useAdvancedUi();
   const documentsApi = useDocumentsApi({ fallbackToMock: false });
   const jobsApi = useJobsApi({ fallbackToMock: false });
@@ -503,7 +504,16 @@ export function DocumentsPageClient() {
     const upload = searchParams.get("upload");
     if (upload === "cv") openUpload("CV");
     else if (upload === "cover" || upload === "cover_letter_template") openUpload("Cover Letter Template");
-  }, [searchParams, openUpload]);
+    else if (upload === "research") openUpload("Research");
+    else if (upload === "supporting") openUpload("Supporting Document");
+    else return;
+    router.replace("/documents", { scroll: false });
+  }, [searchParams, openUpload, router]);
+
+  const handleUploadOpenChange = useCallback((open: boolean, type?: UploadPayload["type"]) => {
+    if (open && type) setUploadInitialType(type);
+    setUploadOpen(open);
+  }, []);
 
   const handleSimpleReplace = useCallback(
     (record: DocumentRecord) => {
@@ -568,7 +578,8 @@ export function DocumentsPageClient() {
         onFolderSettingsChange={setFolderSettings}
         isUsingFallback={documentsApi.isUsingFallback}
         uploadOpen={uploadOpen}
-        onUploadOpenChange={setUploadOpen}
+        onUploadOpenChange={handleUploadOpenChange}
+        uploadInitialType={uploadInitialType}
         onCreateDocument={handleCreateDocumentRecord}
         createLoading={documentsApi.mutations.createLoading}
         onExportPdf={(r) => void handleExportPdf(r)}

@@ -86,18 +86,18 @@ export async function getTodaySummary(input: { tenantId: string; userId: string;
     actions.push({
       type: "missing_cv",
       title: "Your CV is missing",
-      description: "Connect Google Drive and set your default CV so Job Assistant can prepare applications.",
+      description: "Upload your CV so Job Assistant can prepare tailored applications.",
       cta: "Upload CV",
-      href: "/documents/upload?type=cv",
+      href: "/documents?upload=cv",
     });
   }
   if (missingCoverLetterTemplate) {
     actions.push({
       type: "missing_cover_letter_template",
       title: "Cover letter template missing",
-      description: "Add a cover letter template in Drive to speed up manual applications.",
+      description: "Upload a cover letter template to speed up your applications.",
       cta: "Upload Template",
-      href: "/documents/upload?type=cover_letter_template",
+      href: "/documents?upload=cover_letter_template",
     });
   }
   if (followUpsDue > 0) {

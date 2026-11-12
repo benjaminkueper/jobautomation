@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,11 +117,13 @@ const APP_TAB_STATUSES: Record<AppTab, string[] | null> = {
 
 export function ApplicationsPageClient() {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
   const applicationsApi = useApplicationsApi({ fallbackToMock: false });
   const integrationsApi = useIntegrationsApi({ fallbackToMock: false });
 
   const [activeTab, setActiveTab] = useState<AppTab>("all");
   const [filters, setFilters] = useState<ApplicationFilterState>(initialFilters);
+  const [followUpDueOnly, setFollowUpDueOnly] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [fallbackEdits, setFallbackEdits] = useState<Record<string, Partial<Application>>>({});
@@ -130,6 +133,14 @@ export function ApplicationsPageClient() {
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [isLogApplicationOpen, setIsLogApplicationOpen] = useState(false);
   const [localApplicationsOverlay, setLocalApplicationsOverlay] = useState<Application[]>([]);
+
+  useEffect(() => {
+    const filter = searchParams.get("filter");
+    if (filter === "follow-up-due" || searchParams.get("followUp") === "due") {
+      setFollowUpDueOnly(true);
+      setActiveTab("all");
+    }
+  }, [searchParams]);
 
   const mergedFromApi = useMemo(() => {
     const raw = normalizeListResponse<unknown>(applicationsApi.data);
@@ -180,7 +191,11 @@ export function ApplicationsPageClient() {
     return applications.filter((a) => allowed.includes(a.applicationStatus));
   }, [applications, activeTab]);
 
-  const filteredApplications = useMemo(() => filterApplications(tabFilteredApplications, filters), [tabFilteredApplications, filters]);
+  const filteredApplications = useMemo(() => {
+    const base = filterApplications(tabFilteredApplications, filters);
+    if (!followUpDueOnly) return base;
+    return base.filter((a) => a.followUpStatus === "Due Today" || a.followUpStatus === "Overdue");
+  }, [tabFilteredApplications, filters, followUpDueOnly]);
 
   const stats = useMemo(() => {
     return {
@@ -450,7 +465,10 @@ export function ApplicationsPageClient() {
             return (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setFollowUpDueOnly(false);
+                }}
                 className={`flex shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[12.5px] font-medium transition-colors ${
                   activeTab === tab
                     ? "bg-[var(--surface-1)] text-[var(--text-1)] shadow-sm"
@@ -469,9 +487,25 @@ export function ApplicationsPageClient() {
         <ApplicationFilters
           filters={filters}
           onChange={setFilters}
-          onClear={() => setFilters(initialFilters)}
+          onClear={() => {
+            setFilters(initialFilters);
+            setFollowUpDueOnly(false);
+          }}
           aside={applicationsApi.isUsingFallback ? <ApiStatusIndicator usingMock /> : null}
         />
+
+        {followUpDueOnly ? (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--amber-ring)] bg-[var(--amber-bg)] px-4 py-2.5 text-[13px] text-[var(--text-1)]">
+            <span>{t("applications.applicationStatus.followUpDue")}</span>
+            <button
+              type="button"
+              className="font-semibold text-[var(--accent-hi)] hover:underline"
+              onClick={() => setFollowUpDueOnly(false)}
+            >
+              {t("empty.clearFilters")}
+            </button>
+          </div>
+        ) : null}
 
         {emptyAll ? (
           <EmptyState

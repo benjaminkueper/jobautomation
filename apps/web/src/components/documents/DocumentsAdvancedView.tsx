@@ -55,7 +55,8 @@ export interface DocumentsAdvancedViewProps {
   onFolderSettingsChange: (settings: FolderAutomationSettings) => void;
   isUsingFallback: boolean;
   uploadOpen: boolean;
-  onUploadOpenChange: (open: boolean) => void;
+  onUploadOpenChange: (open: boolean, type?: UploadPayload["type"]) => void;
+  uploadInitialType?: UploadPayload["type"];
   onCreateDocument: (payload: UploadPayload) => Promise<void>;
   createLoading: boolean;
   onExportPdf: (record: DocumentRecord) => void;
@@ -91,6 +92,7 @@ export function DocumentsAdvancedView({
   isUsingFallback,
   uploadOpen,
   onUploadOpenChange,
+  uploadInitialType,
   onCreateDocument,
   createLoading,
   onExportPdf,
@@ -115,7 +117,7 @@ export function DocumentsAdvancedView({
         title={t("documents.title")}
         description={t("documents.description")}
         actions={
-          <Button type="button" onClick={() => onUploadOpenChange(true)}>
+          <Button type="button" onClick={() => onUploadOpenChange(true, "CV")}>
             {t("documents.actions.uploadDocument")}
           </Button>
         }
@@ -126,6 +128,7 @@ export function DocumentsAdvancedView({
         onClose={() => onUploadOpenChange(false)}
         onSubmit={onCreateDocument}
         loading={createLoading}
+        initialType={uploadInitialType}
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -135,7 +138,7 @@ export function DocumentsAdvancedView({
             {activeCv?.fileName ?? "—"}
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <Button size="sm" variant="outline" type="button" className="w-full sm:w-auto" onClick={() => onUploadOpenChange(true)}>
+            <Button size="sm" variant="outline" type="button" className="w-full sm:w-auto" onClick={() => onUploadOpenChange(true, "CV")}>
               Upload New Version
             </Button>
             {activeCv ? (
@@ -151,7 +154,7 @@ export function DocumentsAdvancedView({
             {activeTemplate?.fileName ?? "—"}
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <Button size="sm" variant="outline" type="button" className="w-full sm:w-auto" onClick={() => onUploadOpenChange(true)}>
+            <Button size="sm" variant="outline" type="button" className="w-full sm:w-auto" onClick={() => onUploadOpenChange(true, "Cover Letter Template")}>
               Upload New Version
             </Button>
             {activeTemplate ? (
