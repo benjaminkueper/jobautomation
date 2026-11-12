@@ -3,6 +3,8 @@ import { apiFetch } from "./client";
 export type UnipileStatus = {
   connected: boolean;
   configured?: boolean;
+  /** A "Connect" click started but no mailbox was linked yet. */
+  pendingConnect?: boolean;
   status?: string;
   connectedEmail?: string | null;
   accountName?: string | null;

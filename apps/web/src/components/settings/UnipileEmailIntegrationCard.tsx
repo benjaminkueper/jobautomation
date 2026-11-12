@@ -18,7 +18,11 @@ import {
 import { ApiError } from "@/lib/api/client";
 import { showError, showSuccess } from "@/lib/ui/toast";
 
-export function UnipileEmailIntegrationCard() {
+export function UnipileEmailIntegrationCard({
+  onConnectionChange,
+}: {
+  onConnectionChange?: () => void;
+}) {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<UnipileStatus | null>(null);
@@ -51,6 +55,7 @@ export function UnipileEmailIntegrationCard() {
         if (res.linked) {
           setError(null);
           await refresh();
+          onConnectionChange?.();
           if (opts?.notify) showSuccess(t("integrations.unipile.connectedToast"));
         }
         return res;
@@ -65,22 +70,24 @@ export function UnipileEmailIntegrationCard() {
         reconcileInFlight.current = false;
       }
     },
-    [refresh, t]
+    [refresh, t, onConnectionChange]
   );
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
-  // Self-heal: hosted-auth callbacks cannot always identify the workspace, so
-  // reconcile on mount. This links the newest unclaimed mailbox when nothing is
-  // connected and refreshes the mailbox list when it already is.
+  // Self-heal only when there is a reason to: a "Connect" click is pending or
+  // the user just returned from hosted auth. Refreshing an existing healthy link
+  // is harmless and fills the mailbox switcher. A manual disconnect is respected.
+  const returnedFromConnect = searchParams.get("unipile") === "connected";
   useEffect(() => {
     if (!status || status.configured === false) return;
+    if (!status.pendingConnect && !status.connected && !returnedFromConnect) return;
     if (autoReconcileTried.current) return;
     autoReconcileTried.current = true;
     void runReconcile();
-  }, [status, runReconcile]);
+  }, [status, returnedFromConnect, runReconcile]);
 
   // Toast once when the user returns from the hosted-auth flow.
   useEffect(() => {
@@ -124,6 +131,7 @@ export function UnipileEmailIntegrationCard() {
       showSuccess(t("integrations.unipile.disconnectedToast"));
       setCandidates([]);
       await refresh();
+      onConnectionChange?.();
     } catch (e) {
       const message = e instanceof Error ? e.message : t("integrations.unipile.disconnectFailed");
       setError(message);
@@ -217,12 +225,20 @@ export function UnipileEmailIntegrationCard() {
             {status?.lastSyncAt ? ` · ${new Date(status.lastSyncAt).toLocaleString()}` : ""}
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground">{t("integrations.unipile.notConnected")}</p>
+          <p className="text-xs text-muted-foreground">
+            {switchable
+              ? t("integrations.unipile.choosePrompt")
+              : t("integrations.unipile.notConnected")}
+          </p>
         )}
 
         {switchable ? (
           <div className="rounded-md border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-2">
-            <p className="mb-2 text-xs text-muted-foreground">{t("integrations.unipile.switchEmail")}</p>
+            <p className="mb-2 text-xs text-muted-foreground">
+              {connected
+                ? t("integrations.unipile.switchEmail")
+                : t("integrations.unipile.chooseEmail")}
+            </p>
             <div className="flex flex-wrap gap-2">
               {candidates.map((c) => {
                 const currentEmail = (status?.connectedEmail ?? "").trim().toLowerCase();

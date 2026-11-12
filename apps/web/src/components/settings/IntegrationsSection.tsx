@@ -649,7 +649,7 @@ export function IntegrationsSection({ variant = "advanced" }: { variant?: "simpl
       ) : null}
 
       <div className={simple ? "space-y-3" : "grid grid-cols-1 gap-4 xl:grid-cols-2"}>
-        <UnipileEmailIntegrationCard />
+        <UnipileEmailIntegrationCard onConnectionChange={() => void refetch()} />
         <ApplyAssistantIntegrationCard />
         {showCloudLinkedIn ? <LinkedInSessionCard variant={simple ? "simple" : "advanced"} /> : null}
         {simple

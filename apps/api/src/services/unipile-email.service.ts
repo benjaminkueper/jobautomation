@@ -355,6 +355,8 @@ export async function getUnipileEmailStatus(tenantId: string) {
   return {
     connected: row.status === "Connected",
     configured: unipileConfigured(),
+    /** A "Connect" click started but no mailbox was linked yet. */
+    pendingConnect: Boolean(meta.unipilePendingSince),
     status: String(row.status ?? ""),
     connectedEmail: row.connectedEmail ? String(row.connectedEmail) : null,
     accountName: row.accountName ? String(row.accountName) : null,
@@ -370,7 +372,11 @@ export async function disconnectUnipileEmail(input: { tenantId: string; userId: 
       status: "Disabled",
       syncStatus: "Disconnected",
       updatedBy: input.userId,
-      $unset: { "metadata.unipileAccountId": 1 },
+      $unset: {
+        "metadata.unipileAccountId": 1,
+        "metadata.unipilePendingSince": 1,
+        "metadata.unipilePendingBy": 1,
+      },
     }
   );
 }
@@ -610,16 +616,37 @@ export async function reconcileUnipileConnection(input: {
     return link(existingAccountId, "existing");
   }
 
-  // 4) Hosted-auth name match (only when Unipile preserved our encoded name).
+  // 4) Mailbox created during the last hour — the user just finished hosted
+  // auth (covers connections made before the pending marker existed).
+  const recentWindowMs = 60 * 60 * 1000;
+  const recent = linkable.find((acc) => {
+    const created = unipileAccountCreatedAt(acc);
+    return created > 0 && Date.now() - created <= recentWindowMs;
+  });
+  if (recent) return link(recent.id, "recent_connect");
+
+  // 5) Hosted-auth name match (only when Unipile preserved our encoded name).
   const named = linkable.find((acc) => decodeUnipileConnectName(String(acc.name ?? ""))?.tenantId === tenantId);
   if (named) return link(named.id, "name");
 
-  // 5) Re-link the account this tenant used before, when still unclaimed.
+  // 6) Re-link the account this tenant used before, when still unclaimed.
   if (existingAccountId && linkable.some((acc) => acc.id === existingAccountId)) {
     return link(existingAccountId, "previous_account");
   }
 
-  // 6) Newest unclaimed account (covers providers that replace `name` with the email).
+  // 7) One unambiguous mailbox → link it. Several different mailboxes → let the
+  // user pick in Settings instead of silently ingesting the wrong inbox.
+  const distinctEmails = new Set(
+    linkable.map((acc) => unipileAccountEmail(acc).toLowerCase()).filter(Boolean)
+  );
+  if (distinctEmails.size > 1) {
+    return {
+      linked: false as const,
+      reason: "multiple_accounts",
+      candidates,
+      accounts: accounts.map((a) => ({ id: a.id, name: a.name, type: a.type })),
+    };
+  }
   if (linkable.length > 0) {
     return link(linkable[0].id, "newest_unclaimed");
   }
