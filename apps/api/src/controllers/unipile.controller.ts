@@ -27,9 +27,34 @@ export const createUnipileConnectHandler = asyncHandler(async (req: Request, res
   const apiPublicOrigin =
     forwardedProto && forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
 
-  const result = await createUnipileEmailConnectLink({ tenantId, userId, apiPublicOrigin });
+  // The browser origin tells us where to send the user back after hosted auth.
+  // Without it, APP_URL may still be localhost on production and the user lands
+  // on an unreachable page (so the connection never gets linked).
+  const webPublicOrigin = requestWebOrigin(req);
+
+  const result = await createUnipileEmailConnectLink({
+    tenantId,
+    userId,
+    apiPublicOrigin,
+    webPublicOrigin,
+  });
   return successResponse(res, result, "Unipile connect link created");
 });
+
+function requestWebOrigin(req: Request): string | undefined {
+  const origin = req.header("origin");
+  if (origin && /^https?:\/\//i.test(origin)) return origin.replace(/\/$/, "");
+  const referer = req.header("referer");
+  if (referer) {
+    try {
+      const url = new URL(referer);
+      if (url.protocol === "http:" || url.protocol === "https:") return url.origin;
+    } catch {
+      // ignore malformed Referer
+    }
+  }
+  return undefined;
+}
 
 /** GET /integrations/unipile/status */
 export const getUnipileStatusHandler = asyncHandler(async (req: Request, res: Response) => {
@@ -48,7 +73,11 @@ export const testUnipileHandler = asyncHandler(async (_req: Request, res: Respon
 export const reconcileUnipileHandler = asyncHandler(async (req: Request, res: Response) => {
   const tenantId = assertTenantId(req.tenantId);
   const userId = req.user?.id ?? "system";
-  const result = await reconcileUnipileConnection({ tenantId, userId });
+  const accountId =
+    typeof req.body?.accountId === "string" && req.body.accountId.trim()
+      ? req.body.accountId.trim()
+      : undefined;
+  const result = await reconcileUnipileConnection({ tenantId, userId, accountId });
   return successResponse(res, result, result.linked ? "Unipile account linked" : "No matching Unipile account");
 });
 
@@ -98,7 +127,13 @@ export const unipileNotifyHandler = asyncHandler(async (req: Request, res: Respo
   }
 
   const decoded = decodeUnipileConnectName(name);
-  if (!decoded) throw new ApiError("Invalid Unipile connect name", 422, "VALIDATION_ERROR");
+  if (!decoded) {
+    // Unipile usually replaces the hosted-link `name` with the mailbox address,
+    // so it cannot always identify the tenant. The Settings card reconciles the
+    // account on return; acknowledge instead of failing the callback.
+    console.warn("[unipile] notify ignored — name is not a tenant marker", { accountId, name });
+    return successResponse(res, { ignored: true, reason: "unmapped_name" }, "Unipile account acknowledged");
+  }
 
   await upsertUnipileEmailConnection({
     tenantId: decoded.tenantId,

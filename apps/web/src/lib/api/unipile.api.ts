@@ -21,15 +21,28 @@ export function createUnipileConnectLink() {
   });
 }
 
-export function reconcileUnipile() {
+export type UnipileAccountCandidate = {
+  id: string;
+  email?: string;
+  name?: string;
+  type?: string;
+  createdAt?: string;
+};
+
+export function reconcileUnipile(input?: { accountId?: string }) {
   return apiFetch<{
     linked: boolean;
     accountId?: string;
     userId?: string;
-    matchedBy?: "name" | "single_account";
+    matchedBy?: string;
     reason?: string;
+    candidates?: UnipileAccountCandidate[];
     accounts?: Array<{ id?: string; name?: string; type?: string }>;
-  }>("/integrations/unipile/reconcile", { method: "POST", body: {}, timeoutMs: 30_000 });
+  }>("/integrations/unipile/reconcile", {
+    method: "POST",
+    body: input?.accountId ? { accountId: input.accountId } : {},
+    timeoutMs: 30_000,
+  });
 }
 
 export function getUnipileHealth() {

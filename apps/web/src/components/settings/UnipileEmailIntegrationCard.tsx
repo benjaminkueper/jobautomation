@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   getUnipileStatus,
   reconcileUnipile,
   scanUnipileEmails,
+  type UnipileAccountCandidate,
   type UnipileStatus,
 } from "@/lib/api/unipile.api";
 import { ApiError } from "@/lib/api/client";
@@ -21,10 +22,15 @@ export function UnipileEmailIntegrationCard() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<UnipileStatus | null>(null);
+  const [candidates, setCandidates] = useState<UnipileAccountCandidate[]>([]);
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [switching, setSwitching] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const autoReconcileTried = useRef(false);
+  const reconcileInFlight = useRef(false);
+  const returnToastShown = useRef(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -35,29 +41,60 @@ export function UnipileEmailIntegrationCard() {
     }
   }, []);
 
+  const runReconcile = useCallback(
+    async (opts?: { accountId?: string; notify?: boolean }) => {
+      if (reconcileInFlight.current) return null;
+      reconcileInFlight.current = true;
+      try {
+        const res = await reconcileUnipile(opts?.accountId ? { accountId: opts.accountId } : undefined);
+        if (res.candidates?.length) setCandidates(res.candidates);
+        if (res.linked) {
+          setError(null);
+          await refresh();
+          if (opts?.notify) showSuccess(t("integrations.unipile.connectedToast"));
+        }
+        return res;
+      } catch (e) {
+        if (opts?.accountId) {
+          const message = e instanceof Error ? e.message : t("integrations.unipile.connectFailed");
+          setError(message);
+          showError(message);
+        }
+        return null;
+      } finally {
+        reconcileInFlight.current = false;
+      }
+    },
+    [refresh, t]
+  );
+
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
+  // Self-heal: hosted-auth callbacks cannot always identify the workspace, so
+  // reconcile on mount. This links the newest unclaimed mailbox when nothing is
+  // connected and refreshes the mailbox list when it already is.
+  useEffect(() => {
+    if (!status || status.configured === false) return;
+    if (autoReconcileTried.current) return;
+    autoReconcileTried.current = true;
+    void runReconcile();
+  }, [status, runReconcile]);
+
+  // Toast once when the user returns from the hosted-auth flow.
   useEffect(() => {
     const flag = searchParams.get("unipile");
-    if (flag === "connected") {
-      // The hosted-auth server callback (notify) cannot reach localhost, so try
-      // to link the account by querying Unipile directly, then refresh.
-      void (async () => {
-        try {
-          await reconcileUnipile();
-        } catch {
-          // Best effort — the server-side notify webhook may still have linked it.
-        }
-        showSuccess(t("integrations.unipile.connectedToast"));
-        await refresh();
-      })();
-    } else if (flag === "failed") {
+    if (flag === "failed") {
       showError(t("integrations.unipile.failedToast"));
       setError(t("integrations.unipile.failedToast"));
+      return;
     }
-  }, [searchParams, refresh, t]);
+    if (flag === "connected" && status?.connected && !returnToastShown.current) {
+      returnToastShown.current = true;
+      showSuccess(t("integrations.unipile.connectedToast"));
+    }
+  }, [searchParams, status?.connected, t]);
 
   async function handleConnect() {
     setLoading(true);
@@ -85,6 +122,7 @@ export function UnipileEmailIntegrationCard() {
     try {
       await disconnectUnipile();
       showSuccess(t("integrations.unipile.disconnectedToast"));
+      setCandidates([]);
       await refresh();
     } catch (e) {
       const message = e instanceof Error ? e.message : t("integrations.unipile.disconnectFailed");
@@ -92,6 +130,16 @@ export function UnipileEmailIntegrationCard() {
       showError(message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleSwitch(accountId: string) {
+    setSwitching(accountId);
+    setError(null);
+    try {
+      await runReconcile({ accountId, notify: true });
+    } finally {
+      setSwitching(null);
     }
   }
 
@@ -139,6 +187,7 @@ export function UnipileEmailIntegrationCard() {
 
   const connected = Boolean(status?.connected);
   const configured = status?.configured !== false;
+  const switchable = configured && candidates.length > 1;
 
   return (
     <Card className="flex h-full flex-col">
@@ -170,6 +219,37 @@ export function UnipileEmailIntegrationCard() {
         ) : (
           <p className="text-xs text-muted-foreground">{t("integrations.unipile.notConnected")}</p>
         )}
+
+        {switchable ? (
+          <div className="rounded-md border border-[var(--border-default)] bg-[var(--surface-2)] px-3 py-2">
+            <p className="mb-2 text-xs text-muted-foreground">{t("integrations.unipile.switchEmail")}</p>
+            <div className="flex flex-wrap gap-2">
+              {candidates.map((c) => {
+                const currentEmail = (status?.connectedEmail ?? "").trim().toLowerCase();
+                const current =
+                  connected &&
+                  ((c.email ?? "").trim().toLowerCase() === currentEmail || c.id === status?.accountId);
+                const label = c.email || c.name || c.id;
+                return (
+                  <Button
+                    key={c.id}
+                    type="button"
+                    size="sm"
+                    variant={current ? "default" : "outline"}
+                    disabled={current || switching !== null}
+                    onClick={() => void handleSwitch(c.id)}
+                  >
+                    {switching === c.id
+                      ? t("integrations.unipile.switching")
+                      : current
+                        ? `${label} ✓`
+                        : label}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-auto flex flex-wrap items-center gap-2 pt-2 [&>button]:min-w-[88px]">
           {!connected ? (

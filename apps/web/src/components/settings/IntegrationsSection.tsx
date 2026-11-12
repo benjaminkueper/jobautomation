@@ -407,6 +407,12 @@ export function IntegrationsSection({ variant = "advanced" }: { variant?: "simpl
     return [];
   }, [mergedItems, simple]);
 
+  /** The Unipile mailbox has its own rich card; keep it in health counts only. */
+  const renderItems = useMemo(
+    () => mergedItems.filter((i) => i.slug !== "unipile-email"),
+    [mergedItems]
+  );
+
   const showCloudLinkedIn = isLinkedInCloudAutoApplyEnabled();
   const showLegacyGmailScan =
     !simple &&
@@ -655,7 +661,7 @@ export function IntegrationsSection({ variant = "advanced" }: { variant?: "simpl
                 onReconnect={() => setModalSlug(item.slug)}
               />
             ))
-          : mergedItems.map((item) => (
+          : renderItems.map((item) => (
               <IntegrationCard
                 key={item.slug}
                 item={item}

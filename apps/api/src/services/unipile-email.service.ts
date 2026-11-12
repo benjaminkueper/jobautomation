@@ -66,6 +66,23 @@ function webAppBase(): string {
   return (env.appUrl || process.env.WEB_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 }
 
+/**
+ * Prefer the browser origin that started the connect flow (Origin/Referer).
+ * This keeps hosted-auth redirects on the real app domain even when APP_URL is
+ * missing or still points at localhost on the server.
+ */
+function resolveWebBase(requestOrigin?: string): string {
+  const fromReq = (requestOrigin ?? "").trim().replace(/\/$/, "");
+  if (/^https?:\/\//i.test(fromReq)) {
+    const isLocalReq = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(fromReq);
+    const envBase = webAppBase();
+    const envIsLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(envBase);
+    // Never downgrade a public request to a localhost APP_URL.
+    if (!isLocalReq || envIsLocal) return fromReq;
+  }
+  return webAppBase();
+}
+
 let webhookEnsurePromise: Promise<void> | null = null;
 
 /** Best-effort: register Unipile mail_received webhook once per process. */
@@ -219,6 +236,8 @@ export async function createUnipileEmailConnectLink(input: {
   userId: string;
   /** Optional public API origin override from the incoming request */
   apiPublicOrigin?: string;
+  /** Optional web origin override from the incoming request (Origin/Referer) */
+  webPublicOrigin?: string;
 }): Promise<{ url: string; expiresInMinutes: number }> {
   if (!unipileConfigured()) {
     throw new ApiError(
@@ -229,8 +248,28 @@ export async function createUnipileEmailConnectLink(input: {
   }
   const tenantId = assertTenantId(input.tenantId);
   const apiBase = publicApiBase(input.apiPublicOrigin);
-  const webBase = webAppBase();
+  const webBase = resolveWebBase(input.webPublicOrigin);
   const expiresInMinutes = 30;
+
+  // Remember when this connect flow started so reconcile can pick the account
+  // the user just added instead of an older mailbox in the same workspace.
+  await IntegrationConnectionModel.findOneAndUpdate(
+    { tenantId, provider: UNIPILE_EMAIL_PROVIDER },
+    {
+      $set: {
+        "metadata.unipilePendingSince": new Date().toISOString(),
+        "metadata.unipilePendingBy": input.userId,
+        updatedBy: input.userId,
+      },
+      $setOnInsert: {
+        tenantId,
+        provider: UNIPILE_EMAIL_PROVIDER,
+        status: "Not Connected",
+        createdBy: input.userId,
+      },
+    },
+    { upsert: true, new: true }
+  );
 
   try {
     const res = await createUnipileHostedAuthLink({
@@ -442,54 +481,155 @@ export async function scanUnipileEmailsForTenant(input: {
   };
 }
 
+function isEmailCapableAccount(acc: UnipileAccount): boolean {
+  const type = String(acc.type ?? "").toUpperCase();
+  if (type.includes("GOOGLE") || type.includes("MAIL") || type.includes("OUTLOOK") || type.includes("IMAP")) {
+    return true;
+  }
+  return Boolean(acc.connection_params?.mail?.username || acc.connection_params?.mail?.id);
+}
+
+function unipileAccountEmail(acc: UnipileAccount): string {
+  return String(
+    acc.connection_params?.mail?.username ||
+      acc.connection_params?.mail?.id ||
+      acc.name ||
+      ""
+  ).trim();
+}
+
+function unipileAccountCreatedAt(acc: UnipileAccount): number {
+  const ts = Date.parse(String(acc.created_at ?? ""));
+  return Number.isFinite(ts) ? ts : 0;
+}
+
+/** Account IDs already linked to a different tenant — never steal those. */
+async function claimedUnipileAccountIds(exceptTenantId: string): Promise<Set<string>> {
+  const rows = (await IntegrationConnectionModel.find({
+    provider: UNIPILE_EMAIL_PROVIDER,
+    tenantId: { $ne: exceptTenantId },
+    "metadata.unipileAccountId": { $exists: true, $nin: [null, ""] },
+  })
+    .select({ metadata: 1 })
+    .lean()) as Array<Record<string, unknown>>;
+
+  const ids = new Set<string>();
+  for (const row of rows) {
+    const meta = (row.metadata as Record<string, unknown> | undefined) ?? {};
+    const id = String(meta.unipileAccountId ?? "").trim();
+    if (id) ids.add(id);
+  }
+  return ids;
+}
+
 /** Best-effort: link the tenant to a Unipile account created by hosted auth. */
-export async function reconcileUnipileConnection(input: { tenantId: string; userId?: string }) {
+export async function reconcileUnipileConnection(input: {
+  tenantId: string;
+  userId?: string;
+  /** Explicit account chosen by the user (from the Settings card). */
+  accountId?: string;
+}) {
   if (!unipileConfigured()) {
     throw new ApiError("Unipile is not configured on the server", 503, "UNIPILE_NOT_CONFIGURED");
   }
   const tenantId = assertTenantId(input.tenantId);
+
+  const existingRow = (await IntegrationConnectionModel.findOne({
+    tenantId,
+    provider: UNIPILE_EMAIL_PROVIDER,
+  }).lean()) as Record<string, unknown> | null;
+  const existingMeta = (existingRow?.metadata as Record<string, unknown> | undefined) ?? {};
+  const existingAccountId = String(existingMeta.unipileAccountId ?? "").trim();
+  const existingConnected = existingRow?.status === "Connected";
+
   let accounts: UnipileAccount[] = [];
   try {
     const res = await listUnipileAccounts({ limit: 100 });
-    accounts = res.items ?? res.data ?? [];
+    accounts = (res.items ?? res.data ?? []).filter(isEmailCapableAccount);
   } catch (err) {
     if (err instanceof ApiError) throw err;
     const message = err instanceof Error ? err.message : String(err);
     throw new ApiError(`Unipile reconcile failed: ${message}`, 502, "UNIPILE_ERROR");
   }
 
-  const matches = accounts.filter((acc) => {
-    const decoded = decodeUnipileConnectName(String(acc.name ?? ""));
-    return decoded?.tenantId === tenantId;
-  });
+  const byNewest = [...accounts].sort((a, b) => unipileAccountCreatedAt(b) - unipileAccountCreatedAt(a));
+  const claimed = await claimedUnipileAccountIds(tenantId);
 
-  let account: UnipileAccount | undefined;
-  let matchedBy: "name" | "single_account" = "name";
+  /** Accounts this tenant may safely link (own existing link or unclaimed). */
+  const linkable = byNewest.filter(
+    (acc) => !claimed.has(acc.id) || (existingConnected && acc.id === existingAccountId)
+  );
 
-  if (matches.length > 0) {
-    matches.sort((a, b) => String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")));
-    account = matches[0];
-  } else if (accounts.length === 1) {
-    // Fallback: a single Unipile account and no name match — assume it's theirs
-    // (covers providers that don't echo the hosted-link `name`).
-    account = accounts[0];
-    matchedBy = "single_account";
+  // Newest distinct email first — hosted auth creates a fresh account on every
+  // connect attempt, so the newest one is the email the user just added.
+  const seenEmails = new Set<string>();
+  const candidates = linkable
+    .map((acc) => ({
+      id: acc.id,
+      email: unipileAccountEmail(acc),
+      name: acc.name ? String(acc.name) : undefined,
+      type: acc.type ? String(acc.type) : undefined,
+      createdAt: acc.created_at ? String(acc.created_at) : undefined,
+    }))
+    .filter((c) => {
+      const key = c.email.toLowerCase() || c.id;
+      if (seenEmails.has(key)) return false;
+      seenEmails.add(key);
+      return true;
+    });
+
+  const link = async (accountId: string, matchedBy: string) => {
+    const account = accounts.find((a) => a.id === accountId);
+    const decoded = account ? decodeUnipileConnectName(String(account.name ?? "")) : null;
+    const userId = decoded?.userId || input.userId || "system";
+    await upsertUnipileEmailConnection({ tenantId, userId, accountId });
+    return { linked: true as const, accountId, userId, matchedBy, candidates };
+  };
+
+  // 1) Explicit choice from the UI.
+  if (input.accountId) {
+    const picked = accounts.find((acc) => acc.id === input.accountId);
+    if (!picked) {
+      throw new ApiError("That Unipile account no longer exists", 404, "UNIPILE_ACCOUNT_NOT_FOUND");
+    }
+    if (claimed.has(picked.id) && picked.id !== existingAccountId) {
+      throw new ApiError("That Unipile account is already linked to another workspace", 409, "UNIPILE_ACCOUNT_CLAIMED");
+    }
+    return link(picked.id, "explicit");
   }
 
-  if (!account) {
-    return {
-      linked: false,
-      reason: "no_matching_account",
-      accounts: accounts.map((a) => ({ id: a.id, name: a.name, type: a.type })),
-    };
+  // 2) Account created during the most recent "Connect" click.
+  const pendingSince = Date.parse(String(existingMeta.unipilePendingSince ?? ""));
+  if (Number.isFinite(pendingSince)) {
+    const fresh = linkable.filter((acc) => unipileAccountCreatedAt(acc) >= pendingSince - 120_000);
+    if (fresh.length > 0) return link(fresh[0].id, "pending_connect");
   }
 
-  const decoded = decodeUnipileConnectName(String(account.name ?? ""));
-  const userId = decoded?.userId || input.userId || "system";
+  // 3) Keep an existing healthy link (refresh email/account details).
+  if (existingConnected && existingAccountId && accounts.some((acc) => acc.id === existingAccountId)) {
+    return link(existingAccountId, "existing");
+  }
 
-  await upsertUnipileEmailConnection({ tenantId, userId, accountId: account.id });
+  // 4) Hosted-auth name match (only when Unipile preserved our encoded name).
+  const named = linkable.find((acc) => decodeUnipileConnectName(String(acc.name ?? ""))?.tenantId === tenantId);
+  if (named) return link(named.id, "name");
 
-  return { linked: true, accountId: account.id, userId, matchedBy };
+  // 5) Re-link the account this tenant used before, when still unclaimed.
+  if (existingAccountId && linkable.some((acc) => acc.id === existingAccountId)) {
+    return link(existingAccountId, "previous_account");
+  }
+
+  // 6) Newest unclaimed account (covers providers that replace `name` with the email).
+  if (linkable.length > 0) {
+    return link(linkable[0].id, "newest_unclaimed");
+  }
+
+  return {
+    linked: false as const,
+    reason: "no_matching_account",
+    candidates,
+    accounts: accounts.map((a) => ({ id: a.id, name: a.name, type: a.type })),
+  };
 }
 
 /** Confirm the configured Unipile credentials actually work. */

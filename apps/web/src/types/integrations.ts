@@ -21,7 +21,8 @@ export type IntegrationProvider =
   | "SMTP"
   | "Resend"
   | "Notion Legacy"
-  | "Slack";
+  | "Slack"
+  | "Unipile Email";
 
 export interface IntegrationTestResult {
   provider: IntegrationProvider;

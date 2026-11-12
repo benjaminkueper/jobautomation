@@ -32,6 +32,13 @@ const CATALOG: IntegrationCatalogEntry[] = [
     requiredFor: ["job-intake", "email-reply-detection", "follow-up-reminder"],
   },
   {
+    provider: "Unipile Email",
+    slug: "unipile-email",
+    purpose:
+      "Gmail/Outlook job-alert intake through Unipile (no Google OAuth audit). Connect it from the Unipile email card in Settings.",
+    requiredFor: ["job-intake"],
+  },
+  {
     provider: "Google Drive",
     slug: "google-drive",
     purpose:
@@ -361,6 +368,7 @@ function canonicalProviderKey(value: string): string {
   if (v === "notion-legacy" || v === "notion legacy") return "Notion Legacy";
   if (v === "slack") return "Slack";
   if (v === "resend") return "Resend";
+  if (v === "unipile" || v === "unipile-email" || v === "unipile email") return "Unipile Email";
   return value;
 }
 
