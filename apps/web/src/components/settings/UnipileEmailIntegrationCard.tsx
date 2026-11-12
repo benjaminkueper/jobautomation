@@ -77,13 +77,16 @@ export function UnipileEmailIntegrationCard({
     void refresh();
   }, [refresh]);
 
-  // Self-heal only when there is a reason to: a "Connect" click is pending or
-  // the user just returned from hosted auth. Refreshing an existing healthy link
-  // is harmless and fills the mailbox switcher. A manual disconnect is respected.
+  // Self-heal only when there is a reason to: a "Connect" click is pending, the
+  // user just returned from hosted auth, a healthy link should refresh its
+  // mailbox list, or this workspace has never linked a mailbox (covers connects
+  // made before redirects were fixed). A manual disconnect leaves a Disabled row
+  // and is respected.
   const returnedFromConnect = searchParams.get("unipile") === "connected";
   useEffect(() => {
     if (!status || status.configured === false) return;
-    if (!status.pendingConnect && !status.connected && !returnedFromConnect) return;
+    const neverLinked = !status.status;
+    if (!status.pendingConnect && !status.connected && !neverLinked && !returnedFromConnect) return;
     if (autoReconcileTried.current) return;
     autoReconcileTried.current = true;
     void runReconcile();
