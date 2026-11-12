@@ -23,7 +23,7 @@ export function ApplyStickyBar({ job }: ApplyStickyBarProps) {
       <div className="mx-auto flex w-full max-w-lg md:mx-0 md:max-w-none">
         <Link
           href={`/jobs/${jobId}/apply`}
-          className="flex min-h-[52px] w-full flex-1 items-center justify-center rounded-xl bg-[var(--accent-hi)] px-4 text-sm font-semibold text-white hover:brightness-110 md:min-h-[44px]"
+          className="flex min-h-[52px] w-full flex-1 items-center justify-center rounded-xl bg-[#013B2A] px-4 text-sm font-semibold text-white hover:bg-[#024F38] md:min-h-[44px]"
         >
           {t("applyAssistant.applyCta")}
         </Link>

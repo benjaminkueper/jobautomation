@@ -288,17 +288,10 @@ export function JobDetailPageClient({ id }: JobDetailPageClientProps) {
           variant="outline"
         />
       ) : null}
-      <Link
-        href={`/jobs/${id}/apply`}
-        className={cn(
-          "inline-flex w-full",
-          showStickyBar ? "col-span-2 sm:col-span-1" : undefined
-        )}
-      >
+      <Link href={`/jobs/${id}/apply`} className="inline-flex w-full">
         <Button
           type="button"
-          variant="default"
-          className="h-11 min-h-[44px] w-full bg-[var(--accent)] px-3 text-[13px] font-semibold text-white hover:bg-[var(--accent-lo)] sm:text-sm"
+          className="h-11 min-h-[44px] w-full border-0 bg-[#013B2A] px-3 text-[13px] font-semibold text-white shadow-sm hover:bg-[#024F38] sm:text-sm"
         >
           {t("applyAssistant.applyCta")}
         </Button>
