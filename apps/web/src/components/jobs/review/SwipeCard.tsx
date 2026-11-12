@@ -302,12 +302,18 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
   const isUrgent = daysUntilDeadline != null && daysUntilDeadline <= 7 && daysUntilDeadline >= 0;
 
   if (!isTop) {
-    const scale = 1 - stackIndex * 0.04;
-    const translateY = stackIndex * 10;
+    const scale = 1 - stackIndex * 0.035;
+    const translateY = stackIndex * 8;
     return (
       <div
-        className="absolute inset-x-0 top-0 h-full rounded-2xl bg-[var(--surface-1)] border border-[var(--border-default)] shadow-sm"
-        style={{ transform: `scale(${scale}) translateY(${translateY}px)`, transformOrigin: "top center", zIndex: 10 - stackIndex }}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] shadow-sm"
+        style={{
+          transform: `scale(${scale}) translateY(${translateY}px)`,
+          transformOrigin: "bottom center",
+          zIndex: 10 - stackIndex,
+          opacity: 0.55 - stackIndex * 0.12,
+        }}
       />
     );
   }
@@ -315,13 +321,13 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
   return (
     <>
       <motion.div
-        className="absolute inset-x-0 top-0 z-20 cursor-grab active:cursor-grabbing touch-none select-none"
+        className="absolute inset-0 z-20 cursor-grab touch-none select-none active:cursor-grabbing"
         style={{ x, y, rotate }}
         drag
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={0.15}
         onDragEnd={handleDragEnd}
-        whileTap={{ scale: 1.02 }}
+        whileTap={{ scale: 1.01 }}
       >
         {/* Swipe overlays */}
         <SwipeIndicator action="reject" opacity={rejectOpacity} />
@@ -329,18 +335,18 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
         <SwipeIndicator action="apply"  opacity={applyOpacity} />
         <SwipeIndicator action="later"  opacity={laterOpacity} />
 
-        <div className="overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] shadow-xl">
+        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--surface-1)] shadow-xl">
           {/* Header */}
-          <div className="px-4 pt-4 pb-3">
+          <div className="shrink-0 px-4 pb-3 pt-4">
             <div className="flex items-start gap-3">
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-bold text-[var(--text-1)] leading-snug line-clamp-2">{job.position}</h2>
+                <h2 className="line-clamp-2 text-lg font-bold leading-snug text-[var(--text-1)]">{job.position}</h2>
                 <p className="mt-0.5 text-sm font-medium text-[var(--text-2)]">{job.company}</p>
               </div>
               {ai?.score != null && <ScoreRing score={ai.score} />}
               {aiLoading && (
-                <div className="h-14 w-14 shrink-0 rounded-full border-2 border-[var(--border-default)] flex items-center justify-center">
-                  <span className="text-[10px] text-[var(--text-3)] animate-pulse">AI…</span>
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-[var(--border-default)]">
+                  <span className="animate-pulse text-[10px] text-[var(--text-3)]">AI…</span>
                 </div>
               )}
             </div>
@@ -377,17 +383,17 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
 
           <div className="border-t border-[var(--border-default)]" />
 
-          {/* AI insights — compact preview */}
-          <div className="space-y-2 overflow-hidden px-4 py-3 sm:px-4" style={{ maxHeight: "min(30vh, 16rem)" }}>
+          {/* AI insights — fills remaining card height */}
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
             {ai ? (
               <>
                 {ai.reasons.length > 0 && (
                   <div>
                     <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Why it fits</p>
                     <ul className="space-y-1">
-                      {ai.reasons.slice(0, 3).map((r, i) => (
+                      {ai.reasons.slice(0, 4).map((r, i) => (
                         <li key={i} className="flex gap-2 text-sm text-[var(--text-2)]">
-                          <span className="mt-0.5 text-green-500 shrink-0">✓</span>
+                          <span className="mt-0.5 shrink-0 text-green-500">✓</span>
                           {r}
                         </li>
                       ))}
@@ -398,7 +404,7 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
                   <div>
                     <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Red flags</p>
                     <ul className="space-y-1">
-                      {ai.redFlags.slice(0, 2).map((f, i) => (
+                      {ai.redFlags.slice(0, 3).map((f, i) => (
                         <li key={i} className="flex gap-2 text-sm text-amber-700 dark:text-amber-400">
                           <span className="shrink-0">⚠</span>
                           {f}
@@ -407,9 +413,17 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
                     </ul>
                   </div>
                 )}
+                {!ai.reasons.length && !ai.redFlags.length && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Job summary</p>
+                    <p className="text-sm leading-relaxed text-[var(--text-2)]">
+                      {job.description || job.aiSummary || "No description available."}
+                    </p>
+                  </div>
+                )}
               </>
             ) : aiLoading ? (
-              <div className="space-y-2 animate-pulse">
+              <div className="animate-pulse space-y-2">
                 <div className="h-3 w-2/3 rounded bg-[var(--surface-2)]" />
                 <div className="h-3 w-1/2 rounded bg-[var(--surface-2)]" />
                 <div className="h-3 w-3/4 rounded bg-[var(--surface-2)]" />
@@ -417,17 +431,19 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
             ) : (
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Job summary</p>
-                <p className="text-sm text-[var(--text-2)] line-clamp-4">{job.description || job.aiSummary || "No description available."}</p>
+                <p className="text-sm leading-relaxed text-[var(--text-2)]">
+                  {job.description || job.aiSummary || "No description available."}
+                </p>
               </div>
             )}
           </div>
 
           {/* Footer: see more + swipe hint */}
-          <div className="border-t border-[var(--border-default)] bg-[var(--surface-2)] px-4 py-2.5">
+          <div className="shrink-0 border-t border-[var(--border-default)] bg-[var(--surface-2)] px-4 py-2.5">
             <button
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => { e.stopPropagation(); setShowDetails(true); }}
-              className="block text-left text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400"
+              className="block text-left text-xs font-semibold text-[var(--accent)] hover:underline"
             >
               See full details ↗
             </button>

@@ -216,39 +216,56 @@ export function SwipeReviewSession({ initialJobs, total }: Props) {
     return <ReviewSummary stats={stats} onRestart={queue.length > currentIndex ? () => setDone(false) : undefined} />;
   }
 
-  const cardHeight = "calc(100dvh - 360px)";
-
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
       <ProgressBar current={currentIndex} total={Math.max(queue.length, total)} />
 
-      {/* Card stack */}
-      <div
-        className="relative w-full"
-        style={{ height: cardHeight, minHeight: "360px", maxHeight: "620px" }}
-      >
-        <AnimatePresence>
-          {nextJob && (
-            <SwipeCard key={nextJob.id} job={nextJob} prefetchedAi={aiCache[nextJob.id] ?? null} onAction={handleAction} isTop={false} stackIndex={1} />
-          )}
+      {/* Card stack — fills available space so the deck and buttons stay connected */}
+      <div className="relative min-h-[280px] w-full flex-1" style={{ maxHeight: "min(560px, calc(100dvh - 320px))" }}>
+        <AnimatePresence mode="popLayout">
           {remainingJobs[2] && (
-            <SwipeCard key={remainingJobs[2].id} job={remainingJobs[2]} prefetchedAi={aiCache[remainingJobs[2].id] ?? null} onAction={handleAction} isTop={false} stackIndex={2} />
+            <SwipeCard
+              key={`stack-${remainingJobs[2].id}`}
+              job={remainingJobs[2]}
+              prefetchedAi={aiCache[remainingJobs[2].id] ?? null}
+              onAction={handleAction}
+              isTop={false}
+              stackIndex={2}
+            />
           )}
-          <SwipeCard key={currentJob.id} job={currentJob} prefetchedAi={aiCache[currentJob.id] ?? null} onAction={handleAction} isTop stackIndex={0} />
+          {nextJob && (
+            <SwipeCard
+              key={`stack-${nextJob.id}`}
+              job={nextJob}
+              prefetchedAi={aiCache[nextJob.id] ?? null}
+              onAction={handleAction}
+              isTop={false}
+              stackIndex={1}
+            />
+          )}
+          <SwipeCard
+            key={currentJob.id}
+            job={currentJob}
+            prefetchedAi={aiCache[currentJob.id] ?? null}
+            onAction={handleAction}
+            isTop
+            stackIndex={0}
+          />
         </AnimatePresence>
       </div>
 
       {/* Action buttons */}
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-4">
+      <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
         {(["reject", "later", "save", "apply"] as ReviewAction[]).map((action) => {
           const cfg = ACTION_LABELS[action];
           const isActive = activeButton === action;
           return (
             <button
               key={action}
+              type="button"
               onClick={() => void handleAction(action)}
               className={cn(
-                "flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-3 text-xs font-semibold transition-all duration-150 touch-manipulation",
+                "flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-xs font-semibold transition-all duration-150 touch-manipulation",
                 isActive ? cfg.active : cfg.inactive,
               )}
             >

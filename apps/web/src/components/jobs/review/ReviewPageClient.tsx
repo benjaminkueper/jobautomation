@@ -80,32 +80,33 @@ export function ReviewPageClient() {
   useEffect(() => { void load(); }, [load]);
 
   return (
-    <div className="mx-auto flex h-full max-w-md flex-col gap-3 px-4 py-3 sm:py-6">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-3 px-1 py-2 sm:px-2 sm:py-4" style={{ minHeight: "calc(100dvh - 9rem)" }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex shrink-0 items-center justify-between gap-3">
         <div>
           <button
+            type="button"
             onClick={() => router.push("/today")}
-            className="mb-1 text-xs text-[var(--text-3)] hover:text-[var(--text-2)] flex items-center gap-1"
+            className="mb-1 flex items-center gap-1 text-xs text-[var(--text-3)] hover:text-[var(--text-2)]"
           >
             ← Dashboard
           </button>
           <h1 className="text-xl font-bold text-[var(--text-1)]">Quick Review</h1>
         </div>
         {total > 0 && (
-          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+          <span className="rounded-full bg-[var(--accent-bg)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
             {total} to review
           </span>
         )}
       </div>
 
       {/* Swipe direction legend (desktop hint) */}
-      <div className="hidden sm:grid grid-cols-4 gap-2 text-center">
+      <div className="hidden shrink-0 grid-cols-4 gap-2 text-center sm:grid">
         {[
           { dir: "← Swipe", label: "Reject", color: "text-red-500" },
           { dir: "↓ Swipe", label: "Later",  color: "text-amber-500" },
           { dir: "→ Swipe", label: "Save",   color: "text-green-500" },
-          { dir: "↑ Swipe", label: "Apply",  color: "text-blue-600" },
+          { dir: "↑ Swipe", label: "Apply",  color: "text-[var(--accent)]" },
         ].map(({ dir, label, color }) => (
           <div key={label} className="rounded-lg bg-[var(--surface-2)] px-2 py-1.5">
             <p className="text-[10px] text-[var(--text-3)]">{dir}</p>
@@ -115,17 +116,17 @@ export function ReviewPageClient() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-h-0">
+      <div className="flex min-h-0 flex-1 flex-col">
         {loading && (
           <div className="flex h-64 flex-col items-center justify-center gap-3">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-blue-500" />
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-[var(--accent)]" />
             <p className="text-sm text-[var(--text-3)]">Loading your jobs…</p>
           </div>
         )}
         {error && (
           <div className="flex flex-col items-center gap-4 py-12 text-center">
             <p className="text-sm text-red-600">{error}</p>
-            <button onClick={() => void load()} className="text-xs text-blue-600 underline">Retry</button>
+            <button type="button" onClick={() => void load()} className="text-xs text-[var(--accent)] underline">Retry</button>
           </div>
         )}
         {!loading && !error && jobs !== null && (

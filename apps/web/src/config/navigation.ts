@@ -69,7 +69,6 @@ export const SUPER_ADMIN_NAV_ITEMS: readonly AppNavItem[] = [
   { href: "/documents", labelKey: "nav.documents", icon: DocumentsIcon },
   { href: "/contacts", labelKey: "nav.contacts", icon: ContactsIcon },
   { href: "/interviews", labelKey: "nav.interviews", icon: InterviewsIcon },
-  { href: "/insights", labelKey: "nav.insights", icon: ReportsIcon },
   { href: "/automation", labelKey: "nav.automation", icon: AutomationIcon },
   { href: "/reports", labelKey: "nav.reports", icon: ReportsIcon },
   { id: "users", href: "/users", labelKey: "nav.users", icon: UserIcon },
