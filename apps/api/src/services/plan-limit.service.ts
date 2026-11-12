@@ -1,6 +1,7 @@
 import type { PlanLimitName } from "@jobflow/shared/types/billing";
 import { createAutomationLog } from "./automation-log.service";
 import { checkPlanLimit } from "@jobflow/database/services/plan-limits.service";
+import { isSuperAdminTenant } from "@jobflow/database/services/super-admin-tenant.service";
 import { ApiError } from "../utils/errors";
 
 const LIMIT_MESSAGE = "Plan limit reached. Upgrade your plan to continue.";
@@ -33,6 +34,9 @@ export async function assertCanRunAutomation(tenantId: string) {
 }
 
 export async function assertCanUseAiCredits(tenantId: string, estimatedCredits: number) {
+  // Super-admin workspaces are not limited by the plan so the operator can verify
+  // every AI feature exactly as a client would use it.
+  if (await isSuperAdminTenant(tenantId)) return;
   await assertLimit(tenantId, "maxAiCredits", Math.max(0, estimatedCredits));
 }
 

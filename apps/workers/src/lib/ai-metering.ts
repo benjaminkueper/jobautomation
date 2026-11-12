@@ -1,5 +1,6 @@
 import { estimateAiUsage } from "@jobflow/integrations/ai/ai.service";
 import { checkPlanLimit } from "@jobflow/database/services/plan-limits.service";
+import { isSuperAdminTenant } from "@jobflow/database/services/super-admin-tenant.service";
 import { logAiUsage } from "@jobflow/database/services/ai-usage.service";
 import type { AiProvider } from "@jobflow/shared/types/ai";
 import { logger } from "../utils/logger";
@@ -28,6 +29,8 @@ export type AiMeteringContext = {
  */
 export async function assertWorkerAiCredits(ctx: AiMeteringContext, textLength?: number): Promise<void> {
   const { estimatedCredits } = estimateAiUsage({ runType: ctx.runType, textLength });
+  // Super-admin workspaces bypass plan allowances, matching the API.
+  if (await isSuperAdminTenant(ctx.tenantId)) return;
   const result = await checkPlanLimit({
     tenantId: ctx.tenantId,
     limitName: "maxAiCredits",

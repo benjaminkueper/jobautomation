@@ -1,27 +1,11 @@
-import { isPlatformOwnerEmail, OWNER_EMAIL } from "@jobflow/shared/constants/product-roles";
+import { isSuperAdminEmail } from "@jobflow/shared/utils/super-admin";
 import type { TenantRole } from "@jobflow/shared/types/user";
 import { UserModel } from "@jobflow/database/models";
 
 const SUPER_ADMIN_ROLE: TenantRole = "Owner";
 
-function parseSuperAdminEmails(): Set<string> {
-  const set = new Set<string>([OWNER_EMAIL]);
-  const raw = process.env.SUPER_ADMIN_EMAILS?.trim();
-  if (!raw) return set;
-  for (const email of raw.split(",")) {
-    const normalized = email.trim().toLowerCase();
-    if (normalized) set.add(normalized);
-  }
-  return set;
-}
-
-const SUPER_ADMIN_EMAILS = parseSuperAdminEmails();
-
-export function isSuperAdminEmail(email: string | undefined | null): boolean {
-  if (!email) return false;
-  if (isPlatformOwnerEmail(email)) return true;
-  return SUPER_ADMIN_EMAILS.has(email.trim().toLowerCase());
-}
+/** Re-exported so existing API imports keep working. */
+export { isSuperAdminEmail };
 
 export function resolveSuperAdminRole(email: string | undefined | null, currentRole: string): TenantRole {
   return isSuperAdminEmail(email) ? SUPER_ADMIN_ROLE : (currentRole as TenantRole);
