@@ -14,23 +14,32 @@ interface JobDetailHeaderProps {
 export function JobDetailHeader({ job, renderActions }: JobDetailHeaderProps) {
   const { t } = useTranslation();
   return (
-    <div className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] p-5">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <p className="text-sm text-[var(--text-3)]">{job.company}</p>
-          <h1 className="text-2xl font-semibold text-[var(--text-1)]">{job.position}</h1>
-          <div className="mt-2 flex items-center gap-2">
+    <div className="space-y-4 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-2)] p-4 sm:p-5">
+      <div className="flex flex-col gap-4">
+        <div className="min-w-0">
+          <p className="truncate text-sm text-[var(--text-3)]">{job.company}</p>
+          <h1 className="break-words text-xl font-semibold leading-snug text-[var(--text-1)] sm:text-2xl">
+            {job.position}
+          </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <JobStatusBadge status={job.status} />
             <JobPriorityBadge priority={job.priority} />
           </div>
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] md:flex-wrap md:overflow-visible [&::-webkit-scrollbar]:hidden">
+
+        <div className="grid w-full grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {renderActions ?? (
             <>
-              <Button variant="outline">{t("jobs.editJob")}</Button>
-              <Button variant="secondary">{t("jobs.generateDraft")}</Button>
-              <Button>{t("jobs.markApplied")}</Button>
-              <Button variant="outline">{t("jobs.archive")}</Button>
+              <Button variant="outline" className="w-full">
+                {t("jobs.editJob")}
+              </Button>
+              <Button variant="secondary" className="w-full">
+                {t("jobs.generateDraft")}
+              </Button>
+              <Button className="w-full">{t("jobs.markApplied")}</Button>
+              <Button variant="outline" className="w-full">
+                {t("jobs.archive")}
+              </Button>
             </>
           )}
         </div>

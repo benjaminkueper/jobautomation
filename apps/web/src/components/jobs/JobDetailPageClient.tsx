@@ -246,14 +246,17 @@ export function JobDetailPageClient({ id }: JobDetailPageClientProps) {
 
   const actionBar = (
     <>
-      {isUsingFallback && <ApiStatusIndicator usingMock />}
+      {isUsingFallback ? (
+        <div className="col-span-2 sm:col-span-3 lg:col-span-4">
+          <ApiStatusIndicator usingMock />
+        </div>
+      ) : null}
       <ActionButton
         label={t("jobDetail.checkDuplicate")}
         loading={actionLoading === "duplicate"}
         disabled={actionDisabled}
         onClick={handleCheckDuplicate}
         variant="outline"
-        className="hidden md:inline-flex"
       />
       <ActionButton
         label={t("jobs.generateResearch")}
@@ -274,7 +277,7 @@ export function JobDetailPageClient({ id }: JobDetailPageClientProps) {
         loading={actionLoading === "ai"}
         disabled={actionDisabled}
         onClick={handleRunAiProcessing}
-        className="hidden md:inline-flex"
+        variant="default"
       />
       {isGoogleDriveEnabled() ? (
         <ActionButton
@@ -283,11 +286,20 @@ export function JobDetailPageClient({ id }: JobDetailPageClientProps) {
           disabled={actionDisabled}
           onClick={handleProvisionFolders}
           variant="outline"
-          className="hidden lg:inline-flex"
         />
       ) : null}
-      <Link href={`/jobs/${id}/apply`} className={showStickyBar ? "hidden md:inline-flex" : "inline-flex"}>
-        <Button type="button" variant="default" className="min-h-[44px] bg-emerald-600 text-white hover:bg-emerald-700">
+      <Link
+        href={`/jobs/${id}/apply`}
+        className={cn(
+          "inline-flex w-full",
+          showStickyBar ? "col-span-2 sm:col-span-1" : undefined
+        )}
+      >
+        <Button
+          type="button"
+          variant="default"
+          className="h-11 min-h-[44px] w-full bg-[var(--accent)] px-3 text-[13px] font-semibold text-white hover:bg-[var(--accent-lo)] sm:text-sm"
+        >
           {t("applyAssistant.applyCta")}
         </Button>
       </Link>
@@ -300,7 +312,6 @@ export function JobDetailPageClient({ id }: JobDetailPageClientProps) {
               disabled={actionDisabled}
               onClick={handleAutoApply}
               variant="default"
-              className="hidden md:inline-flex bg-blue-600 text-white hover:bg-blue-700"
             />
           ) : null}
           <ActionButton
@@ -318,7 +329,7 @@ export function JobDetailPageClient({ id }: JobDetailPageClientProps) {
         disabled={actionDisabled}
         onClick={handleArchive}
         variant="outline"
-        className="text-rose-600 hover:text-rose-700"
+        className="border-rose-300 text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:border-rose-800 dark:hover:bg-rose-950/30"
       />
     </>
   );
@@ -370,17 +381,19 @@ function ActionButton({ label, loading, disabled, onClick, variant = "default", 
   return (
     <Button
       variant={variant}
-      size="lg"
       disabled={disabled}
       onClick={() => {
         void Promise.resolve(onClick()).catch(() => void 0);
       }}
-      className={cn("shrink-0 md:h-10 md:min-h-[38px] md:px-4", className)}
+      className={cn(
+        "h-11 min-h-[44px] w-full px-3 text-[13px] font-semibold sm:text-sm",
+        className
+      )}
       suppressHydrationWarning
     >
-      <span className="contents" suppressHydrationWarning>
-        {loading && <LoaderIcon size={14} className="mr-2" />}
-        {label}
+      <span className="inline-flex max-w-full items-center justify-center gap-1.5 truncate" suppressHydrationWarning>
+        {loading ? <LoaderIcon size={14} className="shrink-0" /> : null}
+        <span className="truncate">{label}</span>
       </span>
     </Button>
   );
