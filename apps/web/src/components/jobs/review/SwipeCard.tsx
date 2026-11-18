@@ -27,6 +27,16 @@ const EFFORT_COLORS = {
   High: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
 };
 
+/** Drop LinkedIn tracking / query-string junk from card summaries. */
+function cleanSummaryText(raw?: string | null): string {
+  if (!raw) return "";
+  const text = raw.replace(/\s+/g, " ").trim();
+  if (!text) return "";
+  if (/^[a-z0-9_.-]+=/i.test(text) || text.includes("l=eml-") || text.includes("trk=")) return "";
+  if (/^https?:\/\//i.test(text) && text.length > 120) return "";
+  return text;
+}
+
 // ── SwipeIndicator overlay ────────────────────────────────────────────────────
 
 function SwipeIndicator({ action, opacity }: { action: ReviewAction; opacity: ReturnType<typeof useMotionValue<number>> }) {
@@ -152,13 +162,13 @@ function DetailsSheet({ job, ai, onClose, onTailorCv }: { job: ReviewableJob; ai
           )}
 
           {/* Job description */}
-          {(job.description || job.aiSummary) && (
+          {cleanSummaryText(job.description) || cleanSummaryText(job.aiSummary) ? (
             <Section title="Job description">
-              <p className="text-sm text-[var(--text-2)] whitespace-pre-wrap leading-relaxed">
-                {job.description || job.aiSummary}
+              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--text-2)]">
+                {cleanSummaryText(job.description) || cleanSummaryText(job.aiSummary)}
               </p>
             </Section>
-          )}
+          ) : null}
 
           {/* Contact / apply */}
           {(job.contactEmail || job.jobUrl) && (
@@ -416,8 +426,10 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
                 {!ai.reasons.length && !ai.redFlags.length && (
                   <div className="space-y-1">
                     <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Job summary</p>
-                    <p className="text-sm leading-relaxed text-[var(--text-2)]">
-                      {job.description || job.aiSummary || "No description available."}
+                    <p className="break-words text-sm leading-relaxed text-[var(--text-2)]">
+                      {cleanSummaryText(job.aiSummary) ||
+                        cleanSummaryText(job.description) ||
+                        "No description available."}
                     </p>
                   </div>
                 )}
@@ -431,8 +443,10 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
             ) : (
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text-3)]">Job summary</p>
-                <p className="text-sm leading-relaxed text-[var(--text-2)]">
-                  {job.description || job.aiSummary || "No description available."}
+                <p className="break-words text-sm leading-relaxed text-[var(--text-2)]">
+                  {cleanSummaryText(job.aiSummary) ||
+                    cleanSummaryText(job.description) ||
+                    "No description available."}
                 </p>
               </div>
             )}
@@ -443,7 +457,7 @@ export function SwipeCard({ job, onAction, isTop, stackIndex, prefetchedAi }: Pr
             <button
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => { e.stopPropagation(); setShowDetails(true); }}
-              className="block text-left text-xs font-semibold text-[var(--accent)] hover:underline"
+              className="block text-left text-xs font-semibold text-[var(--accent-hi)] hover:underline"
             >
               See full details ↗
             </button>
